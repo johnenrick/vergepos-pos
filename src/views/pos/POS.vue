@@ -17,7 +17,7 @@
   </div>
 </template>
 <script>
-import navConfig from '@/components/common/navigation/config.js'
+import navConfig from '@/vue-web-core/components/common/navigation/config.js'
 import SyncData from './sync-data.js'
 
 import OrderList from './OrderList.vue'

@@ -35,7 +35,7 @@
           <!-- <input
             :placeholder="orderList[index]['old_quantity'] * 1"
             @click="orderList[index]['old_quantity'] = orderList[index]['quantity']; orderList[index]['quantity'] = ''"
-            @blur="orderList[index]['quantity'] == '' ? orderList[index]['quantitsy'] = orderList[index]['old_quantity'] * 1 : null; calculateTotal()"
+            @blur="orderList[index]['quantity'] === '' ? orderList[index]['quantitsy'] = orderList[index]['old_quantity'] * 1 : null; calculateTotal()"
             v-model="orderList[index]['quantity']"
             type="number"
             class="form-control text-right"
@@ -127,7 +127,6 @@ import Product from '@/database/controller/product.js'
 import DiscountManagent from './order_list_components/DiscountManagement.vue'
 import OrderedItemDetail from './order_list_components/OrderedItemDetail.vue'
 import Checkout from './order_list_components/Checkout.vue'
-
 export default {
   components: {
     DiscountManagent,

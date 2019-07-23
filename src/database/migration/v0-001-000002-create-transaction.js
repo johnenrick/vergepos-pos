@@ -37,7 +37,8 @@ export default class CreateTransaction extends Migration {
         }
       }
     }
-    return await this.doMigrate().catch((error) => {
+    return this.doMigrate().catch((error) => {
+      console.log('error in migration', error)
     })
   }
 }

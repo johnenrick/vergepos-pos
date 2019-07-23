@@ -1,5 +1,5 @@
 import SchemaBuilder from './schema-builder'
-import QuickHelper from '@/helper/mixin/quick'
+import QuickHelper from '@/vue-web-core/helper/mixin/quick'
 export default class DatabaseMigration {
   tableList = null
   isBaseMigration = false
@@ -35,7 +35,7 @@ export default class DatabaseMigration {
     return new Promise((resolve, reject) => {
       let request = window.indexedDB.open('my-db', this.version)
       request.onerror = (event) => {
-        if (event.target.error.name == 'VersionError') {
+        if (event.target.error.name === 'VersionError') {
         } else {
           console.error('Database Error, failed to open connection in db migration - upgradeDB: ', event)
         }
@@ -43,7 +43,7 @@ export default class DatabaseMigration {
       }
       let upgraded = false
       request.onsuccess = (event) => {
-        if (upgraded == false) {
+        if (upgraded === false) {
           reject(event)
         }
       }
@@ -91,7 +91,7 @@ export default class DatabaseMigration {
         this.upgradeDB().then((db, upgradeDB) => {
           let blueprint = this.blueprint
           for (let schema in blueprint) {
-            if (blueprint[schema]['operation'] == 'create') {
+            if (blueprint[schema]['operation'] === 'create') {
               let schemaBuilder = new SchemaBuilder('create', schema, blueprint[schema]['columns'])
               schemaBuilder.create(db)
             }

@@ -1,9 +1,7 @@
 export default class QueryBuilder {
   tableName
-  constructor () {
-  }
   async add (data, childData) {
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDB().then((db) => {
         let result = {}
         let tx = db.transaction(this.tableName, 'readwrite')
@@ -29,7 +27,7 @@ export default class QueryBuilder {
       await this.getByID(condition).then((txResult) => {
         result = txResult
       }).catch((event) => { console.error('Failed to get by ID', this.tableName) })
-    } else if (typeof condition === 'undefined' || condition == null) { // get all
+    } else if (typeof condition === 'undefined' || condition === null) { // get all
       await this.getAll().then((txResult) => {
         result = txResult
       }).catch((event) => { console.error('Failed to get all', this.tableName) })
@@ -116,7 +114,7 @@ export default class QueryBuilder {
 
   }
   async update (index, data) {
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDB().then((db) => {
         let result = {}
         let tx = db.transaction(this.tableName, 'readwrite')
@@ -133,7 +131,7 @@ export default class QueryBuilder {
     })
   }
   async delete (id) {
-    return await new Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
       this.openDB().then((db) => {
         let result = {}
         let tx = db.transaction(this.tableName, 'readwrite')

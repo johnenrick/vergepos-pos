@@ -55,7 +55,7 @@
               <input
                 :placeholder="itemDetail['old_quantity']"
                 @click="itemDetail['old_quantity'] = itemDetail['quantity']; itemDetail['quantity'] = ''"
-                @blur="itemDetail['quantity'] == '' ? itemDetail['quantity'] = itemDetail['old_quantity'] * 1 : null"
+                @blur="itemDetail['quantity'] === '' ? itemDetail['quantity'] = itemDetail['old_quantity'] * 1 : null"
                 v-model="itemDetail['quantity']"
                 type="number"
                 class="form-control text-right"

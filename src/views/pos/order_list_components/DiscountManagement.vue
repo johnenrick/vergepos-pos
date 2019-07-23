@@ -43,7 +43,7 @@
             <div class="row">
               <div class="col-sm-12 text-center">
                 <label
-                  v-show="discountList[selectedDiscountIndex]['type'] == 2 || discountList[selectedDiscountIndex]['type'] == 4"
+                  v-show="discountList[selectedDiscountIndex]['type'] === 2 || discountList[selectedDiscountIndex]['type'] === 4"
                   class="float-right"
                 ><input
                   v-model="applyDiscountToAll"
@@ -276,7 +276,7 @@ export default {
 
     selectedDiscountIndex (data) {
       console.log(data)
-      if (data == 'null' || data == null) {
+      if (data === 'null' || data === null) {
         this.reset()
         return false
       }

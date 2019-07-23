@@ -32,7 +32,8 @@ export default class CreateCategory extends Migration {
         }
       }
     }
-    return await this.doMigrate().catch((error) => {
+    return this.doMigrate().catch((error) => {
+      console.error('Error in Create Categor Migration', error)
     })
   }
 }

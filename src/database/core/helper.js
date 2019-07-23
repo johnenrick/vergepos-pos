@@ -13,8 +13,8 @@ export default {
     }
   },
   generateDatabaseVersion () {
-    let fullVersion = localStorage.getItem('version')
-    let versionSegment = fullVersion.split('.')
+    // let fullVersion = localStorage.getItem('version')
+    // let versionSegment = fullVersion.split('.')
     databaseVersion()
   }
 }

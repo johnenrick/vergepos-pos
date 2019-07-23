@@ -5,8 +5,7 @@
 </template>
 
 <script>
-import BasicModule from '@/components/basic-module/BasicModule'
-import store from '@/store.js'
+import BasicModule from '@/vue-web-core/components/basic-module/BasicModule'
 let ModuleDefault = {
   name: 'discount',
   components: {

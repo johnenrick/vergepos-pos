@@ -1,7 +1,10 @@
-import APIRequest from '@/system/http-request-handling/apiRequest'
+import APIRequest from '@/vue-web-core/system/http-request-handling/apiRequest'
 import Category from '@/database/controller/category.js'
 import Product from '@/database/controller/product.js'
 import Discount from '@/database/controller/discount.js'
+
+import DBMigrate from '@/database/migrate.js'
+
 export default class SyncData {
   isSyncingDone = 0 // 3 is done
   resolve = null
@@ -11,18 +14,20 @@ export default class SyncData {
   }
   getDatabase () {
     localStorage.setItem('syncing_pos', true)
+
     return new Promise((resolve, reject) => {
-      this.resolve = resolve
-      this.getCategories()
-      this.getProducts()
-      this.getDiscounts()
+      let migration = new DBMigrate()
+      migration.migrate(() => {
+        this.resolve = resolve
+        this.getCategories()
+        this.getProducts()
+        this.getDiscounts()
+      })
     })
   }
   syncDone () {
     ++this.isSyncingDone
-    console.log(this.isSyncingDone)
-    if (this.isSyncingDone == 3) {
-      console.log('hey')
+    if (this.isSyncingDone === 3) {
       this.resolve('done')
     }
   }

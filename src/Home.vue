@@ -1,4 +1,5 @@
-<template>
+
+11<template>
   <div class="home">
     {{token}}
     <div class="row">
@@ -89,6 +90,7 @@ export default {
       })
     },
     redirect(){
+      alert('hey')
       if(this.$auth.user().id){
         this.$router.push({
           path: '/pos'

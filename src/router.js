@@ -1,23 +1,94 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './views/Home.vue'
+import store from '@/vue-web-core/system/store'
 
 Vue.use(Router)
-
-export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: Home
+let routes = [
+  {
+    path: '/',
+    name: 'home',
+    component: () => import('./views/Home.vue')
+    // component: () => import('./views/routine_timer/RoutineTimer.vue')
+  },
+  {
+    path: '/company_registration',
+    name: 'CompanyRegistration',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/registration/CompanyRegistration.vue')
+      }
     },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
+    meta: {
+      // auth: false
     }
-  ]
+  },
+  {
+    path: '/pos',
+    name: 'POS',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/pos/POS.vue')
+      }
+    },
+    meta: {
+      auth: true
+    }
+  },
+  {
+    path: '/category',
+    name: 'Category',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/product_management/CategoryManagement.vue')
+      }
+    },
+    meta: {
+      auth: true
+    }
+  },
+  {
+    path: '/product',
+    name: 'Product',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/product_management/ProductManagement.vue')
+      }
+    },
+    meta: {
+      auth: true
+    }
+  },
+  {
+    path: '/discount',
+    name: 'Discount',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/product_management/DiscountManagement.vue')
+      }
+    },
+    meta: {
+      auth: true
+    }
+  }
+]
+let router = new Router({
+  routes: routes
 })
+router.beforeResolve((to, from, next) => {
+  // If this isn't an initial page load.
+  if (to.name) {
+    store.commit('setModuleLoading', true)
+  }
+  next()
+})
+router.afterEach((to, from) => {
+  // Complete the animation of the route progress bar.
+  store.commit('setModuleLoading', false)
+})
+
+export default router
