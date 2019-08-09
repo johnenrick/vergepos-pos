@@ -1,5 +1,6 @@
 <template>
-  <div class="">
+  <div class="container pt-3">
+
     <form-component
       ref="form"
       :config="formConfig"
@@ -21,62 +22,118 @@
         Join the Future
       </button>
     </div>
+    <modal ref="modal" size="lg">
+      <template v-slot:body>
+        <div class="p-4 text-center">
+          <h1 class="display-5 font-weight-bold">
+            Congratulation, {{userName}}!
+          </h1>
+          <p class="lead mt-4">Your account has been successfully created! You can now start exploring VergePOS and transform your business!</p>
+          <button @click="logIn" class="btn btn-success btn-lg">Proceed To My Account <fa :icon="'arrow-right'"  /></button>
+        </div>
+      </template>
+    </modal>
   </div>
 </template>
 <script>
 import FormComponent from '@/vue-web-core/components/form/Form'
 import ResponseUtil from '@/vue-web-core/helper/api/response-util.js'
-
+import APIUtil from '@/vue-web-core/helper/api/util.js'
+import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
 export default {
   name: 'CompanyRegistration',
   components: {
-    FormComponent
+    FormComponent,
+    Modal
+  },
+  mounted(){
+
   },
   data () {
     return {
       passwordMatched: false,
       isLoading: false,
       validationMessage: {},
+      userName: 'John',
+      credential: {},
       formConfig: {
         fields: {
-          company_name: {},
-          business_nature: {
+          your_company: {
+            label_col_span: 12,
+            label_style: 'text-center font-weight-bold text-uppercase pt-4',
+            type: 'label'
+          },
+          name: {
+            name: 'Company Name'
+          },
+          code: {
+            name: 'Short Name',
+            placeholder: 'e.g. GMA, ABSCBN, SMC'
+          },
+          'company_detail.nature': {
             name: 'Nature of Business'
           },
-          address: {},
-          contact_number: {},
-          email: {},
-
-          password: {},
+          'company_detail.address': {
+            name: 'Company Address'
+          },
+          'company_detail.contact_number': {
+            name: 'Contact Number'
+          },
+          personal_information: {
+            label_col_span: 12,
+            label_style: 'text-center font-weight-bold text-uppercase pt-4',
+            type: 'label'
+          },
+          'your_name': {
+            type: 'label',
+            col: 4
+          },
+          'user.user_basic_information.first_name': {
+            name: 'First Name',
+            field_col_style_class: 'pr-1',
+            label_col_span: 0,
+            col: 4
+          },
+          'user.user_basic_information.last_name': {
+            name: 'Your Last Name',
+            field_col_style_class: 'pl-1',
+            label_col_span: 0,
+            col: 4
+          },
+          'user.email': {
+            name: 'Your Email'
+          },
+          'user.password': {
+            name: 'Your Password',
+            type: 'password'
+          },
           password_verification: {
+            type: 'password',
             on_form_data_change: (changedField, formData) => {
-              this.passwordMatched = false
-              if ((changedField === 'password_verification' || changedField === 'password')) {
-                if (formData['password'] !== formData['password_verification']) {
-                  return {
-                    validation_message: {
-                      password_verification: {
-                        type: 'error',
-                        message: 'Password Mismatched'
-                      }
-                    }
+              if ((changedField === 'password_verification' || changedField === 'user.password') && typeof formData['user.password'] !== 'undefined') {
+                if (formData['user.password'] !== formData['password_verification'] && formData['user.password'] !== '') {
+                  this.passwordMatched = false
+                  this.validationMessage['password_verification'] = {
+                    type: 'error',
+                    message: 'Password Mismatched'
                   }
-                } if (formData['password'] !== '' && formData['password'] !== '') {
-                  this.passwordMatched = true
                   return {
-                    validation_message: {
-                      password_verification: {
-                        type: 'success',
-                        message: 'Password Matched'
-                      }
-                    }
+                  }
+                }
+                if (formData['user.password'] !== '' && formData['user.password'] !== '') {
+                  this.passwordMatched = true
+                  this.validationMessage['password_verification'] = {
+                    type: 'success',
+                    message: 'Password Matched!'
+                  }
+                  return {
                   }
                 } else {
+                  this.passwordMatched = false
+                  if(typeof this.validationMessage['password_verification'] !== 'undefined'){
+                    delete this.validationMessage['password_verification']
+                  }
                   return {
-                    validation_message: {
-                      password_verification: {
-                      }
-                    }
                   }
                 }
               }
@@ -88,28 +145,40 @@ export default {
     }
   },
   methods: {
+    congratulate(){
+      this.$refs.modal._open()
+    },
     register () {
+      if(!this.passwordMatched || this.isLoading){
+        return false
+      }
       this.validationMessage = {}
-      let formData = this.$refs.form._getFormData()
-      this.apiRequest('company/create', formData, (response) => {
-        console.log(response)
+      let param = APIUtil.textKeyToArray(this.$refs.form._getFormData())
+      this.isLoading = true
+      this.apiRequest('company/create', param, (response) => {
         if (response.data.id) {
-          this.logIn(formData['email'], formData['password'])
+          this.credential = {
+            email: param['user']['email'],
+            password: param['user']['password']
+          }
+          this.congratulate()
         }
+        this.isLoading = false
       }, (errorResponse, status) => {
         if (errorResponse.error.code === 1) {
-          console.log(errorResponse.error.message)
           let errorMessages = ResponseUtil.renderValidationError(errorResponse.error.message)
           this.validationMessage = errorMessages
         }
+        this.isLoading = false
       })
     },
-    logIn (username, password) {
+    logIn(){
       this.$auth.login({
-        params: { email: username, password: password },
+        params: this.credential,
         rememberMe: false,
         success: (response) => {
           this.isLoading = false
+          window.location = '/'
           this.$router.push('dashboard')
         },
         error: (response) => {

@@ -25,7 +25,7 @@ let routes = [
       }
     },
     meta: {
-      // auth: false
+      auth: false
     }
   },
   {
