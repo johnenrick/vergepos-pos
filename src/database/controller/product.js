@@ -1,5 +1,5 @@
-import QueryBuilder from '@/database/core/query-builder.js'
-export default class Product extends QueryBuilder {
+import Controller from '@/database/core/controller.js'
+export default class Product extends Controller {
   constructor () {
     super()
     this.tableName = 'products'

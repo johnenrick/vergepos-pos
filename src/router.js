@@ -9,6 +9,11 @@ let routes = [
     name: 'home',
     component: () => import('./views/Home.vue')
     // component: () => import('./views/routine_timer/RoutineTimer.vue')
+  }, {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: () => import('./views/dashboard/Dashboard.vue')
+    // component: () => import('./views/routine_timer/RoutineTimer.vue')
   },
   {
     path: '/company_registration',
@@ -17,6 +22,19 @@ let routes = [
       store.commit('setModuleLoading', true)
       return {
         component: import('@/views/registration/CompanyRegistration.vue')
+      }
+    },
+    meta: {
+      // auth: false
+    }
+  },
+  {
+    path: '/user_management',
+    name: 'UserManagement',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/user_management/UserManagement.vue')
       }
     },
     meta: {
@@ -73,6 +91,18 @@ let routes = [
     },
     meta: {
       auth: true
+    }
+  },
+  {
+    path: '/z_reading',
+    name: 'ZReading',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/reports/ZReading.vue')
+      }
+    },
+    meta: {
     }
   }
 ]

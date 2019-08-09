@@ -12,35 +12,42 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">
-            <fa :icon="'tag'" /> Check Out
+            <fa :icon="'shopping-cart'" /> Check Out
           </h5>
+          <a
+            href="#"
+            data-dismiss="modal"
+            class="pt-1"
+          >
+            <fa :icon="'times'" />
+          </a>
         </div>
         <div class="modal-body">
-          {{ discountedItemList }}
-          <div class="form-group row">
+          <div class="row">
             <label class="col-sm-6 col-form-label text-right font-weight-bold">Sub Total: </label>
             <div class="col-sm-4">
               <input
                 type="text"
                 readonly="readonly"
                 class="form-control-plaintext text-right"
-                :value="totalAmount | numberToMoney"
+                :value="subTotal | numberToMoney"
               >
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-6 col-form-label text-right font-weight-bold">Total Discount: </label>
+
+          <div class=" row">
+            <label class="col-sm-6 col-form-label text-right ">VAT Sales: </label>
             <div class="col-sm-4">
               <input
                 type="text"
                 readonly="readonly"
                 class="form-control-plaintext text-right"
-                :value="totalDiscount | numberToMoney"
+                :value="totalVatSales | numberToMoney"
               >
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-6 col-form-label text-right font-weight-bold">Total VAT Exempt: </label>
+          <div class="row">
+            <label class="col-sm-6 col-form-label text-right ">VAT Exempt Sales: </label>
             <div class="col-sm-4">
               <input
                 type="text"
@@ -50,15 +57,43 @@
               >
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-6 col-form-label text-right font-weight-bold">Cash Payment: </label>
+          <div class="row">
+            <label class="col-sm-6 col-form-label text-right ">VAT({{taxPercentage}}): </label>
             <div class="col-sm-4">
               <input
                 type="text"
-                class="form-control text-right"
-                @change="cashPayment = $event.target.value"
-                :value="cashPayment | numberToMoney"
+                readonly="readonly"
+                class="form-control-plaintext text-right"
+                :value="totalVatAmount | numberToMoney"
               >
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-6 col-form-label text-right">Total Discount: </label>
+            <div class="col-sm-4">
+              <input
+                type="text"
+                readonly="readonly"
+                class="form-control-plaintext text-right"
+                :value="totalDiscountAmount | numberToMoney"
+              >
+            </div>
+          </div>
+          <div class="form-group row ">
+            <label class="col-sm-6 col-form-label form-control-lg text-right font-weight-bold">Total Payable: </label>
+            <div class="col-sm-4">
+              <input
+                type="text"
+                readonly="readonly"
+                class="form-control-plaintext text-right font-weight-bold form-control-lg"
+                :value="totalAmount | numberToMoney"
+              >
+            </div>
+          </div>
+          <div class="form-group row">
+            <label class="col-sm-6 col-form-label text-right font-weight-bold">Cash Payment: </label>
+            <div class="col-sm-4">
+              <number-input :default-value="0" :current-value="cashPayment" :is-decimal="true" @change="cashPayment = $event"/>
             </div>
           </div>
           <div class="form-group row">
@@ -68,26 +103,28 @@
                 type="text"
                 readonly="readonly"
                 class="form-control-plaintext text-right"
-                :value="(cashPayment - amountDue) * 1 | numberToMoney"
+                v-bind:class="totalAmount > cashPayment ? 'text-danger' : ''"
+                :value="(cashPayment - totalAmount) * 1 | numberToMoney"
               >
             </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary"
-            data-dismiss="modal"
-          >
-            Close
-          </button>
-          <button
-            @click="checkout"
-            type="button"
-            class="btn btn-primary"
-          >
-            Check Out
-          </button>
+        <div class="p-3 text-center border-top">
+          <template v-if="!transacting">
+
+            <button
+              v-bind:disabled="totalAmount > cashPayment"
+              @click="checkout"
+              type="button"
+              class="btn btn-lg btn-success"
+            >
+              Check Out <fa :icon="'arrow-right'" />
+            </button>
+          </template>
+          <template v-else-if="transacting">
+            <span v-if="transactionStatus === null" class="font-weight-bold">Please wait...</span>
+            <span v-if="transactionStatus === true" class="font-weight-bold text-success">Transaction Succesful!</span>
+          </template>
         </div>
       </div>
     </div>
@@ -95,32 +132,71 @@
 </template>
 <script>
 // import Vue from 'vue'
+import Cart from '../cart-store'
+import NumberInput from '@/components/NumberInput'
+import Transaction from '../transact.js'
 export default {
+  components: {
+    NumberInput
+  },
   props: {
-    totalAmount: Number,
-    totalDiscount: Number,
+    subTotal: Number,
+    totalVatSales: Number,
     totalVatExempt: Number,
-    appliedDiscountID: [Number],
-    discountedItemList: Object,
-    orderList: Array
+    totalVatAmount: Number,
+    totalAmount: Number,
+    totalDiscountAmount: Number,
+    appliedDiscountID: [Number]
   },
   data () {
     return {
-      cashPayment: 0
+      cashPayment: 0,
+      taxPercentage: (Cart.state.taxPercentage * 100) + '%',
+      transaction: new Transaction(),
+      transacting: false,
+      transactionStatus: null
     }
   },
   methods: {
     checkout () {
-
+      this.transacting = true
+      this.transactionStatus = null
+      this.transaction.transact({
+        customer: 'Guest',
+        total_amount: Cart.state.totalAmount,
+        total_vat_sales: Cart.state.totalVatSales,
+        total_vat_exempt_sales: Cart.state.totalVatExemptSales,
+        total_vat_zero_rated_sales: Cart.state.totalVatZeroRatedSales,
+        total_vat_amount: Cart.state.totalVatAmount,
+        total_discount_amount: Cart.state.totalDiscountAmount,
+        sub_total_amount: Cart.state.subTotalAmount,
+        cash_tendered: this.cashPayment,
+        cash_amount_paid: Cart.state.totalAmount,
+        discount_id: Cart.state.discountId,
+      }, Cart.state.items).then((response) => {
+        Cart.commit('setLatestTransactionNUmber', response['id'])
+        this.transactionStatus = true
+        setTimeout(() => {
+          this.$emit('transaction-created', response)
+          $(this.$refs.modal).modal('hide')
+          this._reset()
+          Cart.commit('reset')
+        }, 1000)
+      }).catch(error => {
+        this.transacting = false
+        console.log('ooh', error)
+      })
     },
     _open () { // open the modal
       $(this.$refs.modal).modal('show')
+    },
+    _reset(){
+      this.transacting = false
+      this.transactionStatus = null
+      this.cashPayment = 0
     }
   },
   computed: {
-    amountDue () {
-      return this.totalAmount - this.totalDiscount - this.totalVatExempt
-    }
   }
 }
 </script>

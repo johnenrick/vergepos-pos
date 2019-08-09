@@ -36,6 +36,7 @@ export default class DatabaseMigration {
       let request = window.indexedDB.open('my-db', this.version)
       request.onerror = (event) => {
         if (event.target.error.name === 'VersionError') {
+          console.info('Nothing to migrate. The version is behind')
         } else {
           console.error('Database Error, failed to open connection in db migration - upgradeDB: ', event)
         }
@@ -98,7 +99,11 @@ export default class DatabaseMigration {
           }
           resolve(true)
         }).catch((event) => {
-          reject(event)
+          if(event.type === 'success'){
+            resolve(null)
+          }else{
+            reject(event)
+          }
         })
       }).catch((error) => {
         console.error('Failed validation in doMigrate', error)

@@ -46,19 +46,18 @@ export default class SyncData {
       }],
       with_trashed: true
     }
-    let dateRequested = new Date()
     APIRequest.request('category/retrieve', param, (response) => {
       if (response['data']) {
         let category = new Category()
         for (let x in response['data']) {
           category.getByIndex('db_id', response['data'][x]['id']).then((result) => {
             if (response['data'][x]['deleted_at'] && result) {
-              category.delete(result.id)
+              category.delete(result[0].id)
             } else if (result && response['data'][x]['deleted_at']) {
-              product.delete(result.id)
+              product.delete(result[0].id)
             } else if (result) {
-              result.description = response['data'][x]['description']
-              category.update('db_id', result)
+              result[0].description = response['data'][x]['description']
+              category.update(result[0])
             } else if (!result && !response['data'][x]['deleted_at']) {
               category.add({
                 db_id: response['data'][x]['id'],
@@ -66,12 +65,12 @@ export default class SyncData {
               })
             }
           })
+          localStorage.setItem('latest_categories_datetime', new Date(response['data'][x]['updated_at']))
         }
-        localStorage.setItem('latest_categories_datetime', dateRequested)
       }
       this.syncDone()
     }, (errorResponse, status) => {
-      console.log(errorResponse, status)
+      console.error(errorResponse, status)
     })
   }
   getDiscounts () {
@@ -93,36 +92,34 @@ export default class SyncData {
       }],
       with_trashed: true
     }
-    let dateRequested = new Date()
     APIRequest.request('discount/retrieve', param, (response) => {
       if (response['data']) {
         let discount = new Discount()
         for (let x in response['data']) {
           discount.getByIndex('db_id', response['data'][x]['id']).then((result) => {
             if (response['data'][x]['deleted_at'] && result) {
-              discount.delete(result.id)
+              discount.delete(result[0].id)
             } else if (result && response['data'][x]['deleted_at']) {
-              product.delete(result.id)
+              product.delete(result[0].id)
             } else if (result) {
               response['data'][x]['db_id'] = response['data'][x]['id']
               delete response['data'][x]['id']
-              result = { ...result, ...(response['data'][x]) }
-              discount.update('db_id', result)
+              result = { ...(result[0]), ...(response['data'][x]) }
+              discount.update(result)
             } else if (!result && !response['data'][x]['deleted_at']) {
               response['data'][x]['db_id'] = response['data'][x]['id']
               delete response['data'][x]['id']
               discount.add(response['data'][x])
             }
           })
+          localStorage.setItem('latest_discounts_datetime', new Date(response['data'][x]['updated_at']))
         }
-        localStorage.setItem('latest_discounts_datetime', dateRequested)
       }
       this.syncDone()
     })
   }
   getProducts () {
     let latestDate = new Date(localStorage.getItem('latest_product_datetime'))
-    console.log(latestDate)
     let param = {
       select: {
         0: 'description',
@@ -140,23 +137,22 @@ export default class SyncData {
       }],
       with_trashed: true
     }
-    let dateRequested = new Date()
     APIRequest.request('product/retrieve', param, (response) => {
       if (response['data']) {
         let product = new Product()
         for (let x in response['data']) {
           product.getByIndex('db_id', response['data'][x]['id']).then((result) => {
             if (response['data'][x]['deleted_at'] && result) {
-              product.delete(result.id)
+              product.delete(result[0].id)
             } else if (result && response['data'][x]['deleted_at']) {
-              product.delete(result.id)
+              product.delete(result[0].id)
             } else if (result) {
-              result.description = response['data'][x]['description']
-              result.cost = response['data'][x]['cost']
-              result.price = response['data'][x]['price']
-              result.short_description = response['data'][x]['short_description']
-              result.category_id = response['data'][x]['category_id']
-              product.update('db_id', result)
+              result[0].description = response['data'][x]['description']
+              result[0].cost = response['data'][x]['cost']
+              result[0].price = response['data'][x]['price']
+              result[0].short_description = response['data'][x]['short_description']
+              result[0].category_id = response['data'][x]['category_id']
+              product.update(result[0])
             } else if (!result && !response['data'][x]['deleted_at']) {
               product.add({
                 db_id: response['data'][x]['id'],
@@ -166,10 +162,11 @@ export default class SyncData {
                 short_description: response['data'][x]['short_description'],
                 category_id: response['data'][x]['category_id']
               })
+            }else{
             }
           })
+          localStorage.setItem('latest_product_datetime', new Date(response['data'][x]['updated_at']))
         }
-        localStorage.setItem('latest_product_datetime', dateRequested)
       }
       this.syncDone()
     })

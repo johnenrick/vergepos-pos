@@ -1,3 +1,6 @@
+// import { connection } from '../js_store/js-store-con'
+var pluralize = require('pluralize')
+
 export default class QueryBuilder {
   tableName
   async add (data, childData) {
@@ -21,22 +24,19 @@ export default class QueryBuilder {
       })
     })
   }
-  async retrieve (condition) {
-    let result
-    if (typeof condition === 'number') { // get by id
-      await this.getByID(condition).then((txResult) => {
-        result = txResult
-      }).catch((event) => { console.error('Failed to get by ID', this.tableName) })
-    } else if (typeof condition === 'undefined' || condition === null) { // get all
-      await this.getAll().then((txResult) => {
-        result = txResult
-      }).catch((event) => { console.error('Failed to get all', this.tableName) })
-    } else {
-      await this.getWithCondition(condition).then((txResult) => {
-        result = txResult
-      }).catch((event) => { console.error('Failed to get all', this.tableName) })
+  async retrieve (query) {
+    let queryParam = {
+      from: this.tableName
     }
-    return result
+    if(typeof query['id'] !== 'undefined'){
+      queryParam['where'] = {
+        id: query['id']
+      }
+    }else if(query['where']){
+      queryParam['where'] = query['where']
+    }
+    console.log('query', queryParam)
+    // return connection.select(queryParam)
   }
   getWithCondition (condition) {
     return new Promise((resolve, reject) => {
@@ -68,13 +68,35 @@ export default class QueryBuilder {
       })
     })
   }
-  getByIndex (index, value) {
+  getByIndex (index, value, withForeign) {
     return new Promise((resolve, reject) => {
       this.openDB().then((db) => {
         let tx = db.transaction(this.tableName, 'readonly')
-        let store = tx.objectStore(this.tableName).index(index).get(value)
-        store.onsuccess = (event) => {
-          resolve(event.target.result)
+        let store = tx.objectStore(this.tableName).index(index) // .get(value)
+        let result = []
+        let foreignKeys = {}
+        store.openCursor().onsuccess = (event) => {
+          var cursor = event.target.result
+          if(cursor) {
+            if(cursor.value[index] === value){
+              result.push(cursor.value)
+              if(typeof withForeign !== 'undefined'){
+                for(let foreignTable in withForeign){
+                  if(typeof foreignKeys[foreignTable] === 'undefined'){
+                    foreignKeys[foreignTable] = []
+                  }
+                  foreignKeys[foreignTable].push(cursor.value[pluralize.singular(foreignTable) + '_id'])
+                }
+              }
+            }
+            cursor.continue()
+          }else{
+            if(typeof withForeign !== 'undefined' && result.length){
+
+            }else{
+              resolve(result)
+            }
+          }
         }
         store.onerror = (event) => {
           reject(event)

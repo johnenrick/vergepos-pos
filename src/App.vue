@@ -1,11 +1,7 @@
 <template>
-  <div id="app">
-    <header-menu :no-sidebar="true" />
-    <div id="wrapper">
-    <!-- <div id="nav">
-       |
-      <router-link to="/about">About</router-link>
-    </div> -->
+  <div id="app" style="padding-top:56px">
+    <header-menu :menu="headerMenu"  />
+    <div id="wrapper" v-bind:class="$auth.check() && (navConfig.sidebarToggled && !navConfig.noSideBar) ? 'toggled' : ''">
       <side-bar :menu="sidebarMenu" />
       <div id="page-content-wrapper" style="overflow-wrap: break-word;">
         <div v-if="!isLoadingModule" class="container-fluid-none">
@@ -24,7 +20,7 @@ import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/vue-web-core/assets/style/custom-theme.scss'
 import store from '@/vue-web-core/system/store'
-
+import navigationConfig from '@/vue-web-core/components/common/navigation/config.js'
 import HeaderMenu from '@/vue-web-core/components/common/navigation/HeaderMenu.vue'
 import SideBar from '@/vue-web-core/components/common/navigation/SideBar.vue'
 window.$ = require('jquery')
@@ -43,12 +39,37 @@ export default {
   },
   data () {
     return {
+      navConfig: navigationConfig,
       sidebarMenu: [{
         name: 'Product'
       }, {
         name: 'Category'
       }, {
         name: 'Discount'
+      }, {
+        name: 'Reports',
+        sub_item: [{
+          name: 'Z Reading'
+        }]
+      }, {
+        name: 'Z Reading'
+      }, {
+        name: 'Admin',
+        sub_item: [{
+          name: 'Users',
+          route: '/user_management'
+        }, {
+          name: 'Stores'
+        }]
+      }],
+      headerMenu: [{
+        name: 'Manage',
+        link: 'dashboard',
+        icon: 'list'
+      }, {
+        icon: 'cash-register',
+        name: 'POS',
+        no_sidebar: true
       }]
     }
   },
@@ -59,7 +80,7 @@ export default {
   }
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -77,4 +98,5 @@ export default {
     }
   }
 }
+
 </style>

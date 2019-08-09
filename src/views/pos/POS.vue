@@ -7,7 +7,7 @@
         </div>
         <div class="col-12 col-sm-12 col-md-7 pl-3">
           <control-box />
-          <product-list @add-product="addItem" />
+          <product-list v-if="doneSyncing" @add-product="addItem" />
         </div>
       </div>
     </div>
@@ -48,7 +48,9 @@ export default {
     syncData () {
       let syncData = new SyncData()
       syncData.sync().then((isDone) => {
-        this.doneSyncing = true
+        setTimeout(() => {
+          this.doneSyncing = true
+        }, 500)
       })
     }
   }

@@ -1,5 +1,5 @@
-import QueryBuilder from '@/database/core/query-builder.js'
-export default class Category extends QueryBuilder {
+import Controller from '@/database/core/controller.js'
+export default class Category extends Controller {
   constructor () {
     super()
     this.tableName = 'categories'

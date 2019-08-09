@@ -22,7 +22,7 @@
       <div
         v-for="(order, index) in orderList"
         @click="openOrder(index)"
-        class="row border-bottom mb-1 pb-1 mx-0"
+        class="row border-bottom mb-0 py-2 mx-0"
       >
         <div class="col-6 px-2">
           {{ order['description'] }}
@@ -54,14 +54,13 @@
       <div class="row mx-0 py-2 align-items-center">
         <div class="col-8  pr-0">
           <span class="badge badge-secondary mr-1">Has Parked Txn</span>
-          <span class="badge badge-danger">Discounted</span>
         </div>
         <div class="col-4 text-right font-weight-bold pr-3">
           <big>{{ totalAmount | numberToMoney }}</big>
         </div>
       </div>
       <div class="row no-gutters mx-0 px-1 align-items-center">
-        <div class="col-12 mb-2">
+        <div class="col-5 mb-2">
           <div class="btn-group dropup">
             <button
               class="btn btn-outline-dark dropdown-toggle"
@@ -88,6 +87,23 @@
             </div>
           </div>
         </div>
+        <div v-show="totalDiscount" class="col-7 mb-2 text-right pr-3" style="line-height: 15px;">
+          <table class="float-right">
+            <tr>
+              <td class="px-2"><small>Sub Total</small></td>
+              <td><small>{{subTotalAmount | numberToMoney}}</small></td>
+            </tr>
+            <tr v-if="totalAmount + totalDiscount !== subTotalAmount">
+              <td class="px-2"><small>After Vat Exempt</small></td>
+              <td><small>{{totalAmount + totalDiscount | numberToMoney}}</small></td>
+            </tr>
+            <tr>
+              <td class="px-2"><small class="text-danger">Discount</small></td>
+              <td><small class="text-danger">- {{totalDiscount | numberToMoney}}</small></td>
+            </tr>
+          </table>
+
+        </div>
         <!-- <div class="col-1" /> -->
         <div class="col-12">
           <button
@@ -112,21 +128,24 @@
     <checkout
       ref="checkout"
       :total-amount="totalAmount"
-      :total-discount="totalDiscount"
-      :total-vat-exempt="totalVatExempt"
+      :sub-total="subTotalAmount"
+      :total-discount-amount="totalDiscount"
+      :total-vat-exempt="totalVatExemptSales"
+      :total-vat-sales="totalVatSales"
+      :total-vat-amount="totalVatAmount"
       :applied-discount-id="appliedDiscountID"
-      :discounted-item-list="discountedItemList"
-      :order-list="orderList"
+      @transaction-created="transactionCreated"
     />
   </div>
 </template>
 <script>
-import Vue from 'vue'
-import Product from '@/database/controller/product.js'
+// import Vue from 'vue'
 
 import DiscountManagent from './order_list_components/DiscountManagement.vue'
 import OrderedItemDetail from './order_list_components/OrderedItemDetail.vue'
 import Checkout from './order_list_components/Checkout.vue'
+
+import Cart from './cart-store'
 export default {
   components: {
     DiscountManagent,
@@ -140,67 +159,34 @@ export default {
   },
   data () {
     return {
-      totalAmount: 0,
-      totalDiscount: 0,
+      // totalAmount: 0,
       discountedItemList: null,
       totalVatExempt: 0,
       appliedDiscountID: null,
-      orderList: [], // list of the orderd items
-      orderListLookUp: {}, // find the index in orderList using item id
       containerHeight: '0px',
       changeQuantityClicked: false
     }
   },
   methods: {
-    saveOrderedItem (index, orderedItem) {
-      Vue.set(this.orderList, index, orderedItem)
+    saveOrderedItem (index) {
     },
     deletedOrderedItem (index) {
-      Vue.delete(this.orderList, index)
     },
     openOrder (index) {
       if (this.changeQuantityClicked) {
         this.changeQuantityClicked = false
         return false
       }
-      this.$refs.orderedItemDetail._open(index, this.orderList[index])
+      // TODO no need to pass the details
+      this.$refs.orderedItemDetail._open(index)
     },
     changeQuantity () {
       this.changeQuantityClicked = true
     },
     _addProduct (productID) {
-      if (typeof this.orderListLookUp[productID] !== 'undefined') {
-        Vue.set(this.orderList[this.orderListLookUp[productID]], 'quantity', this.orderList[this.orderListLookUp[productID]]['quantity'] * 1 + 1)
-        this.calculateTotal()
-      } else {
-        (new Product()).getByIndex('db_id', productID).then((result) => {
-          if (result) {
-            this.orderList.push({
-              id: result.db_id,
-              order_item_identifier: result.db_id + '-' + (new Date()).getTime(),
-              description: result.description,
-              category_id: result.category_id,
-              quantity: 1,
-              price: result.price,
-              local_id: result.id
-            })
-            this.calculateTotal()
-          }
-        })
-      }
+      Cart.commit('addItem', productID)
     },
-    calculateTotal () {
-      let total = 0
-      for (let x in this.orderList) {
-        total += (this.orderList[x]['price'] * this.orderList[x]['quantity'])
-      }
-      this.totalAmount = total
-    },
-    discountUpdated (totalDiscount, totalVatExempt, appliedDiscountID, discountedItemList) {
-      this.totalDiscount = totalDiscount
-      this.totalVatExempt = totalVatExempt
-      this.appliedDiscountID = appliedDiscountID
-      this.discountedItemList = discountedItemList
+    discountUpdated () {
     },
     checkout () {
       this.$refs.checkout._open()
@@ -210,15 +196,38 @@ export default {
       let offset = 35
       // totalheight - the space from the windows top until container top - the height of the footer
       this.containerHeight = (totalHeight - $(this.$refs.container).position().top - $(this.$refs.footer).height() * 2 - offset) + 'px'
+    },
+    transactionCreated(){
+      this.$refs.discountManagement._reset()
+    }
+  },
+  computed: {
+    itemList: () => {
+      return Cart.state.items
+    },
+    totalAmount: () => {
+      return Cart.state.totalAmount
+    },
+    totalVatExemptSales: () => {
+      return Cart.state.totalVatExemptSales
+    },
+    totalVatSales: () => {
+      return Cart.state.totalVatSales
+    },
+    totalVatAmount: () => {
+      return Cart.state.totalVatAmount
+    },
+    totalDiscount: () => {
+      return Cart.state.totalDiscountAmount
+    },
+    subTotalAmount: () => {
+      return Cart.state.subTotalAmount
+    },
+    orderList: () => {
+      return Cart.state.items
     }
   },
   watch: {
-    orderList (data) {
-      for (let x = 0; x < this.orderList.length; x++) {
-        Vue.set(this.orderListLookUp, this.orderList[x]['id'], x)
-      }
-      this.calculateTotal()
-    }
   }
 }
 </script>

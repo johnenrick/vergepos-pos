@@ -16,6 +16,7 @@
     "@websanova/vue-auth": "^2.21.14-beta",
     "axios": "^0.18.0",
     "core-js": "^2.6.5",
+    "pluralize": "^8.0.0",
     "popper.js": "^1.15.0",
     "register-service-worker": "^1.6.2",
     "vue": "^2.6.10",

@@ -34,23 +34,26 @@ let ModuleDefault = {
         },
         type: {
           type: 'select',
+          default_value: 2,
           config: {
-            options: [{
-              value: 1,
-              text: 'Percentage on Receipt'
-            },
-            {
-              value: 2,
-              text: 'Percentage on Items'
-            },
-            {
-              value: 3,
-              text: 'Exact Value on Receipt'
-            },
-            {
-              value: 4,
-              text: 'Exact Value on Items'
-            }]
+            options: [
+              // {
+              //   value: 1,
+              //   text: 'Percentage on Receipt'
+              // },
+              {
+                value: 2,
+                text: 'Percentage on Items'
+              },
+              // {
+              //   value: 3,
+              //   text: 'Exact Value on Receipt'
+              // },
+              // {
+              //   value: 4,
+              //   text: 'Exact Value on Items'
+              // }
+            ]
 
           }
         },

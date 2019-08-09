@@ -5,7 +5,7 @@
         <button
           v-if="categoryFilterID"
           @click="categoryFilterID = null"
-          class="btn btn-primary w-100"
+          class="btn btn-primary w-100 font-weight-bold"
         >
           {{ categoryFilterDescription }} <fa
             class="float-right mt-1"
@@ -60,16 +60,17 @@
       id="container"
       :style="{'max-height': containerHeight}"
       style="min-height:300px; overflow-y:scroll"
+      class="pb-2"
     >
       <div class="row align-items-center mx-0 px-2">
         <div
           v-for="category in categoryList"
-          class="col-4 px-1 py-1"
+          class="col-4 px-1 py-1 itemContainer"
           v-show="typeof category['show'] === 'undefined' || category['show']"
         >
           <div
             @click="setCategoryFilter(category['db_id'], category['description'])"
-            class="btn-outline-primary border rounded border-primary py-2 text-center px-1"
+            class="btn-primary border font-weight-bold rounded border-primary py-2 text-center px-1 item"
             style="max-height:66px; overflow-y:hidden"
           >
             {{ category['description'] }}
@@ -82,7 +83,7 @@
         >
           <div
             @click="$emit('add-product', product['db_id'])"
-            class="btn-outline-dark border rounded border-dark  py-2 text-center px-1 item"
+            class="btn-outline-primary border rounded border-dark  py-2 text-center px-1 item"
             style="max-height:66px; overflow-y:hidden"
           >
             {{ product['description'] }}
@@ -90,6 +91,7 @@
         </div>
       </div>
     </div>
+    <!-- <button @click="listItems">TEst</button> -->
   </div>
 </template>
 <script>

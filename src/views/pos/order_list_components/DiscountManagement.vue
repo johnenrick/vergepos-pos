@@ -23,7 +23,7 @@
                 class="form-control text-center font-weight-bold"
               >
                 <option value="null">
-                  Select a Discount
+                  Select a Discount {{selectedDiscountIndex}}
                 </option>
                 <option
                   v-for="(discount, index) in discountList"
@@ -62,23 +62,21 @@
                     <tr v-for="(item, index) in orderedItemList">
                       <td>{{ item['description'] }}</td>
                       <td class="text-right">
-                        <input
+                        <number-input
                           v-if="!applyDiscountToAll"
-                          @click="selectedItems[index]['quantity'] = ''"
+                          :default-value="0"
+                          :max-value="item['quantity']"
                           :placeholder="'max: ' + item['quantity']"
-                          @blur="selectedItems[index]['quantity'] = validateSelectedItemQuantity(selectedItems[index]['quantity'], item['quantity'])"
-                          v-model="selectedItems[index]['quantity']"
-                          maxlength="5"
-                          type="number"
-                          class="form-control text-right"
-                        >
+                          @change="orderedItemList[index]['discount_quantity'] = $event; discountQuantityChanged(index)"
+
+                          />
                         <label
                           v-else
                           class="col-form-label"
-                        >{{ selectedItems[index]['quantity'] }}</label>
+                        >{{ orderedItemList[index]['discount_quantity'] }}</label>
                       </td>
                       <td class="text-right">
-                        <label class="col-form-label">{{ (selectedItems[index]['discount_amount'] = getDiscountItemAmount(selectedItems[index]['quantity'] * 1, item['price'], index)) | numberToMoney }}</label>
+                        <label class="col-form-label">{{ orderedItemList[index]['discount_amount'] | numberToMoney }}</label>
                       </td>
                     </tr>
                   </tbody>
@@ -89,7 +87,7 @@
           <hr class="my-4">
           <div class="row">
             <div class="col-8 text-right">
-              <label class="form-control-plaintext">Total Vat Exempt:</label>
+              <label class="form-control-plaintext">Total Vat Exempt Sales:</label>
             </div>
             <div class="col-4 text-right font-weight-bold">
               <label class="form-control-plaintext">{{ totalVatExempt | numberToMoney }}</label>
@@ -127,37 +125,46 @@
 <script>
 import Vue from 'vue'
 import Discount from '@/database/controller/discount.js'
+import Cart from '../cart-store'
+import Calc from '@/vue-web-core/helper/calculator'
+import NumberInput from '@/components/NumberInput'
 export default {
+  components: {
+    NumberInput
+  },
   mounted () {
     this.listDiscount()
   },
   props: {
-    orderList: Array
   },
   data () {
     return {
       discountList: [],
       selectedDiscountIndex: null,
       selectedDiscountWriteUp: '',
-      selectedItems: {},
+      orderedItemList: [],
       applyDiscountToAll: false,
       totalDiscount: 0,
       totalVatExempt: 0,
-      savedDiscountedItem: null,
       loadingOrderedItemList: false
     }
   },
   methods: {
     save () {
-      this.savedDiscountedItem = {}
-      for (let x in this.selectedItems) {
-        this.savedDiscountedItem[this.orderedItemList[x]['order_item_identifier']] = {
-          quantity: this.selectedItems[x]['quantity'],
-          discount_amount: this.selectedItems[x]['discount_amount']
-        }
+      // TODO saving happens here
+      for(let x = 0; x < this.orderedItemList.length; x++){
+        Cart.commit('applyDiscount', [
+          x,
+          this.orderedItemList[x]['discount_quantity'] * 1,
+          this.orderedItemList[x]['discount_amount'] * 1,
+          this.orderedItemList[x]['vat_exempt_quatity'] * 1,
+          this.orderedItemList[x]['vat_exempt_sales'] * 1
+        ])
       }
+      Cart.commit('setDiscountId', this.selectedDiscountIndex === null ? null : this.discountList[this.selectedDiscountIndex]['id'])
+      Cart.commit('calculateTotal')
       $(this.$refs.modal).modal('hide')
-      this.$emit('discount_updated', this.totalDiscount, this.totalVatExempt, this.discountList[this.selectedDiscountIndex]['id'], this.savedDiscountedItem)
+      this.$emit('discount_updated', this.totalDiscount, this.totalVatExempt)
     },
     discountChanged (event) {
       // if(event.target.value !== null){
@@ -167,136 +174,106 @@ export default {
     listDiscount () {
       (new Discount()).getAll().then((response) => {
         this.discountList = response || []
+        for(let x = 0; x < this.discountList.length; x++){
+          this.discountList[x]['value_percentage'] = Calc.numberFormat(this.discountList[x]['value'] / 100)
+        }
       })
     },
     getTotalDiscount () {
+      if(this.selectedDiscountIndex === null){
+        return false
+      }
+
       let totalDiscount = 0
       let totalVatExempt = 0
-      for (let x in this.selectedItems) {
-        totalDiscount += this.selectedItems[x]['discount_amount']
-        totalVatExempt += this.selectedItems[x]['vat_exempt_amount']
+      let discountSelected = this.discountList[this.selectedDiscountIndex]
+      for (let x in this.orderedItemList) {
+        let itemPrice = this.orderedItemList[x]['price']
+        if(discountSelected['is_vat_exempt']){
+          itemPrice = itemPrice / (1 + Cart.state.taxPercentage)
+          this.orderedItemList[x]['vat_exempt_quatity'] = this.orderedItemList[x]['discount_quantity']
+          this.orderedItemList[x]['vat_exempt_sales'] = Calc.numberFormat(itemPrice * this.orderedItemList[x]['discount_quantity'])
+        }else{
+          this.orderedItemList[x]['vat_exempt_quatity'] = 0
+          this.orderedItemList[x]['vat_exempt_sales'] = 0
+        }
+        this.orderedItemList[x]['discount_amount'] = Calc.numberFormat(Calc.numberFormat(itemPrice * discountSelected['value_percentage']) * this.orderedItemList[x]['discount_quantity'])
+        totalDiscount += this.orderedItemList[x]['discount_amount']
+        totalVatExempt += this.orderedItemList[x]['vat_exempt_sales']
       }
       this.totalDiscount = totalDiscount
       this.totalVatExempt = totalVatExempt
     },
     resetDiscountedItems () {
-      for (let x in this.selectedItems) {
-        Vue.set(this.selectedItems[x], 'quantity', 0)
-        Vue.set(this.selectedItems[x], 'vat_exempt_amount', 0)
-        Vue.set(this.selectedItems[x], 'discount_amount', 0)
+      for (let x in this.orderedItemList) {
+        Vue.set(this.orderedItemList[x], 'discount_quantity', 0)
+        Vue.set(this.orderedItemList[x], 'vat_exempt_sales', 0)
+        Vue.set(this.orderedItemList[x], 'vat_exempt_quantity', 0)
+        Vue.set(this.orderedItemList[x], 'discount_amount', 0)
       }
       this.getTotalDiscount()
     },
-    validateSelectedItemQuantity (selectedItemQuantity, itemQuantity) {
-      if (selectedItemQuantity > itemQuantity) {
-        return itemQuantity
+    discountQuantityChanged (index) {
+      let discountedQuantity = this.orderedItemList[index]['discount_quantity'] * 1
+      if (discountedQuantity > this.orderedItemList[index]['quantity'] * 1) {
+        discountedQuantity = this.orderedItemList[index]['quantity']
+      }else if (isNaN(discountedQuantity * 1) || discountedQuantity <= 0) {
+        discountedQuantity = 0
       }
-      if (selectedItemQuantity <= 0) {
-        return 0
-      }
-      return selectedItemQuantity
+      this.orderedItemList[index]['discount_quantity'] = discountedQuantity
+      this.getTotalDiscount()
     },
     discountAllItems () {
-      console.log('got here', this.selectedItems)
-      for (let x in this.selectedItems) {
-        Vue.set(this.selectedItems[x], 'quantity', this.orderedItemList[x]['quantity'])
+      for (let x in this.orderedItemList) {
+        Vue.set(this.orderedItemList[x], 'discount_quantity', this.orderedItemList[x]['quantity'])
       }
       this.getTotalDiscount()
     },
-    getDiscountItemAmount (discountedQuantity, itemAmount, index) {
-      setTimeout(() => {
-        this.getTotalDiscount()
-      }, 200)
-      if (this.discountList[this.selectedDiscountIndex]['is_vat_exempt']) {
-        Vue.set(this.selectedItems[index], 'vat_exempt_amount', itemAmount * 0.12 * discountedQuantity)
-      } else {
-        Vue.set(this.selectedItems[index], 'vat_exempt_amount', 0)
-      }
-      if (this.discountList[this.selectedDiscountIndex]['type'] === 1 || this.discountList[this.selectedDiscountIndex]['type'] === 2) {
-        return discountedQuantity * ((itemAmount / 1.12) * (this.discountList[this.selectedDiscountIndex]['value'] / 100)) // calculate the discount from the base price(no tax)
-      } else {
-        return discountedQuantity * this.discountList[this.selectedDiscountIndex]['value']
-      }
-      // switch(this.discountList[this.selectedDiscountIndex]['type']){
-      //   case 2:
-      //
-      //   case 4:
-      //
-      // }
-    },
-    orderedItemListChanged (orderedItemList) {
-      this.selectedItems = {}
-      if (orderedItemList.length) {
-        for (let x = 0; x < orderedItemList.length; x++) {
-          if (this.savedDiscountedItem && typeof this.savedDiscountedItem[orderedItemList[x]['order_item_identifier']] !== 'undefined') {
-            Vue.set(this.selectedItems, x, {
-              quantity: this.savedDiscountedItem[orderedItemList[x]['order_item_identifier']]['quantity'],
-              discount_amount: 0,
-              vat_exempt_amout: 0
-            })
-          } else {
-            Vue.set(this.selectedItems, x, {
-              quantity: 0,
-              discount_amount: 0,
-              vat_exempt_amout: 0
-            })
-          }
-        }
-      }
-    },
-    reset () {
+    _reset() {
       this.applyDiscountToAll = false
-      this.savedDiscountedItem = null
-      // this.totalDiscount = 0
-      // this.totalVatExempt = 0
+      this.selectedDiscountIndex = null
       this.resetDiscountedItems()
+      this.totalDiscount = 0
+      this.totalVatExempt = 0
     },
     _open () { // open the modal
-      let orderedItemList = this.cloneObject(this.orderList)
+      let orderedItemList = this.cloneObject(Cart.state.items)
       $(this.$refs.modal).modal('show')
-      this.orderedItemListChanged(orderedItemList)
       this.orderedItemList = orderedItemList
-
-      if (this.savedDiscountedItem) {
-        if (this.applyDiscountToAll) {
-          this.discountAllItems()
-        }
-      } else {
-        this.reset()
+      if(this.applyDiscountToAll){
+        this.discountAllItems()
       }
-    },
-    _getItemDiscount () {
-
+      this.getTotalDiscount()
     }
   },
   watch: {
     applyDiscountToAll (data) {
       data ? this.discountAllItems() : this.resetDiscountedItems()
     },
-
     selectedDiscountIndex (data) {
-      console.log(data)
       if (data === 'null' || data === null) {
-        this.reset()
+        this._reset()
         return false
       }
+      let vatExemptText = this.discountList[data]['is_vat_exempt'] ? 'The discounted items will also be VAT Exempted.' : ''
       switch (this.discountList[data]['type'] * 1) {
         case 1:
-          this.selectedDiscountWriteUp = this.discountList[data]['value'] + '% will be deducted on all items.'
+          this.selectedDiscountWriteUp = this.discountList[data]['value'] + '% will be deducted on all items. ' + vatExemptText
           this.applyDiscountToAll = true
           break
         case 2:
-          this.selectedDiscountWriteUp = this.discountList[data]['value'] + '% will be deducted on the selected items.'
+          this.selectedDiscountWriteUp = this.discountList[data]['value'] + '% will be deducted on the selected items. ' + vatExemptText
           break
         case 3:
-          this.selectedDiscountWriteUp = this.discountList[data]['value'] + 'pesos will be deducted on the all items.'
+          this.selectedDiscountWriteUp = this.discountList[data]['value'] + 'pesos will be deducted on the all items. ' + vatExemptText
           break
         case 4:
-          this.selectedDiscountWriteUp = this.discountList[data]['value'] + 'pesos will be deducted on the selected items.'
+          this.selectedDiscountWriteUp = this.discountList[data]['value'] + 'pesos will be deducted on the selected items. ' + vatExemptText
           break
         default:
           this.selectedDiscountWriteUp = ''
       }
+      this.getTotalDiscount()
     }
   }
 }

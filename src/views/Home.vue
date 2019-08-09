@@ -1,6 +1,5 @@
 <template>
   <div class="home">
-    {{token}}
     <div class="row">
       <div class="col-sm-9 col-md-7 col-lg-4 ml-auto">
         <div class="card card-signin my-5">
@@ -51,9 +50,10 @@ export default {
     // })
     // this.username = 'plenosjan@deliotte.com'
     // this.password = '123456'
+    this.redirect()
   },
   updated(){
-    this.redirect()
+
   },
   data(){
     return {
@@ -81,6 +81,7 @@ export default {
           // store.commit('setAuthToken', response.data.access_token)
           // store.dispatch('setCompanyInformation')
           // store.dispatch('setUserInformation')
+          this.redirect()
           this.isLoading = false
         }
       }).catch((response, status) => {

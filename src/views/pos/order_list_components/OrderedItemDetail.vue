@@ -65,7 +65,7 @@
         </div>
         <div class="modal-footer">
           <button
-            @click="$emit('delete', index)"
+            @click="remove"
             type="button"
             class="btn btn-outline-danger mr-auto ml-0"
             data-dismiss="modal"
@@ -94,7 +94,7 @@
 <script>
 import Vue from 'vue'
 import Category from '@/database/controller/category.js'
-
+import Cart from '../cart-store'
 export default {
   data () {
     return {
@@ -104,20 +104,24 @@ export default {
   },
   methods: {
     save () {
-      this.$emit('save', this.index, this.itemDetail)
+      Cart.commit('changeQuantity', [this.index, this.itemDetail['quantity'] * 1])
+      this.$emit('save', this.index)
       $(this.$refs.modal).modal('hide')
     },
-    _open (index, itemDetail) { // open the modal
-      this.itemDetail = this.cloneObject(itemDetail)
+    remove(){
+      Cart.commit('deleteItem', this.index)
+      this.$emit('delete', this.index)
+    },
+    _open (index) { // open the modal
+      this.itemDetail = this.cloneObject(Cart.state.items[index])
       this.index = index
       if (typeof this.itemDetail['category_description'] === 'undefined') {
-        (new Category()).getByIndex('db_id', itemDetail['category_id']).then((result) => {
+        (new Category()).getByIndex('db_id', this.itemDetail['category_id']).then((result) => {
           if (result) {
             Vue.set(this.itemDetail, 'category_description', result['description'])
           }
         })
       }
-
       $(this.$refs.modal).modal('show')
     }
   }
