@@ -1,64 +1,109 @@
 <template>
   <div id="app" style="padding-top:56px">
-    <header-menu :menu="headerMenu"  />
+    <modal ref="modal" :closeable="false">
+      <template v-slot:body >
+        <div class="text-center">
+          <h1 class="text-primary"><fa icon="server" /></h1>
+          <p>Syncing data from the server. Please wait...</p>
+          <span v-if="dataSynced < 1">{{(dataSynced * 100).toFixed(2)}}%</span>
+          <span v-else-if="dataSynced === 1" class="text-success">Synchronization Complete!</span>
+        </div >
+      </template>
+    </modal>
+    <header-menu :menu="headerMenu"  :default-company-name="'VergePOS'"/>
     <div id="wrapper" v-bind:class="$auth.check() && (navConfig.sidebarToggled && !navConfig.noSideBar) ? 'toggled' : ''">
       <side-bar :menu="sidebarMenu" />
       <div id="page-content-wrapper" style="overflow-wrap: break-word;">
-        <div v-if="!isLoadingModule" class="container-fluid-none">
+        <div v-if="!isLoadingModule && dataSynced === 1" class="container-fluid-none">
           <router-view/>
         </div>
         <div v-else class="text-center">
-          <img src="/loading-circle.gif">
+          <img src="/img/loading.gif" width="100px">
           <br>Loading components...
         </div>
       </div>
     </div>
+
   </div>
 </template>
 <script>
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import '@/vue-web-core/assets/style/custom-theme.scss'
+import '@/assets/style/custom-theme.scss'
 import store from '@/vue-web-core/system/store'
 import navigationConfig from '@/vue-web-core/components/common/navigation/config.js'
 import HeaderMenu from '@/vue-web-core/components/common/navigation/HeaderMenu.vue'
 import SideBar from '@/vue-web-core/components/common/navigation/SideBar.vue'
+import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
+import SyncAll from '@/database/sync/sync-all'
+import Migrate from '@/database/migrate'
 window.$ = require('jquery')
 window.jQuery = window.$
-
 export default {
   name: 'home',
   components: {
     SideBar,
-    HeaderMenu
+    HeaderMenu,
+    Modal
   },
   mounted(){
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
     $('#app').show()
+
+    if(!this.$auth.token()){
+      this.dataSynced = 1
+    }
+    let migrate = new Migrate()
+    migrate.migrate(() => {
+      this.migrated = true
+      if(this.userID){
+        this.sync()
+      }
+    })
   },
   data () {
     return {
+      migrated: false,
+      syncAll: new SyncAll(),
+      dataSynced: 0,
       navConfig: navigationConfig,
       sidebarMenu: [{
+        icon: 'box',
         name: 'Product'
       }, {
+        icon: 'boxes',
         name: 'Category'
       }, {
+        icon: 'percent',
         name: 'Discount'
       }, {
-        name: 'Reports',
+        icon: 'file-contract',
+        name: 'Terminal Reports',
         sub_item: [{
+          name: 'Transactions'
+        }, {
+          name: 'X Reading'
+        }, {
           name: 'Z Reading'
         }]
       }, {
-        name: 'Z Reading'
+        icon: 'file-contract',
+        name: 'Reports',
+        sub_item: [{
+          name: 'Product Performance'
+        }, {
+          name: 'Overall Z Reading'
+        }]
       }, {
+        icon: 'tools',
         name: 'Admin',
         sub_item: [{
+          icon: 'users',
           name: 'Users',
           route: '/user_management'
         }, {
+          icon: 'store',
           name: 'Stores'
         }]
       }],
@@ -73,7 +118,33 @@ export default {
       }]
     }
   },
+  methods: {
+    sync(){
+      this.$refs.modal._open()
+      this.syncAll.downSync((progress) => {
+        this.dataSynced = progress
+        if(progress === 1){
+          setTimeout(() => {
+            this.$refs.modal._close()
+          }, 500)
+        }
+      })
+    }
+  },
+  watch: {
+    userID(newData){
+      if(this.migrated){
+        this.sync()
+      }
+      if(!newData){
+        this.dataSynced = 1
+      }
+    }
+  },
   computed: {
+    userID(){
+      return store.state.userInformation.id
+    },
     isLoadingModule () {
       return store.state.isModuleLoading
     }

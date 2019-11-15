@@ -1,5 +1,5 @@
 <template>
-  <div class="border shadow">
+  <div class="border shadow bg-white">
     <div
       ref="header"
       class="row font-weight-bold text-center pb-2 mx-0"
@@ -17,6 +17,7 @@
     <div
       ref="container"
       id="container"
+
       :style="{'max-height': containerHeight}"
     >
       <div
@@ -75,15 +76,13 @@
               <a
                 @click="$refs.discountManagement._open()"
                 class="dropdown-item"
-              >Discounts</a>
+                href="javascript:void(0)"
+              ><fa icon="percent" /> Apply Discounts</a>
               <a
+                @click="parkTransaction"
                 class="dropdown-item"
-                href="#"
-              >Parked Transactions</a>
-              <a
-                class="dropdown-item"
-                href="#"
-              >Park Current Transaction</a>
+                href="javascript:void(0)"
+              ><fa icon="parking" />  Park Transaction</a>
             </div>
           </div>
         </div>
@@ -120,6 +119,9 @@
       ref="discountManagement"
       :order-list="orderList"
     />
+    <park-transaction
+      ref="parkTransaction"
+    />
     <ordered-item-detail
       @save="saveOrderedItem"
       @delete="deletedOrderedItem"
@@ -144,13 +146,14 @@
 import DiscountManagent from './order_list_components/DiscountManagement.vue'
 import OrderedItemDetail from './order_list_components/OrderedItemDetail.vue'
 import Checkout from './order_list_components/Checkout.vue'
-
+import ParkTransaction from './order_list_components/ParkTransaction'
 import Cart from './cart-store'
 export default {
   components: {
     DiscountManagent,
     OrderedItemDetail,
-    Checkout
+    Checkout,
+    ParkTransaction
   },
   mounted () {
     this.$nextTick(() => {
@@ -199,6 +202,9 @@ export default {
     },
     transactionCreated(){
       this.$refs.discountManagement._reset()
+    },
+    parkTransaction(){
+      this.$refs.parkTransaction._open()
     }
   },
   computed: {
@@ -255,4 +261,5 @@ export default {
 #container::-webkit-scrollbar-thumb:hover {
   background: #550055;
 }
+
 </style>

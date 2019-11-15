@@ -1,0 +1,6 @@
+// class Sync {
+//   lastSyncTimestamp
+//   sync(){
+//
+//   }
+// }

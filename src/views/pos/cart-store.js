@@ -2,6 +2,7 @@ import Vuex from 'vuex'
 import Vue from 'vue'
 import Product from '@/database/controller/product.js'
 import Calculator from '@/vue-web-core/helper/calculator'
+const ProductDB = new Product()
 const calculateCartTotal = (state) => {
   state.totalVatSales = 0
   state.totalVatAmount = 0
@@ -72,7 +73,8 @@ let store = new Vuex.Store({
     calculateTotal(state){
       calculateCartTotal(state)
     },
-    applyDiscount(state, [index, discountQuantity, discountAmount, vatExemptQuantity, vatExemptSales]){
+    applyDiscount(state, [index, discountId, discountQuantity, discountAmount, vatExemptQuantity, vatExemptSales]){
+      Vue.set(state.items[index], 'discount_id', discountId)
       Vue.set(state.items[index], 'discount_amount', discountAmount)
       Vue.set(state.items[index], 'discount_quantity', discountQuantity)
       Vue.set(state.items[index], 'vat_exempt_quatity', vatExemptQuantity)
@@ -103,8 +105,14 @@ let store = new Vuex.Store({
         calculateCartTotal(state)
         if(typeof callback === 'function') callback()
       } else {
-        (new Product()).get({ id: (productID + '').replace('c', '') * 1 }).then((result) => {
-          if (result) {
+        let param = {
+          where: {
+            db_id: productID
+          }
+        }
+        ProductDB.get(param).then((result) => {
+          if (result.length) {
+            result = result[0]
             state.items.push({
               id: result.db_id,
               local_id: result.id, // indexedDB ID

@@ -12,7 +12,10 @@ let routes = [
   }, {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import('./views/dashboard/Dashboard.vue')
+    component: () => import('./views/dashboard/Dashboard.vue'),
+    meta: {
+      auth: true
+    }
     // component: () => import('./views/routine_timer/RoutineTimer.vue')
   },
   {
@@ -94,12 +97,48 @@ let routes = [
     }
   },
   {
-    path: '/z_reading',
+    path: '/z-reading',
     name: 'ZReading',
     component: () => {
       store.commit('setModuleLoading', true)
       return {
-        component: import('@/views/reports/ZReading.vue')
+        component: import('@/views/terminal_reports/ZReading.vue')
+      }
+    },
+    meta: {
+    }
+  },
+  {
+    path: '/x-reading',
+    name: 'XReading',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/terminal_reports/XReading.vue')
+      }
+    },
+    meta: {
+    }
+  },
+  {
+    path: '/transaction_history',
+    name: 'TransactionHistory',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/reports/TransactionHistory.vue')
+      }
+    },
+    meta: {
+    }
+  },
+  {
+    path: '/product_performance',
+    name: 'ProductPerformance',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/reports/ProductPerformance.vue')
       }
     },
     meta: {

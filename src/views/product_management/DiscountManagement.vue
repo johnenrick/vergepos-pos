@@ -76,6 +76,21 @@ let ModuleDefault = {
             }]
 
           }
+        },
+        require_identification_card: {
+          name: 'Require ID Card',
+          type: 'select',
+          config: {
+            options: [{
+              value: 1,
+              text: 'Yes'
+            },
+            {
+              value: 0,
+              text: 'No'
+            }]
+
+          }
         }
       }
     }

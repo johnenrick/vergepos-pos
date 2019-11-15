@@ -7,9 +7,9 @@ export default class Transact {
   transactionProductDB = new TransactionProduct()
   transact(transaction, transactionProducts){
     return new Promise((resolve, reject) => {
-      this.transactionNumberDB.add({ operation: 1 }).then((transactionNumberResult) => {
+      this.transactionNumberDB.add({ operation: 1, user_id: localStorage.getItem('user_id') * 1 }).then((transactionNumberResult) => {
         if(transactionNumberResult['id']){
-          transaction['transaction_number_id'] = transactionNumberResult['id']
+          transaction['transaction_number_id'] = transactionNumberResult['id'] * 1
           this.transactionDB.add(transaction).then((response) => {
             if(response && response['id']){
               this.createTransactionProductRecursion(transactionProducts, 0, response['id']).then(result => {
@@ -27,19 +27,19 @@ export default class Transact {
   }
   createTransactionProductRecursion(transactionProducts, index, transactionID){
     return new Promise((resolve, reject) => {
-      transactionProducts[index]['transaction_id'] = transactionID
-      transactionProducts[index]['product_id'] = transactionProducts[index]['id']
+      transactionProducts[index]['transaction_id'] = transactionID * 1
+      transactionProducts[index]['product_id'] = transactionProducts[index]['id'] * 1
       delete transactionProducts[index]['id']
       let newTransaction = {
         transaction_id: transactionID,
-        product_id: transactionProducts[index]['product_id'],
-        quantity: transactionProducts[index]['quantity'],
-        vat_sales: transactionProducts[index]['vat_sales'],
-        vat_exempt_sales: transactionProducts[index]['vat_exempt_sales'],
-        vat_zero_rated_sales: transactionProducts[index]['vat_zero_rated_sales'],
-        vat_amount: transactionProducts[index]['vat_amount'],
-        discount_amount: transactionProducts[index]['discount_amount'],
-        discount_id: transactionProducts[index]['discount_id'],
+        product_id: transactionProducts[index]['product_id'] * 1,
+        quantity: transactionProducts[index]['quantity'] * 1,
+        vat_sales: transactionProducts[index]['vat_sales'] * 1,
+        vat_exempt_sales: transactionProducts[index]['vat_exempt_sales'] * 1,
+        vat_zero_rated_sales: transactionProducts[index]['vat_zero_rated_sales'] * 1,
+        vat_amount: transactionProducts[index]['vat_amount'] * 1,
+        discount_amount: transactionProducts[index]['discount_amount'] * 1,
+        discount_id: transactionProducts[index]['discount_id'] * 1,
       }
       this.transactionProductDB.add(newTransaction).then(response => {
         index++

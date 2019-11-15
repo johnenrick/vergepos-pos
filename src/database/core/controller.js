@@ -1,4 +1,6 @@
 import { connection } from '../js_store/js-store-con'
+let us = require('underscore')
+var pluralize = require('pluralize')
 
 export default class Controller {
   tableName
@@ -24,6 +26,7 @@ export default class Controller {
       }).then(response => {
         resolve(response.length ? response[0] : null)
       }).catch(error => {
+        console.log(this.tableName)
         reject(error)
       })
     })
@@ -52,30 +55,77 @@ export default class Controller {
     if(typeof query !== 'object'){
       query = {}
     }
-    query['from'] = this.tableName
+    if(typeof query['from'] === 'undefined'){
+      query['from'] = this.tableName
+    }
     if(typeof query['where'] === 'undefined'){
-      query['where'] = {}
+      // query['where'] = {}
     }
     if(typeof query['id'] !== 'undefined'){
       query['where']['id'] = query['id']
       hasId = true
       delete query['id']
     }
-    console.log('query', query)
     return new Promise((resolve, reject) => {
+      console.log('query', query)
       connection.select(query).then(result => {
-        if(!hasId){
-          resolve(result.length ? result : null)
+        if(result.length && typeof query['with'] !== 'undefined'){
+          this.executeWithQuery(query, result).then(withResult => {
+            result = withResult
+            if(!hasId){
+              resolve(result.length ? result : [])
+            }else{
+              resolve(result.length ? result[0] : null)
+            }
+          })
         }else{
-          resolve(result.length ? result[0] : null)
+          if(!hasId){
+            resolve(result.length ? result : [])
+          }else{
+            resolve(result.length ? result[0] : null)
+          }
         }
+      }).catch(error => {
+        console.log('error', error)
       })
+    })
+  }
+  executeWithQuery(query, result){
+    let rootTableIdList = []
+    let idLookUp = {}
+    for(let x = 0; x < result.length; x++){
+      idLookUp[result[x]['id']] = x
+      rootTableIdList.push(result[x]['id'])
+    }
+    let withCount = Object.keys(query['with']).length
+    let completedQuery = 0
+    return new Promise((resolve, reject) => {
+      for(let withTable in query['with']){
+        let parentTable = pluralize.singular(query['from'])
+        let withQuery = {
+          from: withTable,
+          where: {}
+        }
+        withQuery['where'][parentTable + '_id'] = {
+          in: rootTableIdList
+        }
+        this.get(withQuery).then(response => {
+          let groupedResult = us.groupBy(response, parentTable + '_id')
+          for(let parentId in groupedResult){
+            result[idLookUp[parentId]][withTable] = groupedResult[parentId]
+          }
+        }).finally(() => {
+          completedQuery++
+          if(completedQuery === withCount){
+            resolve(result)
+          }
+        })
+      }
     })
   }
   getByIndex(index, value){
     let where = {}
     where[index] = value
-    console.log('where', where)
     return new Promise((resolve, reject) => {
       connection.select({
         from: this.tableName,
@@ -87,10 +137,13 @@ export default class Controller {
   }
   getAll(){
     return new Promise((resolve, reject) => {
+      connection.getDbList().then(result => {
+      })
       connection.select({
         from: this.tableName
       }).then(result => {
         resolve(result)
+      }).finally(result => {
       })
     })
   }

@@ -20,6 +20,7 @@
 <script>
 import Vue from 'vue'
 import BasicModule from '@/vue-web-core/components/basic-module/BasicModule'
+import VueCoreStore from '@/vue-web-core/system/store'
 let ModuleDefault = {
   name: 'dashboard',
   components: {
@@ -32,21 +33,34 @@ let ModuleDefault = {
     let tableSettingRetrieveParameter = {
       select: {
         0: 'email',
-        1: 'first_name',
-        2: 'user_type_id',
-        3: 'status',
-        user_basic_information: {
+        1: 'user_type_id',
+        2: 'status',
+        user_roles: {
           select: {
-            0: 'first_name',
-            1: 'last_name',
+            role: {
+              select: ['description']
+            }
           }
         }
-      }
+        // company_user: {
+        //   select: ['company_id']
+        // }
+      },
+      condition: [{
+        column: 'company_user.company_id',
+        value: VueCoreStore.state.companyInformation.id
+      }]
     }
     let tableColumnSetting = {
       email: {},
-      'user_information.full_name': {
+      'user_basic_information.full_name': {
         name: 'Name'
+      },
+      roles: {
+        type: 'html',
+        value_function: (rowData) => {
+          return 'hey'
+        }
       },
       status: {
         type: 'html',
@@ -71,20 +85,30 @@ let ModuleDefault = {
         password: {
           type: 'password'
         },
+        pin: {
+          name: 'PIN',
+          placeholder: 'A four digit letter and number combination',
+          type: 'password',
+          help_text: 'PIN code will be used to log in, and void transaction when you are in OFFLINE mode',
+          config: {
+            maxlength: 4,
+          }
+        },
         'user_basic_information.first_name': {
           name: 'First Name'
         },
         'user_basic_information.last_name': {
           name: 'Last Name'
         },
-        'user_basic_information.mobile_number': {
-          name: 'Mobile Number'
-        },
-        'user_basic_information.address': {
-          name: 'Address'
-        },
+        // 'user_basic_information.mobile_number': {
+        //   name: 'Mobile Number'
+        // },
+        // 'user_basic_information.address': {
+        //   name: 'Address'
+        // },
         status: {
           type: 'select',
+          default_value: 1,
           config: {
             options: [
               { text: 'Inactive', value: 0, is_default: true },
@@ -101,11 +125,11 @@ let ModuleDefault = {
           for(let x in this.selectedRoles){
             roleAccessList.push({
               id: this.selectedRoles[x]['id'],
-              role_action_registry_id: x,
+              role_id: x,
               deleted: this.selectedRoles[x]['deleted'],
             })
           }
-          formData['role_access_lists'] = roleAccessList
+          formData['user_roles'] = roleAccessList
           return formData
         }
       }
@@ -130,11 +154,9 @@ let ModuleDefault = {
           listeners: {
             form_open: () => {
               this.fillUpSelectedServiceAction()
-              console.log('open')
             },
             form_reset: () => {
               this.selectedRoles = {}
-              console.log('reset')
             }
           }
         }
@@ -156,14 +178,12 @@ let ModuleDefault = {
         }
       }
       this.apiRequest('role/retrieve', param, response => {
-        console.log(response['data'])
         this.roles = response['data']
       })
     },
     fillUpSelectedServiceAction(){
       this.selectedRoles = {}
       let formData = this.formSlotProp.formData
-      console.log(formData)
       if(typeof formData['user_roles.array_key_list'] !== 'undefined'){
         for(let x = 0; x < formData['user_roles.array_key_list'].length; x++){
           let roleAccessListId = formData['user_roles.' + formData['user_roles.array_key_list'][x] + '.id'] * 1

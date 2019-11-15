@@ -13,6 +13,8 @@ class DBMigrate {
     let isDbCreated = await connection.initDb(this.schema)
     if(isDbCreated){
       console.info('DB Created or Updated', schemaV1, schemaV1.tables)
+    }else{
+      console.log('No DB Created', schemaV1)
     }
     isReadyCallback(true)
   }
@@ -22,6 +24,7 @@ class DBMigrate {
     for(let x = 0; x < schemaV1.tables.length; x++){
       this.schema.tables.push({
         name: schemaV1.tables[x]['name'],
+        version: typeof schemaV1.tables[x]['version'] !== 'undefined' ? schemaV1.tables[x]['version'] : 1,
         columns: this.initColumn(schemaV1.tables[x])
       })
     }

@@ -155,6 +155,7 @@ export default {
       for(let x = 0; x < this.orderedItemList.length; x++){
         Cart.commit('applyDiscount', [
           x,
+          this.discountList[this.selectedDiscountIndex]['id'],
           this.orderedItemList[x]['discount_quantity'] * 1,
           this.orderedItemList[x]['discount_amount'] * 1,
           this.orderedItemList[x]['vat_exempt_quatity'] * 1,

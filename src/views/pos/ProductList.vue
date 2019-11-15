@@ -1,5 +1,5 @@
 <template>
-  <div class="border">
+  <div class="border no_selection">
     <div class="row mb-2 border-bottom py-2 mx-0 no-gutters">
       <div class="col-4 pl-2">
         <button
@@ -70,10 +70,10 @@
         >
           <div
             @click="setCategoryFilter(category['db_id'], category['description'])"
-            class="btn-primary border font-weight-bold rounded border-primary py-2 text-center px-1 item"
+            class="font-weight-bold rounded text-white bg-primary py-2 text-center px-1 item"
             style="max-height:66px; overflow-y:hidden"
           >
-            {{ category['description'] }}
+            <span class="no_selection"> {{ category['description'] }}</span>
           </div>
         </div>
         <div
@@ -83,10 +83,10 @@
         >
           <div
             @click="$emit('add-product', product['db_id'])"
-            class="btn-outline-primary border rounded border-dark  py-2 text-center px-1 item"
+            class="border rounded border-primary text-primary py-2 text-center px-1 item"
             style="max-height:66px; overflow-y:hidden"
           >
-            {{ product['description'] }}
+            <span class="no_selection"> {{ product['description'] }}</span>
           </div>
         </div>
       </div>
@@ -98,6 +98,7 @@
 import Vue from 'vue'
 import Product from '@/database/controller/product.js'
 import Category from '@/database/controller/category.js'
+// import SyncStore from '@/database/sync/sync-store'
 export default {
   components: {
   },
@@ -105,7 +106,6 @@ export default {
     this.$nextTick(() => {
       this.draw()
     })
-    this.listItems()
   },
   data () {
     return {
@@ -116,37 +116,15 @@ export default {
       categoryFilterDescription: null,
       searchTimeoutID: null,
       categoryList: {
-        1: {
-          description: 'Pizza'
-        },
-        2: {
-          description: 'Body Care'
-        },
-        3: {
-          description: 'Clothes  oh yeah'
-        }
       },
       productList: {
-        1: {
-          description: 'Del Monte Four Season',
-          is_available: true
-        },
-        2: {
-          description: 'Nivea Dry Impact',
-          is_available: true
-        },
-        3: {
-          description: 'Grips Hair Clay Gray',
-          is_available: true
-        },
-        4: {
-          description: 'HBW 2000R',
-          is_available: true
-        }
       }
     }
   },
   methods: {
+    _initialize(){
+      this.listItems()
+    },
     draw () {
       let totalHeight = $(window).height()
       let offset = 35 + 60
@@ -154,7 +132,6 @@ export default {
       this.containerHeight = (totalHeight - $(this.$refs.container).position().top - offset) + 'px'
     },
     setCategoryFilter (id, description) {
-      console.log(id)
       this.categoryFilterID = id
       this.categoryFilterDescription = description
     },
@@ -237,6 +214,9 @@ export default {
 #container::-webkit-scrollbar-thumb:hover {
   background: #550055;
 }
+.itemContainer:hover{
+  cursor: pointer
+}
 .itemContainer{
   display: table
 }
@@ -245,4 +225,11 @@ export default {
   height: 64px;
   vertical-align: middle
 }
+.no_selection {
+    -webkit-user-select: none; /* webkit (safari, chrome) browsers */
+    -moz-user-select: none; /* mozilla browsers */
+    -khtml-user-select: none; /* webkit (konqueror) browsers */
+    -ms-user-select: none; /* IE10+ */
+}
+
 </style>
