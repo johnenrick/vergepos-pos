@@ -81,11 +81,13 @@ export default {
         icon: 'file-contract',
         name: 'Terminal Reports',
         sub_item: [{
-          name: 'Transactions'
+          name: 'Transactions',
+          route: 'transaction-history'
+        },{
+          name: 'Product Performance',
+          route: 'product-performance'
         }, {
           name: 'X Reading'
-        }, {
-          name: 'Z Reading'
         }]
       }, {
         icon: 'file-contract',

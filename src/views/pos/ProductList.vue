@@ -70,7 +70,7 @@
         >
           <div
             @click="setCategoryFilter(category['db_id'], category['description'])"
-            class="font-weight-bold rounded text-white bg-primary py-2 text-center px-1 item"
+            class="font-weight-bold text-uppercase border text-primary border-primary py-2 text-center px-1 item"
             style="max-height:66px; overflow-y:hidden"
           >
             <span class="no_selection"> {{ category['description'] }}</span>
@@ -83,7 +83,7 @@
         >
           <div
             @click="$emit('add-product', product['db_id'])"
-            class="border rounded border-primary text-primary py-2 text-center px-1 item"
+            class="border  border-primary text-primary py-2 text-center px-1 item"
             style="max-height:66px; overflow-y:hidden"
           >
             <span class="no_selection"> {{ product['description'] }}</span>

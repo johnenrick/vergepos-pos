@@ -25,6 +25,7 @@ export default {
   },
   mounted () {
     navConfig.noSideBar = true
+    this.postSync()
   },
   beforeDestroy () {
     navConfig.noSideBar = false
@@ -36,25 +37,30 @@ export default {
   },
   computed: {
     isSyncing(){
-      if(!SyncStore.state.isSyncing){
-        this.doneSyncing = true
-        if(typeof this.$refs.productList === 'undefined'){
-          this.$nextTick(() => {
-            this.$refs.productList._initialize()
-          })
-        }else{
-          this.$refs.productList._initialize()
-        }
-      }
+      console.log('syncha', SyncStore.state.isSyncing)
       return SyncStore.state.isSyncing
     }
   },
   watch: {
     isSyncing(newData){
       console.log('watching', newData)
+      this.postSync()
     }
   },
   methods: {
+    postSync(){
+      if(SyncStore.state.isSyncing){
+        return false
+      }
+      this.doneSyncing = true
+      if(typeof this.$refs.productList === 'undefined'){
+        this.$nextTick(() => {
+          this.$refs.productList._initialize()
+        })
+      }else{
+        this.$refs.productList._initialize()
+      }
+    },
     addItem (productID) {
       this.$refs.orderList._addProduct(productID)
     }

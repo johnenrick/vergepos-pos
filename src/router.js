@@ -121,12 +121,24 @@ let routes = [
     }
   },
   {
-    path: '/transaction_history',
+    path: '/transaction-history',
     name: 'TransactionHistory',
     component: () => {
       store.commit('setModuleLoading', true)
       return {
-        component: import('@/views/reports/TransactionHistory.vue')
+        component: import('@/views/terminal_reports/TransactionHistory.vue')
+      }
+    },
+    meta: {
+    }
+  },
+  {
+    path: '/product-performance',
+    name: 'productPerformance',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/terminal_reports/ProductPerformance.vue')
       }
     },
     meta: {

@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div class="section">
     <h2>X Reading</h2>
-    <div class="row mb-3">
-      <div class="col-12 col-md-6 col-lg-4">
+    <div class="row ">
+      <div class="col-12 col-md-6 col-lg-4 mb-3 ">
         <div class="form-group row">
           <label class="col-form-label col-4">Start Date</label>
           <div class="col-8">
@@ -50,7 +50,11 @@
         </div>
       </div>
     </div>
-    <x-reading ref="xReading"  />
+    <div class="row ">
+      <div class="col-12 col-md-6 col-lg-4">
+        <x-reading ref="xReading"  />
+      </div>
+    </div>
   </div>
 </template>
 <script>

@@ -11,7 +11,7 @@
       <button class="btn btn-lg btn-outline-dark mx-1" title="Parked Transactions">
         <fa :icon="'parking'" />
       </button>
-      <button @click="benchmark" class="btn btn-lg btn-outline-dark" title="Open Transaction"><fa :icon="'parking'" /></button>
+      <button @click="benchmark" class="btn btn-lg btn-outline-dark" title="Open Transaction"><fa :icon="'vial'" /></button>
     </div>
     <div class="col-12 col-md-3 pt-2 text-center text-md-right">
       {{liveTime}} <big v-bind:class="connectionSpeed ? 'text-success' : 'text-secondary'" class="ml-2 "><span v-bind:title="isSynching ? 'Synching Data' : 'Internet Availability'" v-bind:class="isSynching ? 'blink' : ''"><fa icon="wifi" /></span></big>
@@ -23,6 +23,7 @@
 <script>
 import TransactionViewer from './control_box_components/TransactionViewer'
 import Benchmark from './control_box_components/Benchmark'
+import Cart from './cart-store'
 export default {
   components: {
     TransactionViewer,
@@ -49,7 +50,7 @@ export default {
   },
   methods: {
     viewTransaction(){
-      this.$refs.TransactionViewer._open()
+      this.$refs.TransactionViewer._open(Cart.state.latestTransactionNumber ? Cart.state.latestTransactionNumber : null)
     },
     benchmark(){
       this.$refs.benchmark._benchmark()

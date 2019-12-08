@@ -34,6 +34,9 @@ export default class Controller {
   update(data){
     data['updated_at'] = (new Date()).getTime()
     if(isNaN(data['created_at'] * 1)){
+      // data['created_at'] = (new Date(data['created_at'])).getTime()
+    }
+    if(data['created_at']){
       data['created_at'] = (new Date(data['created_at'])).getTime()
     }
     return new Promise((resolve, reject) => {
@@ -46,6 +49,7 @@ export default class Controller {
       }).then(response => {
         resolve(response)
       }).catch(error => {
+        console.log(this.tableName, data)
         reject(error)
       })
     })
@@ -58,16 +62,16 @@ export default class Controller {
     if(typeof query['from'] === 'undefined'){
       query['from'] = this.tableName
     }
-    if(typeof query['where'] === 'undefined'){
-      // query['where'] = {}
-    }
+
     if(typeof query['id'] !== 'undefined'){
+      if(typeof query['where'] === 'undefined'){
+        query['where'] = {}
+      }
       query['where']['id'] = query['id']
       hasId = true
       delete query['id']
     }
     return new Promise((resolve, reject) => {
-      console.log('query', query)
       connection.select(query).then(result => {
         if(result.length && typeof query['with'] !== 'undefined'){
           this.executeWithQuery(query, result).then(withResult => {
