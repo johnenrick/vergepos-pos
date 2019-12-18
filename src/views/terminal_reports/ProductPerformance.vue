@@ -53,9 +53,9 @@
           :data-total="2"
           :fields="tableSetting.columns"
         >
-          <template slot="actions" scope="props">
+          <!-- <template slot="actions" scope="props">
             <button @click="openTransaction(props.rowData['id'])" class="btn btn-sm btn-info"><fa icon="search" /></button>
-          </template>
+          </template> -->
         </vuetable>
       </div>
     </div>
@@ -172,12 +172,11 @@ export default {
       this.dailyTransactionProducts = []
       this.weeklyTransactionProducts = []
       transactionProduct.get(query).then(response => {
-        let weekly = {}
-        let daily = {}
+        // let weekly = {}
+        // let daily = {}
         for(let x = 0; x < response.length; x++){
           response[x]['amount'] = response[x]['vat_amount'] + response[x]['vat_sales']
           this.transactionProducts.push(response[x])
-
         }
         // resolve(response)
         // this.generateReport()

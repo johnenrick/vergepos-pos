@@ -155,11 +155,10 @@ export default {
 </script>
 <style lang="scss" scoped>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
   // text-align: center;
-  color: #2c3e50;
+  color: #505050!important;;
+  font-size: 14px;
 }
 #nav {
   padding: 30px;
