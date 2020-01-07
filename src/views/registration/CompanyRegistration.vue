@@ -26,7 +26,7 @@
       <template v-slot:body>
         <div class="p-4 text-center">
           <h1 class="display-5 font-weight-bold">
-            Congratulation, {{userName}}!
+            Congratulation, {{username}}!
           </h1>
           <p class="lead mt-4">Your account has been successfully created! You can now start exploring VergePOS and transform your business!</p>
           <button @click="logIn" class="btn btn-success btn-lg">Proceed To My Account <fa :icon="'arrow-right'"  /></button>
@@ -54,7 +54,7 @@ export default {
       passwordMatched: false,
       isLoading: false,
       validationMessage: {},
-      userName: 'John',
+      username: 'John',
       credential: {},
       formConfig: {
         fields: {
@@ -155,12 +155,15 @@ export default {
       this.validationMessage = {}
       let param = APIUtil.textKeyToArray(this.$refs.form._getFormData())
       this.isLoading = true
+      this.username = param.name
+      console.log(param, param.name, this.username)
       this.apiRequest('company/create', param, (response) => {
         if (response.data.id) {
           this.credential = {
             email: param['user']['email'],
             password: param['user']['password']
           }
+          this.username = param.name
           this.congratulate()
         }
         this.isLoading = false

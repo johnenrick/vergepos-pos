@@ -57,7 +57,6 @@ export default {
       let transactionDiscountAmountTrend = []
       let dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
       for(let day in transactionGroupByDay){
-
         dayLabel.push(dayName[day])
         transactionAmountTrend.push({
           x: day,

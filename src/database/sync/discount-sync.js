@@ -26,6 +26,10 @@ export default class DiscountSync extends Sync{
         let discount = new Discount()
         for (let x in response['data']) {
           discount.getByIndex('db_id', response['data'][x]['id']).then((result) => {
+            response['data'][x]['type'] = response['data'][x]['type'] * 1
+            response['data'][x]['value'] = response['data'][x]['value'] * 1
+            response['data'][x]['is_vat_exempt'] = response['data'][x]['is_vat_exempt'] * 1
+            response['data'][x]['require_identification_card'] = response['data'][x]['require_identification_card'] * 1
             if (response['data'][x]['deleted_at'] && result) {
               discount.delete(result[0].id)
             } else if (result && response['data'][x]['deleted_at']) {

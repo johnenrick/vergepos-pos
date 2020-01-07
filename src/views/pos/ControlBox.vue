@@ -1,17 +1,17 @@
 <template>
   <div class="row pb-3">
     <div class="col-12 col-md-9">
-      <button class="btn btn-lg btn-outline-dark mr-1">
+      <button class="btn btn-lg btn-outline-dark mr-1" title="Refresh the app">
         <fa :icon="'redo'" />
       </button>
-      <button class="btn btn-lg btn-outline-dark mx-1">
+      <!-- <button class="btn btn-lg btn-outline-dark mx-1">
         <fa :icon="'calculator'" />
-      </button>
+      </button> -->
       <button @click="viewTransaction" class="btn btn-lg btn-outline-dark" title="Open Transaction"><fa :icon="'receipt'" /></button>
       <button class="btn btn-lg btn-outline-dark mx-1" title="Parked Transactions">
         <fa :icon="'parking'" />
       </button>
-      <button @click="benchmark" class="btn btn-lg btn-outline-dark" title="Open Transaction"><fa :icon="'vial'" /></button>
+      <button @click="benchmark" class="btn btn-lg btn-outline-dark" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button>
     </div>
     <div class="col-12 col-md-3 pt-2 text-center text-md-right">
       {{liveTime}} <big v-bind:class="connectionSpeed ? 'text-success' : 'text-secondary'" class="ml-2 "><span v-bind:title="isSynching ? 'Synching Data' : 'Internet Availability'" v-bind:class="isSynching ? 'blink' : ''"><fa icon="wifi" /></span></big>

@@ -71,7 +71,7 @@
           :data-total="2"
           :fields="tableSetting.columns"
         >
-          <template slot="actions" scope="props">
+          <template slot="actions" slot-scope="props">
             <button @click="openTransaction(props.rowData['id'])" class="btn btn-sm btn-info"><fa icon="search" /></button>
           </template>
         </vuetable>
@@ -126,7 +126,7 @@ export default {
           titleClass: 'text-center',
           dataClass: 'text-center',
           callback: (value) => {
-            return this.formatDate(value, 'mm/dd/yy hh:mm')
+            return value // this.formatDate(value, 'mm/dd/yy hh:mm')
           }
         }, {
           name: 'total_amount',
@@ -238,8 +238,6 @@ export default {
           })
         }).finally(() => {
           resolve(null)
-
-
         })
       })
     },

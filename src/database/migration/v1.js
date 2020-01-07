@@ -70,7 +70,7 @@ export default {
       total_vat_zero_rated_sales: { notNull: true, dataType: 'number' },
       total_vat_amount: { notNull: true, dataType: 'number' },
       total_discount_amount: { notNull: true, dataType: 'number' },
-      sub_total_amount: { notNull: true, dataType: 'number' },
+      sub_total_amount: { notNull: true, dataType: 'number' }, // no discount added yet
       status: { notNull: true, dataType: 'number', default: 1 }, // voided(2) or not(1)
       discount_id: { notNull: false, dataType: 'number' },
     }

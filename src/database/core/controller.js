@@ -26,7 +26,7 @@ export default class Controller {
       }).then(response => {
         resolve(response.length ? response[0] : null)
       }).catch(error => {
-        console.log(this.tableName)
+        console.log(this.tableName, data)
         reject(error)
       })
     })

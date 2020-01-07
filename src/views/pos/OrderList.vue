@@ -54,7 +54,7 @@
     >
       <div class="row mx-0 py-2 align-items-center">
         <div class="col-8  pr-0">
-          <span class="badge badge-secondary mr-1">Has Parked Txn</span>
+          <!-- <span class="badge badge-secondary mr-1">Has Parked Txn</span> -->
         </div>
         <div class="col-4 text-right font-weight-bold pr-3">
           <big>{{ totalAmount | numberToMoney }}</big>
@@ -79,10 +79,14 @@
                 href="javascript:void(0)"
               ><fa icon="percent" /> Apply Discounts</a>
               <a
+                class="dropdown-item"
+                href="javascript:void(0)"
+              ><fa icon="ban" /> Clear Order</a>
+              <!-- <a
                 @click="parkTransaction"
                 class="dropdown-item"
                 href="javascript:void(0)"
-              ><fa icon="parking" />  Park Transaction</a>
+              ><fa icon="parking" />  Park Transaction</a> -->
             </div>
           </div>
         </div>

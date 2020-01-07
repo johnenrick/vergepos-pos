@@ -64,7 +64,7 @@ export default {
   },
   data(){
     return {
-      username: 'staff@sugbo.com',
+      username: 'juancruz@gmail.com',
       password: '123456',
       isLoading: false,
       errorMessage: '',
@@ -82,6 +82,7 @@ export default {
     checkIfOnline(callback){
       // return this.isOffline = true
       this.checkConnectivity().then((ping) => {
+        console.log('ping', ping)
         this.isOffline = false
       }).catch((status) => {
         this.isOffline = true

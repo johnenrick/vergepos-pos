@@ -83,7 +83,7 @@ export default {
         sub_item: [{
           name: 'Transactions',
           route: 'transaction-history'
-        },{
+        }, {
           name: 'Product Performance',
           route: 'product-performance'
         }, {
