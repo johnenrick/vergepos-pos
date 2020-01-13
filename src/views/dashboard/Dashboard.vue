@@ -11,7 +11,7 @@
         <terminal-selection ref="terminalSelection" />
       </div>
       <div v-else class="bg-info text-white p-2 rounded">
-        <fa icon="info-circle" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and offline log in has been enabled.
+        <fa icon="info-circle" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and offline log in has been enabled. <a @click.stop="removeTerminal" href="#" class="text-white font-weight-bold">Undo</a>
       </div>
     </div>
     <quick-report-card />
@@ -22,6 +22,7 @@
 import QuickReportCard from './QuickReportCards.vue'
 import WeeklySaleGraph from './WeeklySaleGraph.vue'
 import TerminalSelection from './TerminalSelection'
+import UserStore from '@/vue-web-core/system/store'
 // import User from '@/database/controller/user'
 export default {
   components: {
@@ -38,9 +39,37 @@ export default {
   },
   methods: {
     openTerminalSelection(){
-      localStorage.setItem('is_terminal', 1)
-      window.location = '/'
+      // localStorage.setItem('is_terminal', 1)
+      console.log(UserStore.getters.companyInformation)
+      let param = {
+        id: UserStore.getters.companyInformation.id,
+        select: {
+          0: 'id',
+          stores: {
+            select: {
+              0: 'id',
+              store_terminals: {
+                select: {
+                  0: 'id'
+                }
+              }
+            }
+          }
+        }
+      }
+      this.apiRequest('company/retrieve', param, (response) => {
+        console.log(response['data'], typeof response['data']['stores'])
+        if(response['data'] && typeof response['data']['stores'] !== 'undefined' && response['data']['stores'].length){
+          localStorage.setItem('is_terminal', response['data']['stores'][0]['store_terminals'][0]['id'])
+        }else{
+          console.log('No Terminal')
+        }
+      })
+      // window.location = '/'
       // this.$refs.terminalSelection._open()
+    },
+    removeTerminal(){
+      localStorage.removeItem('is_terminal', 1)
     }
   }
 }

@@ -99,14 +99,14 @@ export default {
         }]
       }, {
         icon: 'tools',
-        name: 'Admin',
+        name: 'Business',
         sub_item: [{
           icon: 'users',
           name: 'Users',
           route: '/user_management'
         }, {
           icon: 'store',
-          name: 'Stores'
+          name: 'Business Detail'
         }]
       }],
       headerMenu: [{

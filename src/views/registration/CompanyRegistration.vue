@@ -168,6 +168,7 @@ export default {
         }
         this.isLoading = false
       }, (errorResponse, status) => {
+        this.isLoading = false
         if (errorResponse.error.code === 1) {
           let errorMessages = ResponseUtil.renderValidationError(errorResponse.error.message)
           this.validationMessage = errorMessages

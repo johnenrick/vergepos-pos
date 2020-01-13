@@ -155,6 +155,18 @@ let routes = [
     },
     meta: {
     }
+  },
+  {
+    path: '/business-detail',
+    name: 'BusinessDetail',
+    component: () => {
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/business-detail/BusinessDetail.vue')
+      }
+    },
+    meta: {
+    }
   }
 ]
 let router = new Router({
