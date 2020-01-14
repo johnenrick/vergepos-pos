@@ -73,6 +73,7 @@ export default {
       sub_total_amount: { notNull: true, dataType: 'number' }, // no discount added yet
       status: { notNull: true, dataType: 'number', default: 1 }, // voided(2) or not(1)
       discount_id: { notNull: false, dataType: 'number' },
+      store_terminal_id: { notNull: true, dataType: 'number' },
     }
   }, {
     name: 'day_end_reports',

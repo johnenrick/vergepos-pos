@@ -58,7 +58,6 @@ export default {
         }
       }
       this.apiRequest('company/retrieve', param, (response) => {
-        console.log(response['data'], typeof response['data']['stores'])
         if(response['data'] && typeof response['data']['stores'] !== 'undefined' && response['data']['stores'].length){
           localStorage.setItem('is_terminal', response['data']['stores'][0]['store_terminals'][0]['id'])
         }else{

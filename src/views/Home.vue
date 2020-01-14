@@ -146,7 +146,7 @@ export default {
         }else if(typeof VueCoreStore.state.userRoles[101] !== 'undefined'){
           this.$router.push({
             path: '/pos'
-          })
+          }, () => {})
         }else{
           // alert('cant seem to find your place')
         }

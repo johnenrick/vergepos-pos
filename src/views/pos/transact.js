@@ -10,6 +10,7 @@ export default class Transact {
       this.transactionNumberDB.add({ operation: 1, user_id: localStorage.getItem('user_id') * 1 }).then((transactionNumberResult) => {
         if(transactionNumberResult['id']){
           transaction['transaction_number_id'] = transactionNumberResult['id'] * 1
+          transaction['store_terminal_id'] = localStorage.getItem('is_terminal') * 1
           this.transactionDB.add(transaction).then((response) => {
             if(response && response['id']){
               this.createTransactionProductRecursion(transactionProducts, 0, response['id']).then(result => {
@@ -39,7 +40,7 @@ export default class Transact {
         vat_zero_rated_sales: transactionProducts[index]['vat_zero_rated_sales'] * 1,
         vat_amount: transactionProducts[index]['vat_amount'] * 1,
         discount_amount: transactionProducts[index]['discount_amount'] * 1,
-        discount_id: transactionProducts[index]['discount_id'] * 1,
+        discount_id: transactionProducts[index]['discount_id'] * 1
       }
       this.transactionProductDB.add(newTransaction).then(response => {
         index++
