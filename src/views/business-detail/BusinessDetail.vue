@@ -217,7 +217,7 @@ export default {
       }
       if((this.companyCode.length) > 20){
         this.companyCodeClass = 'is-invalid'
-        this.ccValid = 1
+        this.ccValid = 0
         this.companyCodeError = 'Maximum character exceeded'
       }
     },
@@ -236,7 +236,7 @@ export default {
         this.companyNumberError = 'This is required'
       }
     },
-    cnValid: function (){
+    ccValid: function (){
       if(this.cnumValid === 1 && this.caValid === 1 && this.nobValid === 1 && this.cnValid === 1 && this.ccValid === 1){
         this.isAllValid = 5
       }else{
