@@ -49,14 +49,11 @@ export default class SyncAll {
       this.syncFail++
     }
     let progress = (this.syncSuccess + this.syncFail) / this.syncItems.length
+    if(progress === 1){
+      SyncStore.commit('isNotSynching')
+    }
     if(typeof this.progressListener === 'function'){
       this.progressListener(progress)
-    }
-    if(progress === 1){
-      // setTimeout(() => {
-      SyncStore.commit('isNotSynching')
-      // }, 1000)
-    }else{
     }
   }
 }

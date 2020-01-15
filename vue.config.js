@@ -2,7 +2,7 @@ module.exports = {
   publicPath: '',
 
   pwa: {
-    name: 'Verge by JohnPlenos'
+    name: 'VergePOS by Verge Technologies'
   },
 
   devServer: {

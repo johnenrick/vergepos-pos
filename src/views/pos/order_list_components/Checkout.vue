@@ -173,6 +173,7 @@ export default {
         cash_tendered: this.cashPayment,
         cash_amount_paid: Cart.state.totalAmount,
         discount_id: Cart.state.discountId,
+        discount_remarks: Cart.state.discountRemarks,
       }, Cart.state.items).then((response) => {
         Cart.commit('setLatestTransactionNUmber', response['id'])
         this.transactionStatus = true

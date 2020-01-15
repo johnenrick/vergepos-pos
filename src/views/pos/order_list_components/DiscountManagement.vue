@@ -25,12 +25,14 @@
                 <option value="null">
                   Select a Discount {{selectedDiscountIndex}}
                 </option>
-                <option
-                  v-for="(discount, index) in discountList"
-                  :value="index"
-                >
-                  {{ discount['description'] }}
-                </option>
+                <template v-for="(discount, index) in discountList">
+                  <option
+                    v-bind:key="index"
+                    :value="index"
+                  >
+                    {{ discount['description'] }}
+                  </option>
+                </template>
               </select>
             </div>
           </div>
@@ -68,7 +70,6 @@
                           :max-value="item['quantity']"
                           :placeholder="'max: ' + item['quantity']"
                           @change="orderedItemList[index]['discount_quantity'] = $event; discountQuantityChanged(index)"
-
                           />
                         <label
                           v-else
@@ -85,6 +86,12 @@
             </div>
           </template>
           <hr class="my-4">
+          <div v-if="selectedDiscountIndex !== null" class="row">
+            <div class="col-12 ">
+              <label class="form-control-plaintext">Discount Remarks:</label>
+              <textarea v-model="discountRemarks" :placeholder="discountList[selectedDiscountIndex]['require_identification_card'] ? 'Enter ID details such as type of ID card, ID number, and name' : 'Note the ID details, etc...'" class="form-control" rows="3" />
+            </div>
+          </div>
           <div class="row">
             <div class="col-8 text-right">
               <label class="form-control-plaintext">Total Vat Exempt Sales:</label>
@@ -111,6 +118,7 @@
             Close
           </button>
           <button
+            :disabled="selectedDiscountIndex !== null && discountList[selectedDiscountIndex]['require_identification_card'] !== 0 && discountRemarks.length < 5"
             @click="save"
             type="button"
             class="btn btn-primary"
@@ -142,6 +150,7 @@ export default {
       discountList: [],
       selectedDiscountIndex: null,
       selectedDiscountWriteUp: '',
+      discountRemarks: '',
       orderedItemList: [],
       applyDiscountToAll: false,
       totalDiscount: 0,
@@ -163,6 +172,7 @@ export default {
         ])
       }
       Cart.commit('setDiscountId', this.selectedDiscountIndex === null ? null : this.discountList[this.selectedDiscountIndex]['id'])
+      Cart.commit('setDiscountRemarks', this.discountRemarks)
       Cart.commit('calculateTotal')
       $(this.$refs.modal).modal('hide')
       this.$emit('discount_updated', this.totalDiscount, this.totalVatExempt)
@@ -236,6 +246,7 @@ export default {
       this.resetDiscountedItems()
       this.totalDiscount = 0
       this.totalVatExempt = 0
+      this.discountRemarks = ''
     },
     _open () { // open the modal
       let orderedItemList = this.cloneObject(Cart.state.items)

@@ -1,5 +1,5 @@
 export default {
-  version: 7,
+  version: 8,
   dbName: 'Vue 1',
   tables: [{
     name: 'categories',
@@ -27,9 +27,10 @@ export default {
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       description: { notNull: true, dataType: 'string' },
+      barcode: { notNull: false, dataType: 'string' },
       category_id: { notNull: true, dataType: 'number' },
       price: { notNull: true, dataType: 'number' },
-      cost: { notNull: true, dataType: 'number' }
+      cost: { notNull: true, dataType: 'number' },
     }
   }, {
     name: 'discounts',
@@ -73,6 +74,7 @@ export default {
       sub_total_amount: { notNull: true, dataType: 'number' }, // no discount added yet
       status: { notNull: true, dataType: 'number', default: 1 }, // voided(2) or not(1)
       discount_id: { notNull: false, dataType: 'number' },
+      discount_remarks: { notNull: false, dataType: 'string' },
       store_terminal_id: { notNull: true, dataType: 'number' },
     }
   }, {

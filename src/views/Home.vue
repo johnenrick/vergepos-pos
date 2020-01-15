@@ -30,7 +30,7 @@
         </div>
       </div>
     </div>
-    <button @click="checkIfOnline">Test</button>
+    <!-- <button @click="checkIfOnline">Test</button> -->
   </div>
 </template>
 
@@ -142,7 +142,7 @@ export default {
         if(typeof VueCoreStore.state.userRoles[100] !== 'undefined'){
           this.$router.push({
             path: '/dashboard'
-          })
+          }, () => {})
         }else if(typeof VueCoreStore.state.userRoles[101] !== 'undefined'){
           this.$router.push({
             path: '/pos'

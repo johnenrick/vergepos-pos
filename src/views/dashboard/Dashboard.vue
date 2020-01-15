@@ -4,7 +4,7 @@
       <h2 class="font-weight-bold mb-4">Welcome to your VergePOS Dashboard!</h2>
       <p>You dashboard will give you quick reports about your business. From number of transactions to daily sales report!. You can also find other resources here such as <a href="">VergePOS Tutorials</a>, Business Tips, and many more...</p>
     </div>
-    <div  class="mb-4">
+    <div v-if="!isConfuringTerminal" class="mb-4">
       <div v-if="!isTerminal">
         <button @click="openTerminalSelection" class="btn btn-secondary"><fa icon="cash-register" /> Set As Terminal</button><br>
         <small>Set this machine as a Terminal. By doing so, it will allow you to use the POS even if you dont have internet connection. </small>
@@ -13,6 +13,9 @@
       <div v-else class="bg-info text-white p-2 rounded">
         <fa icon="info-circle" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and offline log in has been enabled. <a @click.stop="removeTerminal" href="#" class="text-white font-weight-bold">Undo</a>
       </div>
+    </div>
+    <div v-else class="mb-4">
+      Configuring Terminal. Please wait...
     </div>
     <quick-report-card />
     <weekly-sale-graph />
@@ -34,11 +37,13 @@ export default {
   },
   data(){
     return {
-      isTerminal: localStorage.getItem('is_terminal')
+      isTerminal: localStorage.getItem('is_terminal'),
+      isConfuringTerminal: false
     }
   },
   methods: {
     openTerminalSelection(){
+      this.isConfuringTerminal = true
       // localStorage.setItem('is_terminal', 1)
       console.log(UserStore.getters.companyInformation)
       let param = {
@@ -60,15 +65,18 @@ export default {
       this.apiRequest('company/retrieve', param, (response) => {
         if(response['data'] && typeof response['data']['stores'] !== 'undefined' && response['data']['stores'].length){
           localStorage.setItem('is_terminal', response['data']['stores'][0]['store_terminals'][0]['id'])
+          window.location = '/'
         }else{
           console.log('No Terminal')
         }
+        this.isConfuringTerminal = false
       })
-      // window.location = '/'
       // this.$refs.terminalSelection._open()
     },
     removeTerminal(){
+      this.isConfuringTerminal = true
       localStorage.removeItem('is_terminal', 1)
+      window.location = '/'
     }
   }
 }

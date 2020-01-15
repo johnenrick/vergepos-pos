@@ -5,19 +5,19 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    isSyncing: false
+    isSynching: null
   },
   mutations: {
     isSynching(state){
-      Vue.set(state, 'isSyncing', true)
+      Vue.set(state, 'isSynching', true)
     },
     isNotSynching(state){
-      Vue.set(state, 'isSyncing', false)
+      Vue.set(state, 'isSynching', false)
     }
   },
   getters: {
-    isSyncing: (state) => {
-      return state.isSyncing
+    isSynching: (state) => {
+      return state.isSynching
     },
   },
   actions: {

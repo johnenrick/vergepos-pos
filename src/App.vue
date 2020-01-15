@@ -4,7 +4,7 @@
       <template v-slot:body >
         <div class="text-center">
           <h1 class="text-primary"><fa icon="server" /></h1>
-          <p>Syncing data from the server. Please wait...</p>
+          <p>Synching data from the server. Please wait...</p>
           <span v-if="dataSynced < 1">{{(dataSynced * 100).toFixed(2)}}%</span>
           <span v-else-if="dataSynced === 1" class="text-success">Synchronization Complete!</span>
         </div >
@@ -54,13 +54,6 @@ export default {
     if(!this.$auth.token()){
       this.dataSynced = 1
     }
-    let migrate = new Migrate()
-    migrate.migrate(() => {
-      this.migrated = true
-      if(this.userID){
-        this.sync()
-      }
-    })
   },
   data () {
     return {
@@ -123,24 +116,31 @@ export default {
   methods: {
     sync(){
       this.$refs.modal._open()
-      this.syncAll.downSync((progress) => {
-        this.dataSynced = progress
-        if(progress === 1){
-          setTimeout(() => {
-            this.$refs.modal._close()
-          }, 500)
+      let migrate = new Migrate()
+      migrate.migrate(() => {
+        this.migrated = true
+        if(this.userID){
+          this.syncAll.downSync((progress) => {
+            this.dataSynced = progress
+            if(progress === 1){
+              setTimeout(() => {
+                this.doneSynching()
+              }, 500)
+            }
+          })
+        }else{
+          this.doneSynching()
         }
       })
+    },
+    doneSynching(){
+      this.dataSynced = 1
+      this.$refs.modal._close()
     }
   },
   watch: {
     userID(newData){
-      if(this.migrated){
-        this.sync()
-      }
-      if(!newData){
-        this.dataSynced = 1
-      }
+      this.sync()
     }
   },
   computed: {
