@@ -7,7 +7,7 @@
           <div class="row justify-content-center">
             <div class="col-12">
                 <div class="form-group">
-                  <div v-bind:class="newClass" role="alert">
+                  <div :class="prompt" class="alert">
                     {{feedback}}
                   </div>
               </div>
@@ -21,9 +21,9 @@
                     <label>Company Name</label>
                   </div>
                   <div class="col-12">
-                    <input v-bind:disabled="isActive" :class="company_name_class" v-model="company_name">
+                    <input v-bind:disabled="isActive" class='form-control' :class="companyNameClass" v-model="companyName">
                     <div class="invalid-feedback">
-                      {{company_name_error}}
+                      {{companyNameError}}
                     </div>
                   </div>
                 </div>
@@ -34,9 +34,9 @@
                     <label>Company Code</label>
                   </div>
                   <div class="col-12">
-                    <input v-bind:disabled="isActive" :class="company_code_class" v-model="company_code">
+                    <input v-bind:disabled="isActive" class='form-control' :class="companyCodeClass" v-model="companyCode">
                     <div class="invalid-feedback">
-                      {{company_code_error}}
+                      {{companyCodeError}}
                     </div>
                   </div>
                 </div>
@@ -49,9 +49,9 @@
                     <label>Nature of Business</label>
                   </div>
                   <div class="col-12">
-                    <input v-bind:disabled="isActive" :class="nature_of_business_class" v-model="nature_of_business">
+                    <input v-bind:disabled="isActive" class='form-control' :class="natureOfBusinessClass" v-model="natureOfBusiness">
                     <div class="invalid-feedback">
-                      {{nature_of_business_error}}
+                      {{natureOfBusinessError}}
                     </div>
                   </div>
                 </div>
@@ -62,9 +62,9 @@
                     <label>Company Address</label>
                   </div>
                   <div class="col-12">
-                    <input v-bind:disabled="isActive" :class="company_address_class" v-model="company_address">
+                    <input v-bind:disabled="isActive" class='form-control' :class="companyAddressClass" v-model="companyAddress">
                     <div class="invalid-feedback">
-                      {{company_address_error}}
+                      {{companyAddressError}}
                     </div>
                   </div>
                 </div>
@@ -75,9 +75,9 @@
                     <label>Company Number</label>
                   </div>
                   <div class="col-12">
-                    <input v-bind:disabled="isActive" :class="company_number_class" v-model="company_number">
+                    <input v-bind:disabled="isActive" class='form-control' :class="companyNumberClass" v-model="companyNumber">
                     <div class="invalid-feedback">
-                      {{company_number_error}}
+                      {{companyNumberError}}
                     </div>
                   </div>
                 </div>
@@ -85,20 +85,20 @@
             </div>
           </div>
           <div class="row justify-content-center">
-            <div class="col-8 text-right">
+            <div class="col-12 text-right">
               <div class="form-group">
                 <div v-if="isActive==true">
                   <div class="row">
                     <div class="col-12">
-                      <button @click="stateSwitch()" align="center" type="button" v-bind:class="btn_edit_class"><fa icon="edit" /> Edit Details</button>
+                      <button @click="stateSwitch()" align="center" type="button" class="btn btn-outline-primary" :class="btnEditClass"><fa icon="edit" /> Edit Details</button>
                     </div>
                   </div>
                 </div>
                 <div v-else>
                   <div class="row">
                     <div class="col-12">
-                      <button @click="save()" align="center" type="button" v-bind:class="btn_save_class" :disabled="isAllValid == 5 ? false : true"><fa icon="check"/> Save</button>
-                      <button @click="discard()" align="center" type="button" v-bind:class="btn_cancel_class"><fa icon="times"/> Cancel</button>
+                      <button @click="save()" align="center" type="button" class="btn btn-outline-success" :class="btnSaveClass" :disabled="isAllValid == 5 ? false : true"><fa icon="check"/> Save</button>
+                      <button @click="discard()" align="center" type="button" class="btn btn-outline-secondary ml-2" :class="btnCancelClass"><fa icon="times"/> Cancel</button>
                     </div>
                   </div>
                 </div>
@@ -118,35 +118,35 @@ export default {
   },
   data(){
     return{
-      company_detail_id: '',
-      company_code: '',
-      company_name: '',
-      nature_of_business: '',
-      company_address: '',
-      company_number: '',
-      company_name_error: '',
-      company_code_error: '',
-      nature_of_business_error: '',
-      company_address_error: '',
-      company_number_error: '',
+      companyDetailId: '',
+      companyCode: '',
+      companyName: '',
+      natureOfBusiness: '',
+      companyAddress: '',
+      companyNumber: '',
+      companyNameError: '',
+      companyCodeError: '',
+      natureOfBusinessError: '',
+      companyAddressError: '',
+      companyNumberError: '',
       isActive: true,
-      company_name_class: 'form-control',
-      company_code_class: 'form-control',
-      nature_of_business_class: 'form-control',
-      company_address_class: 'form-control',
-      company_number_class: 'form-control',
-      feedback: 'Loading. Please wait',
-      newClass: 'alert alert-light',
-      btn_save_class: 'btn btn-outline-success',
-      btn_cancel_class: 'btn btn-outline-secondary ml-2',
-      btn_edit_class: 'btn btn-outline-primary  invisible',
+      companyNameClass: '',
+      companyCodeClass: '',
+      natureOfBusinessClass: '',
+      companyAddressClass: '',
+      companyNumberClass: '',
+      btnSaveClass: '',
+      btnCancelClass: '',
+      btnEditClass: 'invisible',
       cnValid: 0,
       nobValid: 0,
       caValid: 0,
       cnumValid: 0,
       ccValid: 0,
       isAllValid: 0,
-      temp:{
+      prompt: '',
+      feedback: '',
+      temp: {
         cname: '',
         nob: '',
         address: '',
@@ -155,133 +155,133 @@ export default {
       }
     }
   },
-  watch:{
-    company_name: function (val){
-      if((this.company_name.length) >= 4){
-        this.company_name_class = 'form-control is-valid'
+  watch: {
+    companyName: function (val) {
+      if((this.companyName.length) >= 4) {
+        this.companyNameClass = 'is-valid'
         this.cnValid = 1
-      }
-      else{
-        this.company_name_class = 'form-control is-invalid'
+      } else {
+        this.companyNameClass = 'is-invalid'
         this.cnValid = 0
-        this.company_name_error = 'must have at least 4 characters'
+        this.companyNameError = 'Must have at least 4 characters'
       }
-      if(!this.company_name.length){
-        this.company_name_class = 'form-control is-invalid'
+      if(!this.companyName.length) {
+        this.companyNameClass = 'is-invalid'
         this.cnValid = 0
-        this.company_name_error = 'this is required'
+        this.companyNameError = 'This is required'
       }
     },
-    nature_of_business: function (val){
-      if((this.nature_of_business.length) >= 4){
-        this.nature_of_business_class = 'form-control is-valid'
+    natureOfBusiness: function (val){
+      if((this.natureOfBusiness.length) >= 4){
+        this.natureOfBusinessClass = 'is-valid'
         this.nobValid = 1
       }else{
-        this.nature_of_business_class = 'form-control is-invalid'
+        this.natureOfBusinessClass = 'is-invalid'
         this.nobValid = 0
-        this.nature_of_business_error = 'must have at least 4 characters'
+        this.natureOfBusinessError = 'Must have at least 4 characters'
       }
-      if(!this.nature_of_business.length){
-        this.nature_of_business_class = 'form-control is-invalid'
+      if(!this.natureOfBusiness.length){
+        this.natureOfBusinessClass = 'is-invalid'
         this.nobValid = 0
-        this.nature_of_business_error = 'this is required'
+        this.natureOfBusinessError = 'This is required'
       }
     },
-    company_address: function (val){
-      if((this.company_address.length) >= 4){
-        this.company_address_class = 'form-control is-valid'
+    companyAddress: function (val){
+      if((this.companyAddress.length) >= 4){
+        this.companyAddressClass = 'is-valid'
         this.caValid = 1
       }else{
-        this.company_address_class = 'form-control is-invalid'
+        this.companyAddressClass = 'is-invalid'
         this.caValid = 0
-        this.company_address_error = 'must have at least 4 characters'
+        this.companyAddressError = 'Must have at least 4 characters'
       }
-      if(!this.company_address.length){
-        this.company_address_class = 'form-control is-invalid'
+      if(!this.companyAddress.length){
+        this.companyAddressClass = 'is-invalid'
         this.caValid = 0
-        this.company_address_error = 'this is required'
+        this.companyAddressError = 'This is required'
       }
     },
-    company_code: function (val){
-      if((this.company_code.length) >= 4){
-        this.company_code_class = 'form-control is-valid'
+    companyCode: function (val){
+      if((this.companyCode.length) >= 4){
+        this.companyCodeClass = 'is-valid'
         this.ccValid = 1
       }else{
-        this.company_code_class = 'form-control is-invalid'
+        this.companyCodeClass = 'is-invalid'
         this.ccValid = 0
-        this.company_code_error = 'must have at least 4 characters'
+        this.companyCodeError = 'Must have at least 4 characters'
       }
-      if(!this.company_code.length){
-        this.company_code_class = 'form-control is-invalid'
+      if(!this.companyCode.length){
+        this.companyCodeClass = 'is-invalid'
         this.ccValid = 0
-        this.company_code_error = 'this is required'
+        this.companyCodeError = 'This is required'
       }
-      if((this.company_code.length) > 20){
-        this.company_code_class = 'form-control is-invalid'
+      if((this.companyCode.length) > 20){
+        this.companyCodeClass = 'is-invalid'
         this.ccValid = 1
-        this.company_code_error = 'maximum character exceeded'
+        this.companyCodeError = 'Maximum character exceeded'
       }
     },
-    company_number: function (val){
-      if((this.company_number.length) >= 4){
-        this.company_number_class = 'form-control is-valid'
+    companyNumber: function (val){
+      if((this.companyNumber.length) >= 4){
+        this.companyNumberClass = 'is-valid'
         this.cnumValid = 1
       }else{
-        this.company_number_class = 'form-control is-invalid'
+        this.companyNumberClass = 'is-invalid'
         this.cnumValid = 0
-        this.company_number_error = 'must have at least 4 characters'
+        this.companyNumberError = 'Must have at least 4 characters'
       }
-      if(!this.company_number.length){
-        this.company_number_class = 'form-control is-invalid'
+      if(!this.companyNumber.length){
+        this.companyNumberClass = 'is-invalid'
         this.cnumValid = 0
-        this.company_number_error = 'this is required'
+        this.companyNumberError = 'This is required'
       }
     },
     cnValid: function (){
-      if(this.cnumValid == 1 && this.caValid == 1 && this.nobValid == 1 && this.cnValid == 1 && this.ccValid == 1){
+      if(this.cnumValid === 1 && this.caValid === 1 && this.nobValid === 1 && this.cnValid === 1 && this.ccValid === 1){
         this.isAllValid = 5
       }else{
         this.isAllValid = 0
       }
     }
   },
-  methods:{
+  methods: {
     stateSwitch(action){
-      if(!action){
-      this.prepEdit()   
+      if(!action) {
+        this.prepEdit()
       }
       this.isActive = !this.isActive
     },
-    save(){   
+    save() {
       this.updateDetail()
-      this.newClass = 'alert alert-light'
+      this.prompt = 'alert-light'
       this.feedback = 'Loading. Please wait'
-      this.btn_save_class = 'btn btn-outline-success invisible'
-      this.btn_cancel_class = 'btn btn-outline-secondary ml-2 invisible'            
+      this.btnSaveClass = 'invisible'
+      this.btnCancelClass = 'invisible'
+      setTimeout(() => this.resetInputClass(), 200)
     },
     resetInputClass(){
-      this.company_number_class = 'form-control'
-      this.company_address_class = 'form-control'        
-      this.nature_of_business_class = 'form-control'
-      this.company_name_class = 'form-control '
-      this.company_code_class = 'form-control'
+      this.companyNumberClass = ''
+      this.companyAddressClass = ''
+      this.natureOfBusinessClass = ''
+      this.companyNameClass = ''
+      this.companyCodeClass = ''
     },
 
     discard(){
       this.valRevert()
       this.tempClear()
-      this.resetInputClass()
-      this.newClass = 'alert alert-secondary'
+      this.prompt = 'alert-secondary'
       this.feedback = 'Changes have been discarded'
-      setTimeout(()=>this.newClass = 'alert invisible',700)
-      this.stateSwitch("cancel")
+      setTimeout(() => { this.prompt = 'invisible' }, 700)
+      setTimeout(() => this.resetInputClass(), 200)
+      this.stateSwitch('cancel')
     },
     prepEdit(){
-      this.temp.cname = this.company_name
-      this.temp.nob = this.nature_of_business
-      this.temp.address = this.company_address
-      this.temp.number = this.company_number
-      this.temp.code = this.company_code
+      this.temp.cname = this.companyName
+      this.temp.nob = this.natureOfBusiness
+      this.temp.address = this.companyAddress
+      this.temp.number = this.companyNumber
+      this.temp.code = this.companyCode
     },
     tempClear(){
       this.temp.cname = ''
@@ -291,11 +291,11 @@ export default {
       this.temp.code = ''
     },
     valRevert(){
-      this.company_name = this.temp.cname 
-      this.nature_of_business = this.temp.nob 
-      this.company_address = this.temp.address 
-      this.company_number = this.temp.number 
-      this.company_code = this.temp.code
+      this.companyName = this.temp.cname
+      this.natureOfBusiness = this.temp.nob
+      this.companyAddress = this.temp.address
+      this.companyNumber = this.temp.number
+      this.companyCode = this.temp.code
     },
     retrieveDetail(){
       let param = {
@@ -311,83 +311,82 @@ export default {
       this.apiRequest('company/retrieve', param, (response) => {
         console.log(response)
         if(!response['error']){
-          this.newClass = 'alert alert-light invisible'
-          this.btn_edit_class = "btn btn-outline-primary"
-          this.company_name = response.data.name
-          this.company_code = response.data.code
-          this.nature_of_business = response.data.company_detail.nature
-          this.company_address = response.data.company_detail.address
-          this.company_number = response.data.company_detail.contact_number
-          this.company_detail_id = response.data.company_detail.id
+          this.prompt = 'invisible'
+          this.btnEditClass = ''
+          this.companyName = response.data.name
+          this.companyCode = response.data.code
+          this.natureOfBusiness = response.data.company_detail.nature
+          this.companyAddress = response.data.company_detail.address
+          this.companyNumber = response.data.company_detail.contact_number
+          this.companyDetailId = response.data.company_detail.id
         }
-
         setTimeout(() => {
           this.resetInputClass()
-        }, 200)
+        }, 100)
       })
     },
     updateDetail(){
       let param = {
         id: UserStore.getters.companyInformation.id,
-        name: this.company_name,
-        code: this.company_code,
-        company_detail:{
-          id: this.company_detail_id,
-          nature: this.nature_of_business,
-          address: this.company_address,
-          contact_number: this.company_number
+        name: this.companyName,
+        code: this.companyCode,
+        company_detail: {
+          id: this.companyDetailId,
+          nature: this.natureOfBusiness,
+          address: this.companyAddress,
+          contact_number: this.companyNumber
         }
       }
-      this.apiRequest('company/update',param, (response) => {
+      this.apiRequest('company/update', param, (response) => {
         console.log(response)
         this.tempClear()
-        this.newClass = 'alert alert-success'
+        this.prompt = 'alert-success'
         this.feedback = 'Changes have been saved'
-        this.btn_save_class = 'btn btn-outline-success'
-        this.btn_cancel_class = 'btn btn-outline-secondary ml-2'
+        this.btnSaveClass = ''
+        this.btnCancelClass = ''
         this.resetInputClass()
-        setTimeout(()=>this.newClass = 'alert invisible',700)
-        this.stateSwitch("save")
-      },(errorResponse) => {
-        this.newClass = 'alert alert-warning'
-        this.feedback = 'Update failed'
-        setTimeout(()=>this.newClass = 'alert invisible',700)
-        this.btn_save_class = 'btn btn-outline-success'
-        this.btn_cancel_class = 'btn btn-outline-secondary ml-2'    
-        if(errorResponse.error.code == 1){
+        setTimeout(() => { this.prompt = 'invisible' }, 700)
+        this.stateSwitch('save')
+      }, (errorResponse) => {
+        this.prompt = 'alert-warning'
+        this.feedback = 'Changes have been saved'
+        setTimeout(() => { this.prompt = 'invisible' }, 700)
+        this.btnSaveClass = ''
+        this.btnCancelClass = ''
+        if(errorResponse.error.code === 1){
           for(let key in errorResponse.error.message){
-            if(key == "name"){
+            if(key === 'name') {
               errorResponse.error.message[key].forEach(element => {
-                this.company_name_error = element
-                this.company_name_class = 'form-control is-invalid'
+                this.companyNameError = element
+                this.companyNameClass = this.inputClass.invalid
                 this.cnValid = 0
               })
             }
-            if(key == "code"){
+            if(key === 'code') {
               errorResponse.error.message[key].forEach(element => {
-                this.company_code_error = element
-                this.company_code_class = 'form-control is-invalid'
+                this.companyCodeError = element
+                this.companyCodeClass = 'form-control is-invalid'
                 this.ccValid = 0
               })
             }
-            if(key == "company_detail.nature"){
+            if(key === 'company_detail.nature'){
               errorResponse.error.message[key].forEach(element => {
-                this.nature_of_business_error = element
-                this.nature_of_business_class = 'form-control is-invalid'
+                this.natureOfBusinessError = element
+                this.natureOfBusinessClass = this.inputClass.invalid
                 this.nobValid = 0
               })
             }
-            if(key == "company_detail.address"){
+            if(key === 'company_detail.address'){
               errorResponse.error.message[key].forEach(element => {
-                this.company_address_error = element
-                this.company_address_class = 'form-control is-invalid'
+                this.companyAddressError = element
+                this.companyAddressClass = this.inputClass.invalid
                 this.caValid = 0
               })
             }
-            if(key == "company_detail.contact_number"){
+            if(key === 'company_detail.contact_number'){
               errorResponse.error.message[key].forEach(element => {
-                this.company_number_error = element
-                this.company_number_class = 'form-control is-invalid'
+                this.companyNumberError = element
+                this.companyNumberClass = this.inputClass.invalid
                 this.cnumValid = 0
               })
             }
