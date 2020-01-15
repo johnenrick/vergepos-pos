@@ -1,15 +1,21 @@
 <template>
   <div class="section">
-    <basic-module :config="config" />
+    <basic-module v-if="!isOffline" :config="config" />
+    <template v-else>
+      <h2>Product List<small>(Offline)</small></h2>
+      <product-list-offline  />
+    </template>
   </div>
 </template>
 
 <script>
 import BasicModule from '@/vue-web-core/components/basic-module/BasicModule'
+import ProductListOffline from './ProductListOffline.vue'
 let ModuleDefault = {
   name: 'dashboard',
   components: {
-    BasicModule
+    BasicModule,
+    ProductListOffline
   },
   mounted () {
   },
@@ -18,15 +24,22 @@ let ModuleDefault = {
     }
     let tableColumnSetting = {
       description: {},
+      barcode: {},
       'category.description': {
         name: 'Category'
       },
-      cost: {},
-      price: {}
+      cost: {
+        type: 'number'
+      },
+      price: {
+        type: 'number'
+      }
     }
     let formFieldSetting = {
       fields: {
         description: {
+        },
+        barcode: {
         },
         cost: {
         },
@@ -45,6 +58,7 @@ let ModuleDefault = {
     let formRetrieveParameter = {
     }
     return {
+      isOffline: false,
       config: {
         // module_name: 'Variable Management',
         api: 'product',
@@ -61,7 +75,18 @@ let ModuleDefault = {
     }
   },
   methods: {
-
+    checkConnection(){
+      this.checkConnectivity().then((ping) => {
+        console.log('ping', ping)
+        this.isOffline = false
+      }).catch((status) => {
+        this.isOffline = true
+      }).finally(() => {
+        if(typeof callback === 'function'){
+          callback()
+        }
+      })
+    }
   }
 }
 

@@ -183,7 +183,7 @@ export default {
         success: (response) => {
           this.isLoading = false
           window.location = '/'
-          this.$router.push('dashboard')
+          this.$router.push('dashboard', () => {})
         },
         error: (response) => {
           if (response.status === 401) {

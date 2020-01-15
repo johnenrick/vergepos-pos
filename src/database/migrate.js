@@ -1,5 +1,4 @@
 import schemaV1 from './migration/v1'
-// import Category from './controller/category.js'
 import { connection } from './js_store/js-store-con'
 
 class DBMigrate {

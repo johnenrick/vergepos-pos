@@ -1,7 +1,7 @@
 <template>
   <div class="row pb-3">
     <div class="col-12 col-md-9">
-      <button class="btn btn-lg btn-outline-dark mr-1" title="Refresh the app">
+      <button @click="refreshApp" class="btn btn-lg btn-outline-dark mr-1" title="Refresh the app">
         <fa :icon="'redo'" />
       </button>
       <!-- <button class="btn btn-lg btn-outline-dark mx-1">
@@ -49,6 +49,9 @@ export default {
     }
   },
   methods: {
+    refreshApp(){
+
+    },
     viewTransaction(){
       this.$refs.TransactionViewer._open(Cart.state.latestTransactionNumber ? Cart.state.latestTransactionNumber : null)
     },

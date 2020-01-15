@@ -48,6 +48,7 @@ let store = new Vuex.Store({
     totalVatAmount: 0,
     totalDiscountAmount: 0,
     taxPercentage: 0.12,
+    discountRemarks: ''
   },
   getters: {
     items: (state) => {
@@ -67,6 +68,9 @@ let store = new Vuex.Store({
     },
     totalDiscountAmount: (state) => {
       return state.totalDiscountAmount
+    },
+    discountRemarks: (state) => {
+      return state.discountRemarks
     }
   },
   mutations: {
@@ -98,6 +102,9 @@ let store = new Vuex.Store({
     },
     setDiscountId(state, discountId){
       Vue.set(state, 'discountId', discountId)
+    },
+    setDiscountRemarks(state, discountRemarks){
+      Vue.set(state, 'discountRemarks', discountRemarks)
     },
     addItem(state, productID, callback){
       if (typeof state.itemLookUp[productID] !== 'undefined') {
@@ -151,6 +158,7 @@ let store = new Vuex.Store({
       state.totalVatZeroRatedSales = 0
       state.totalVatAmount = 0
       state.totalDiscountAmount = 0
+      state.discountRemarks = ''
       state.discountId = null
     }
   },

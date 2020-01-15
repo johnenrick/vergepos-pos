@@ -5,7 +5,7 @@
         <order-list ref="orderList" />
       </div>
       <div class="col-12 col-sm-12 col-md-7 pl-3">
-        <control-box :is-synching="isSyncing" />
+        <control-box :is-synching="isSynching" />
         <product-list ref="productList" @add-product="addItem" />
       </div>
     </div>
@@ -25,34 +25,39 @@ export default {
   },
   mounted () {
     navConfig.noSideBar = true
-    this.postSync()
+    // this.postSync()
   },
   beforeDestroy () {
     navConfig.noSideBar = false
   },
   data () {
     return {
-      doneSyncing: false
+      doneSynching: false
     }
   },
   computed: {
-    isSyncing(){
-      console.log('syncha', SyncStore.state.isSyncing)
-      return SyncStore.state.isSyncing
+    isSynching: {
+      get: function(){
+        console.log('syncha', SyncStore.state.isSynching)
+        if(SyncStore.state.isSynching === false){
+          this.postSync()
+        }
+        return SyncStore.state.isSynching
+      }
     }
   },
   watch: {
-    isSyncing(newData){
-      console.log('watching', newData)
-      this.postSync()
-    }
+    // isSynching(newData){
+    //   console.log('watching', newData)
+    //   this.postSync()
+    // }
   },
   methods: {
     postSync(){
-      if(SyncStore.state.isSyncing){
+      if(SyncStore.state.isSynching){
         return false
       }
-      this.doneSyncing = true
+      this.doneSynching = true
       if(typeof this.$refs.productList === 'undefined'){
         this.$nextTick(() => {
           this.$refs.productList._initialize()
