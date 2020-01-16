@@ -79,7 +79,7 @@
         <div
           v-for="product in productList"
           class="col-4 px-1 py-1 itemContainer"
-          v-show="typeof product['show'] === 'undefined' || product['show']"
+          v-show="typeof product['show'] === 'undefined' || product['show']"productList
         >
           <div
             @click="$emit('add-product', product['db_id'])"
@@ -161,8 +161,13 @@ export default {
       }
       for (let x in this.productList) {
         if (this.categoryFilterID === null || this.categoryFilterID === this.productList[x]['category_id'] * 1) {
-          let haystack = (this.productList[x]['description']).toLowerCase()
-          if (haystack.indexOf((this.searchFilterValue).toLowerCase()) >= 0) {
+          let haystackDesc = (this.productList[x]['description']).toLowerCase()
+          let code = (this.productList[x]['barcode']) || ''
+          code = code.replace(/ /g, '')
+          code = code.replace(/-/g, '')
+          let haystackCode = code
+          console.log(haystackCode)
+          if (haystackCode.indexOf(this.searchFilterValue) >= 0 || haystackDesc.indexOf((this.searchFilterValue).toLowerCase()) >= 0) {
             Vue.set(this.productList[x], 'show', true)
           } else {
             Vue.set(this.productList[x], 'show', false)
