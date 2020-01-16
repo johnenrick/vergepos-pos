@@ -50,7 +50,7 @@ export default {
   },
   methods: {
     refreshApp(){
-
+      location.reload()
     },
     viewTransaction(){
       this.$refs.TransactionViewer._open(Cart.state.latestTransactionNumber ? Cart.state.latestTransactionNumber : null)
