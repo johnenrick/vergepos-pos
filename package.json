@@ -29,12 +29,14 @@
     "vue-chartjs": "^3.4.2",
     "vue-datetime": "^1.0.0-beta.10",
     "vue-html-to-paper": "^1.1.1",
-    "vue-router": "^3.0.3",
+    "vue-router": "^3.1.5",
     "vue-select": "^3.1.0",
     "vuex": "^3.0.1",
     "weekstart": "^1.0.1"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^2.16.0",
+    "@typescript-eslint/parser": "^2.16.0",
     "@vue/cli-plugin-babel": "^3.9.0",
     "@vue/cli-plugin-e2e-cypress": "^3.9.0",
     "@vue/cli-plugin-eslint": "^3.9.0",
@@ -45,8 +47,13 @@
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-eslint": "^10.0.1",
     "chai": "^4.1.2",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.20.0",
+    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "eslint-plugin-vue": "^6.1.2",
     "lint-staged": "^8.1.5",
     "node-sass": "^4.9.0",
     "sass-loader": "^7.1.0",
@@ -62,16 +69,7 @@
       "plugin:vue/essential",
       "@vue/standard"
     ],
-    "rules": {
-      "space-before-blocks": "off",
-      "space-before-function-paren": "off",
-      "no-undef": "off",
-      "keyword-spacing": "off",
-      "comma-dangle": "off",
-      "vue/require-v-for-key": "off",
-      "prefer-promise-reject-errors": "off",
-      "vue/valid-v-for": "off"
-    },
+    "rules": {},
     "parserOptions": {
       "parser": "babel-eslint"
     }

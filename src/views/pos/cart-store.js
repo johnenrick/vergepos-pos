@@ -30,9 +30,13 @@ const calculateCartTotal = (state) => {
     state.totalDiscountAmount += state.items[x]['discount_amount']
     state.totalAmount += (totalVatAmount + totalVatSales + totalVatExemptSales - state.items[x]['discount_amount'])
     state.subTotalAmount += Calculator.numberFormat(product.price * state.items[x]['quantity'])
+    cacheCart(state)
   }
 }
-
+const cacheCart = (state) => {
+  console.log('caching cart', state)
+  localStorage.setItem('cart-cache', JSON.stringify(state))
+}
 let store = new Vuex.Store({
   state: {
     latestTransactionNumber: null,
@@ -74,6 +78,28 @@ let store = new Vuex.Store({
     }
   },
   mutations: {
+    restoreCached(state){
+      let cachedCartString = localStorage.getItem('cart-cache')
+      if(cachedCartString){
+        let cachedCart = JSON.parse(cachedCartString)
+        console.log('cachedCart', cachedCart)
+        for(let item in state){
+          if(typeof state[item] === 'object'){
+            for(let ccitem in cachedCart[item]){
+              Vue.set(state[item], ccitem, cachedCart[item][ccitem])
+            }
+          }else if(typeof state[item] === 'array'){
+            for(let x = 0; x < cachedCart[item].length; x++){
+              state[item].push(cachedCart[item][x])
+            }
+          }else{
+            Vue.set(state, item, cachedCart[item])
+          }
+        }
+        console.log('cache restored')
+      }
+      
+    },
     calculateTotal(state){
       calculateCartTotal(state)
     },
@@ -83,7 +109,7 @@ let store = new Vuex.Store({
       Vue.set(state.items[index], 'discount_quantity', discountQuantity)
       Vue.set(state.items[index], 'vat_exempt_quatity', vatExemptQuantity)
       Vue.set(state.items[index], 'vat_exempt_sales', vatExemptSales)
-      console.log(state.items[index])
+      cacheCart(state)
     },
     changeQuantity(state, [itemIndex, quantity]){
       if(!isNaN(quantity * 1)){
@@ -92,6 +118,7 @@ let store = new Vuex.Store({
       }else{
         console.error('Cart Commit Change Quantity: wrong quantity variable type', quantity)
       }
+      cacheCart(state)
     },
     deleteItem(state, itemIndex){
       Vue.delete(state.items, itemIndex)
@@ -99,12 +126,15 @@ let store = new Vuex.Store({
     },
     setLatestTransactionNUmber(state, transactionNumber){
       Vue.set(state, 'latestTransactionNumber', transactionNumber)
+      cacheCart(state)
     },
     setDiscountId(state, discountId){
       Vue.set(state, 'discountId', discountId)
+      cacheCart(state)
     },
     setDiscountRemarks(state, discountRemarks){
       Vue.set(state, 'discountRemarks', discountRemarks)
+      cacheCart(state)
     },
     addItem(state, productID, callback){
       if (typeof state.itemLookUp[productID] !== 'undefined') {
@@ -160,6 +190,7 @@ let store = new Vuex.Store({
       state.totalDiscountAmount = 0
       state.discountRemarks = ''
       state.discountId = null
+      cacheCart(state)
     }
   },
   acttions: {

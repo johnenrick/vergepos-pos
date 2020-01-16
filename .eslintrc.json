@@ -1,0 +1,34 @@
+{
+    "root": true,
+    "env": {
+        "browser": true,
+        "es6": true,
+        "node": true
+    },
+    "extends": [
+        "plugin:vue/essential",
+        "@vue/standard"
+    ],
+    // "globals": {
+    //     "Atomics": "readonly",
+    //     "SharedArrayBuffer": "readonly"
+    // },
+    "parserOptions": {
+        // "ecmaVersion": 2018,
+        "parser": "babel-eslint"
+        // "sourceType": "module"
+    },
+    "plugins": [
+        "vue"
+    ],
+    "rules": {
+        "space-before-blocks": "off",
+        "space-before-function-paren": "off",
+        "no-undef": "off",
+        "keyword-spacing": "off",
+        "comma-dangle": "off",
+        "prefer-promise-reject-errors": "off",
+        "vue/valid-v-for": "off",
+        "dot-notation": "off"
+    }
+}
