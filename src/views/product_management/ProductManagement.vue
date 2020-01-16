@@ -58,7 +58,7 @@ let ModuleDefault = {
     let formRetrieveParameter = {
     }
     return {
-      isOffline: false,
+      isOffline: true,
       config: {
         // module_name: 'Variable Management',
         api: 'product',
@@ -80,7 +80,7 @@ let ModuleDefault = {
         console.log('ping', ping)
         this.isOffline = false
       }).catch((status) => {
-        this.isOffline = true
+        this.isOffline = false
       }).finally(() => {
         if(typeof callback === 'function'){
           callback()

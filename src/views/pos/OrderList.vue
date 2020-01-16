@@ -92,7 +92,7 @@
         </div>
         <div v-show="totalDiscount" class="col-7 mb-2 text-right pr-3" style="line-height: 15px;">
           <table class="float-right">
-            {{totalAmount}} {{totalDiscount}}
+            <!-- {{totalAmount}} {{totalDiscount}} {{totalAmount + totalDiscount}} {{subTotalAmount}} -->
             <tr>
               <td class="px-2"><small>Sub Total</small></td>
               <td><small>{{subTotalAmount | numberToMoney}}</small></td>
