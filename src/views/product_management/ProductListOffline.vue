@@ -14,45 +14,53 @@
         <div v-if="activeProductIndex !== null">
           <div class="form-group">
             <div class="form-group row">
-              <div class="col-5">
-              Description:
+              <div class="col-5 col-form-label">
+                Description:
               </div>
               <div class="col-7">
-                <label class="form-control">
+                <span class="form-control-plaintext">
                   {{productList[activeProductIndex]['description']}} <small v-if="productList[activeProductIndex]['short_description'] !== '0' && productList[activeProductIndex]['short_description'] !== null">({{productList[activeProductIndex]['short_description']}})</small>
-                </label>
+                </span>
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-5">
-              Category:
+              <div class="col-5 col-form-label">
+                Category:
               </div>
               <div class="col-7">
-                <span class="form-control">{{productList[activeProductIndex]['category_name']}}</span>
+                <span class="form-control-plaintext">
+                  {{productList[activeProductIndex]['category_name']}}
+                </span>
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-5">
-              Cost:
+              <div class="col-5 col-form-label">
+              <label>Cost:</label>
               </div>
               <div class="col-7" align="right">
-                {{productList[activeProductIndex]['cost'] | numberToMoney}}
+                <span class="form-control-plaintext">
+                  {{productList[activeProductIndex]['cost'] | numberToMoney}}
+                </span>
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-5">
-                Price:
+              <div class="col-5 col-form-label">
+                <label>Price:</label>
               </div>
               <div class="col-7" align="right">
-                {{productList[activeProductIndex]['price'] | numberToMoney}}
+                <span class="form-control-plaintext">
+                  {{productList[activeProductIndex]['price'] | numberToMoney}}
+                </span>
               </div>
             </div>
             <div class="form-group row">
-              <div class="col-5">
-              Barcode:
+              <div class="col-5 col-form-label">
+              <label>Barcode:</label>
               </div>
               <div class="col-7">
-                {{productList[activeProductIndex]['barcode']}}
+                <span class="form-control-plaintext">
+                  {{productList[activeProductIndex]['barcode']}}
+                </span>
               </div>
             </div>
           </div>
@@ -67,6 +75,7 @@ import Product from '@/database/controller/product.js'
 import Category from '@/database/controller/category.js'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
+import QuickHelper from '@/vue-web-core/helper/mixin/quick.js'
 export default {
   components: {
     Vuetable,
@@ -91,7 +100,10 @@ export default {
           title: 'Category'
         }, {
           name: 'price',
-          title: 'Price'
+          title: 'Price',
+          callback: (value) => {
+            return QuickHelper.numberToMoney(value)
+          }
         }, {
           name: '__slot:actions',
           title: 'Buttons'
