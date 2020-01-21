@@ -166,7 +166,6 @@ export default {
           code = code.replace(/ /g, '')
           code = code.replace(/-/g, '')
           let haystackCode = code
-          console.log(haystackCode)
           if (haystackCode.indexOf(this.searchFilterValue) >= 0 || haystackDesc.indexOf((this.searchFilterValue).toLowerCase()) >= 0) {
             Vue.set(this.productList[x], 'show', true)
           } else {
