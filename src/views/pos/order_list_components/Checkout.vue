@@ -111,7 +111,9 @@
         </div>
         <div class="p-3 text-center border-top">
           <template v-if="!transacting">
-
+            <button @click="changeTogglePrintState" :class="printOnCheckOut?'btn btn-primary':'btn btn-outline-primary'" style="float: left">
+              <span><fa icon="print"></fa></span>
+            </button>
             <button
               v-bind:disabled="totalAmount > cashPayment"
               @click="checkout"
@@ -128,6 +130,7 @@
         </div>
       </div>
     </div>
+    <Receipt ref="receipt"></Receipt>
   </div>
 </template>
 <script>
@@ -135,9 +138,14 @@
 import Cart from '../cart-store'
 import NumberInput from '@/components/NumberInput'
 import Transaction from '../transact.js'
+import Receipt from '@/components/Receipt'
 export default {
+  mounted() {
+    this.getPrintOnCheckOutLocalState()
+  },
   components: {
-    NumberInput
+    NumberInput,
+    Receipt
   },
   props: {
     subTotal: Number,
@@ -154,10 +162,24 @@ export default {
       taxPercentage: (Cart.state.taxPercentage * 100) + '%',
       transaction: new Transaction(),
       transacting: false,
-      transactionStatus: null
+      transactionStatus: null,
+      printOnCheckOut: false
     }
   },
   methods: {
+    getPrintOnCheckOutLocalState (){
+      if(localStorage.getItem('printOnCheckOut') !== null){
+        if(localStorage.getItem('printOnCheckOut') === 'false'){
+          this.printOnCheckOut = false
+        } else{
+          this.printOnCheckOut = true
+        }
+      }
+    },
+    changeTogglePrintState (){
+      this.printOnCheckOut = !this.printOnCheckOut
+      localStorage.setItem('printOnCheckOut', this.printOnCheckOut)
+    },
     checkout () {
       this.transacting = true
       this.transactionStatus = null
@@ -177,6 +199,12 @@ export default {
       }, Cart.state.items).then((response) => {
         Cart.commit('setLatestTransactionNUmber', response['id'])
         this.transactionStatus = true
+        let funcCallback = () => {
+          this.$refs.receipt.print()
+        }
+        if(this.printOnCheckOut === true){
+          this.$refs.receipt._view(response['id']).then(funcCallback)
+        }
         setTimeout(() => {
           this.$emit('transaction-created', response)
           $(this.$refs.modal).modal('hide')

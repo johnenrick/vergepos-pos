@@ -142,61 +142,67 @@ export default {
         this.isLoading = false
         return false
       }
-      this.transactionDB.get({
-        where: {
-          transaction_number_id: this.transactionNumber
-        }
-      }).then(result => {
-        if(result.length){
-          result = result[0]
-          this.transactionDetail.id = result['id']
-          this.transactionDetail.vatSales = result['total_vat_sales']
-          this.transactionDetail.vatExemptSales = result['total_vat_exempt_sales']
-          this.transactionDetail.vatZeroRatedSales = result['total_vat_zero_rated_sales']
-          this.transactionDetail.vatAmount = result['total_vat_amount']
-          this.transactionDetail.discountAmount = result['total_discount_amount']
-          this.transactionDetail.totalAmount = result['total_amount']
-          this.transactionDetail.subTotalAmount = result['sub_total_amount']
-          this.transactionDetail.cashTendered = result['cash_tendered']
-          this.transactionDetail.datetime = result['created_at']
-          this.transactionDetail.status = result['status']
-          let dateCreated = new Date(this.transactionDetail.datetime)
-          let currentDate = new Date()
-          this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate()
-          this.transactionProductDB.get({
-            where: {
-              transaction_id: result['id']
-            },
-            join: {
-              with: 'products',
-              on: 'transaction_products.product_id=products.id',
-              type: 'inner',
-              as: {
-                'id': 'product_id',
-                'db_id': 'product_db_id',
-                'created_at': 'product_created_at',
-                'updated_at': 'product_updated_at',
-                'deleted_at': 'product_deleted_at'
+      return new Promise((resolve, reject) => {
+        this.transactionDB.get({
+          where: {
+            transaction_number_id: this.transactionNumber
+          }
+        }).then((result) => {
+          if(result.length){
+            result = result[0]
+            this.transactionDetail.id = result['id']
+            this.transactionDetail.vatSales = result['total_vat_sales']
+            this.transactionDetail.vatExemptSales = result['total_vat_exempt_sales']
+            this.transactionDetail.vatZeroRatedSales = result['total_vat_zero_rated_sales']
+            this.transactionDetail.vatAmount = result['total_vat_amount']
+            this.transactionDetail.discountAmount = result['total_discount_amount']
+            this.transactionDetail.totalAmount = result['total_amount']
+            this.transactionDetail.subTotalAmount = result['sub_total_amount']
+            this.transactionDetail.cashTendered = result['cash_tendered']
+            this.transactionDetail.datetime = result['created_at']
+            this.transactionDetail.status = result['status']
+            let dateCreated = new Date(this.transactionDetail.datetime)
+            let currentDate = new Date()
+            this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate()
+            let getQuery = {
+              where: {
+                transaction_id: result['id']
+              },
+              join: {
+                with: 'products',
+                on: 'transaction_products.product_id=products.id',
+                type: 'inner',
+                as: {
+                  'id': 'product_id',
+                  'db_id': 'product_db_id',
+                  'created_at': 'product_created_at',
+                  'updated_at': 'product_updated_at',
+                  'deleted_at': 'product_deleted_at'
+                }
               }
             }
-          }).then(transactionProductResult => {
-            if(transactionProductResult.length){
-              this.transactionProduct = transactionProductResult
-              this.isLoading = false
-              // console.log(this.transactionProduct)
-            }else{
-              this.isLoading = false
-              console.warn('No Product Retrieved')
-            }
-          }).catch(errorResult => {
-
-          })
-        }else{
-          this.isLoading = false
-          this.errorMessage = 'No Transaction Found.'
-        }
-      }).catch(errorResult => {
-        console.log('error', errorResult)
+            this.transactionProductDB.get(getQuery).then(transactionProductResult => {
+              if(transactionProductResult.length){
+                this.transactionProduct = transactionProductResult
+                this.isLoading = false
+                // console.log(this.transactionProduct)
+              }else{
+                this.isLoading = false
+                console.warn('No Product Retrieved')
+              }
+              setTimeout(() => {
+                resolve()
+              }, 100)
+            }).catch(errorResult => {
+              reject()
+            })
+          }else{
+            this.isLoading = false
+            this.errorMessage = 'No Transaction Found.'
+          }
+        }).catch(errorResult => {
+          console.log('error', errorResult)
+        })
       })
     },
     print(){
