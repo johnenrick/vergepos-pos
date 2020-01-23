@@ -34,7 +34,6 @@ const calculateCartTotal = (state) => {
   }
 }
 const cacheCart = (state) => {
-  console.log('caching cart', state)
   localStorage.setItem('cart-cache', JSON.stringify(state))
 }
 let store = new Vuex.Store({
@@ -82,9 +81,7 @@ let store = new Vuex.Store({
       let cachedCartString = localStorage.getItem('cart-cache')
       if(cachedCartString){
         let cachedCart = JSON.parse(cachedCartString)
-        console.log('cachedCart', cachedCart,)
         for(let item in state){
-          console.log('restoring', item, cachedCart[item], typeof state[item])
           if(typeof state[item] === 'object' && state[item] !== null){
             for(let ccitem in cachedCart[item]){
               Vue.set(state[item], ccitem, cachedCart[item][ccitem])
@@ -98,7 +95,6 @@ let store = new Vuex.Store({
             Vue.set(state, item, cachedCart[item])
           }
         }
-        console.log('cache restored', state)
       }
       
     },
@@ -172,7 +168,7 @@ let store = new Vuex.Store({
             })
             Vue.set(state.itemLookUp, productID, state.items.length - 1)
           }else{
-            console.log((productID + '').replace('c', ''))
+            console.info((productID + '').replace('c', ''))
           }
           calculateCartTotal(state)
           if(typeof callback === 'function') callback()
