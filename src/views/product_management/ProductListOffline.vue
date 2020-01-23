@@ -12,7 +12,7 @@
     <modal ref="modal" size="sm" title="Product Details">
       <template v-slot:body>
         <div v-if="activeProductIndex !== null">
-          <div class="form-group">
+          <div>
             <div class="form-group row">
               <div class="col-5 col-form-label">
                 Description:
@@ -22,7 +22,7 @@
                   {{productList[activeProductIndex]['description']}} <small v-if="productList[activeProductIndex]['short_description'] !== '0' && productList[activeProductIndex]['short_description'] !== null">({{productList[activeProductIndex]['short_description']}})</small>
                 </span>
               </div>
-            </div>
+              </div>
             <div class="form-group row">
               <div class="col-5 col-form-label">
                 Category:
