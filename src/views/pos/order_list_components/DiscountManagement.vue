@@ -66,7 +66,7 @@
                       <td class="text-right">
                         <number-input
                           v-if="!applyDiscountToAll"
-                          :default-value="0"
+                          :default-value="typeof orderedItemList[index]['discount_quantity'] !== 'undefined' ? orderedItemList[index]['discount_quantity'] : 0"
                           :max-value="item['quantity']"
                           :placeholder="'max: ' + item['quantity']"
                           @change="orderedItemList[index]['discount_quantity'] = $event; discountQuantityChanged(index)"
@@ -148,6 +148,7 @@ export default {
   data () {
     return {
       discountList: [],
+      discountListLookup: {},
       selectedDiscountIndex: null,
       selectedDiscountWriteUp: '',
       discountRemarks: '',
@@ -164,14 +165,14 @@ export default {
       for(let x = 0; x < this.orderedItemList.length; x++){
         Cart.commit('applyDiscount', [
           x,
-          this.discountList[this.selectedDiscountIndex]['id'],
+          this.discountList[this.selectedDiscountIndex]['db_id'],
           this.orderedItemList[x]['discount_quantity'] * 1,
           this.orderedItemList[x]['discount_amount'] * 1,
           this.orderedItemList[x]['vat_exempt_quatity'] * 1,
           this.orderedItemList[x]['vat_exempt_sales'] * 1
         ])
       }
-      Cart.commit('setDiscountId', this.selectedDiscountIndex === null ? null : this.discountList[this.selectedDiscountIndex]['id'])
+      Cart.commit('setDiscountId', this.selectedDiscountIndex === null ? null : this.discountList[this.selectedDiscountIndex]['db_id'])
       Cart.commit('setDiscountRemarks', this.discountRemarks)
       Cart.commit('calculateTotal')
       $(this.$refs.modal).modal('hide')
@@ -186,6 +187,8 @@ export default {
       (new Discount()).getAll().then((response) => {
         this.discountList = response || []
         for(let x = 0; x < this.discountList.length; x++){
+          Vue.set(this.discountListLookup, this.discountList[x]['db_id'], x)
+          
           this.discountList[x]['value_percentage'] = Calc.numberFormat(this.discountList[x]['value'] / 100)
         }
       })
@@ -194,7 +197,6 @@ export default {
       if(this.selectedDiscountIndex === null){
         return false
       }
-
       let totalDiscount = 0
       let totalVatExempt = 0
       let discountSelected = this.discountList[this.selectedDiscountIndex]
@@ -249,6 +251,9 @@ export default {
       this.discountRemarks = ''
     },
     _open () { // open the modal
+      console.log(Cart.state)
+      this.selectedDiscountIndex = Cart.state.discountId ? this.discountListLookup[Cart.state.discountId] : null
+      this.discountRemarks = Cart.state.discountRemarks
       let orderedItemList = this.cloneObject(Cart.state.items)
       $(this.$refs.modal).modal('show')
       this.orderedItemList = orderedItemList
@@ -287,6 +292,8 @@ export default {
       }
       this.getTotalDiscount()
     }
+  },
+  computed: {
   }
 }
 </script>
