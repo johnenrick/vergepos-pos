@@ -54,7 +54,7 @@ export default {
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       user_id: { notNull: true, dataType: 'number' },
-      company_store_terminal_id: { notNull: false, dataType: 'number' },
+      store_terminal_id: { notNull: false, dataType: 'number' },
       operation: { notNull: true, dataType: 'number' } // 1 - transaction, 2 void, 3 - reprint
     }
   }, {
@@ -74,8 +74,7 @@ export default {
       sub_total_amount: { notNull: true, dataType: 'number' }, // no discount added yet
       status: { notNull: true, dataType: 'number', default: 1 }, // voided(2) or not(1)
       discount_id: { notNull: false, dataType: 'number' },
-      discount_remarks: { notNull: false, dataType: 'string' },
-      store_terminal_id: { notNull: true, dataType: 'number' },
+      discount_remarks: { notNull: false, dataType: 'string' }
     }
   }, {
     name: 'day_end_reports',
