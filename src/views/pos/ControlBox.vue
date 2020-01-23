@@ -4,13 +4,16 @@
       <button @click="refreshApp" class="btn btn-lg btn-outline-dark mr-1" title="Refresh the app">
         <fa :icon="'redo'" />
       </button>
+      <button @click="clearCart" class="btn btn-lg btn-outline-dark mr-1" title="Clear Cart">
+        <fa :icon="'trash'" />
+      </button>
       <!-- <button class="btn btn-lg btn-outline-dark mx-1">
         <fa :icon="'calculator'" />
       </button> -->
-      <button @click="viewTransaction" class="btn btn-lg btn-outline-dark" title="Open Transaction"><fa :icon="'receipt'" /></button>
-      <button class="btn btn-lg btn-outline-dark mx-1" title="Parked Transactions">
+      <button @click="viewTransaction" class="btn btn-lg btn-outline-dark mr-1" title="Open Transaction"><fa :icon="'receipt'" /></button>
+      <!-- <button class="btn btn-lg btn-outline-dark mx-1" title="Parked Transactions">
         <fa :icon="'parking'" />
-      </button>
+      </button> -->
       <button @click="benchmark" class="btn btn-lg btn-outline-dark" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button>
     </div>
     <div class="col-12 col-md-3 pt-2 text-center text-md-right">
@@ -49,6 +52,9 @@ export default {
     }
   },
   methods: {
+    clearCart(){
+      Cart.commit('reset');
+    },
     refreshApp(){
       location.reload()
     },

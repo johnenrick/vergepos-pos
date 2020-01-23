@@ -74,14 +74,10 @@
             </button>
             <div class="dropdown-menu">
               <a
-                @click="$refs.discountManagement._open()"
+                @click="openApplyDiscount"
                 class="dropdown-item"
                 href="javascript:void(0)"
               ><fa icon="percent" /> Apply Discounts</a>
-              <a
-                class="dropdown-item"
-                href="javascript:void(0)"
-              ><fa icon="ban" /> Clear Order</a>
               <!-- <a
                 @click="parkTransaction"
                 class="dropdown-item"
@@ -103,7 +99,7 @@
             </tr>
             <tr>
               <td class="px-2"><small class="text-danger">Discount</small></td>
-              <td><small class="text-danger">- {{totalDiscount | numberToMoney}}</small></td>
+              <td><small class="text-danger">({{totalDiscount | numberToMoney}})</small></td>
             </tr>
           </table>
 
@@ -199,6 +195,10 @@ export default {
     },
     checkout () {
       this.$refs.checkout._open()
+    },
+    openApplyDiscount(){
+      console.log('s', Cart.state)
+      this.$refs.discountManagement._open()
     },
     draw () {
       let totalHeight = $(window).height()
