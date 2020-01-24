@@ -130,7 +130,9 @@
         </div>
       </div>
     </div>
-    <Receipt ref="receipt"></Receipt>
+    <div hidden>
+      <Receipt ref="receipt"></Receipt>
+    </div>
   </div>
 </template>
 <script>
