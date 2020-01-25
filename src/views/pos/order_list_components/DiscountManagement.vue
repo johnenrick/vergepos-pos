@@ -23,7 +23,7 @@
                 class="form-control text-center font-weight-bold"
               >
                 <option value="null">
-                  Select a Discount {{selectedDiscountIndex}}
+                  Select a Discount
                 </option>
                 <template v-for="(discount, index) in discountList">
                   <option
@@ -39,7 +39,7 @@
           <template v-if="selectedDiscountIndex !== 'null' && selectedDiscountIndex !== null">
             <div class="row py-3">
               <div class="col-sm-12 text-center">
-                <label class="col-form-label">{{ selectedDiscountWriteUp }}</label>
+                <label class="col-form-label" v-html="selectedDiscountWriteUp"></label>
               </div>
             </div>
             <div class="row">
@@ -165,7 +165,7 @@ export default {
       for(let x = 0; x < this.orderedItemList.length; x++){
         Cart.commit('applyDiscount', [
           x,
-          this.discountList[this.selectedDiscountIndex]['db_id'],
+          this.selectedDiscountIndex !== null ? this.discountList[this.selectedDiscountIndex]['db_id'] : null,
           this.orderedItemList[x]['discount_quantity'] * 1,
           this.orderedItemList[x]['discount_amount'] * 1,
           this.orderedItemList[x]['vat_exempt_quatity'] * 1,
@@ -275,17 +275,17 @@ export default {
       let vatExemptText = this.discountList[data]['is_vat_exempt'] ? 'The discounted items will also be VAT Exempted.' : ''
       switch (this.discountList[data]['type'] * 1) {
         case 1:
-          this.selectedDiscountWriteUp = this.discountList[data]['value'] + '% will be deducted on all items. ' + vatExemptText
+          this.selectedDiscountWriteUp = '<strong>' + this.discountList[data]['value'] + '%</strong> will be deducted on all items. ' + vatExemptText
           this.applyDiscountToAll = true
           break
         case 2:
-          this.selectedDiscountWriteUp = this.discountList[data]['value'] + '% will be deducted on the selected items. ' + vatExemptText
+          this.selectedDiscountWriteUp = '<strong>' + this.discountList[data]['value'] + '%</strong> will be deducted on the selected items. ' + vatExemptText
           break
         case 3:
-          this.selectedDiscountWriteUp = this.discountList[data]['value'] + 'pesos will be deducted on the all items. ' + vatExemptText
+          this.selectedDiscountWriteUp = '<strong>' + this.discountList[data]['value'] + 'pesos</strong> will be deducted on the all items. ' + vatExemptText
           break
         case 4:
-          this.selectedDiscountWriteUp = this.discountList[data]['value'] + 'pesos will be deducted on the selected items. ' + vatExemptText
+          this.selectedDiscountWriteUp = '<strong>' + this.discountList[data]['value'] + 'pesos</strong> will be deducted on the selected items. ' + vatExemptText
           break
         default:
           this.selectedDiscountWriteUp = ''

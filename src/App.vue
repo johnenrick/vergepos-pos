@@ -23,7 +23,7 @@
         </div>
       </div>
     </div>
-
+    <button @click="testDB">Test</button>
   </div>
 </template>
 <script>
@@ -38,6 +38,7 @@ import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
 import SyncAll from '@/database/sync/sync-all'
 import Migrate from '@/database/migrate'
 import UpSync from '@/system/upSync'
+import Transaction from '@/database/controller/transaction'
 window.$ = require('jquery')
 window.jQuery = window.$
 export default {
@@ -117,6 +118,18 @@ export default {
     }
   },
   methods: {
+    testDB(){
+      console.log('testing')
+      let TransactionDB = new Transaction()
+      let query = {
+        where: {
+          db_id: 0
+        }
+      }
+      TransactionDB.get(query).then(result => {
+        console.log('result', query, result)
+      })
+    },
     sync(){
       this.$refs.modal._open()
       let migrate = new Migrate()
@@ -135,12 +148,14 @@ export default {
           this.doneSynching()
         }
       })
+      
     },
     doneSynching(){
       this.dataSynced = 1
       this.$refs.modal._close()
       setTimeout(() => {
         this.upSync.sync()
+        this.testDB()
       }, 200)
     }
   },

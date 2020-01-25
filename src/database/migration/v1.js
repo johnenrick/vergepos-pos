@@ -1,5 +1,5 @@
 export default {
-  version: 8,
+  version: 1, // useless. Change the version on each table instead
   dbName: 'Vue 1',
   tables: [{
     name: 'categories',
@@ -10,7 +10,7 @@ export default {
     }
   }, {
     name: 'users',
-    version: 6,
+    version: 1,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       first_name: { notNull: false, dataType: 'string' },
@@ -51,6 +51,7 @@ export default {
     }
   }, {
     name: 'transaction_numbers',
+    version: 1,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       user_id: { notNull: true, dataType: 'number' },
@@ -59,6 +60,7 @@ export default {
     }
   }, {
     name: 'transactions',
+    version: 1,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       transaction_number_id: { notNull: false, dataType: 'number' },
@@ -77,8 +79,22 @@ export default {
       discount_remarks: { notNull: false, dataType: 'string' }
     }
   }, {
+    name: 'transaction_products',
+    version: 1,
+    columns: {
+      db_id: { notNull: true, dataType: 'number' },
+      transaction_id: { notNull: true, dataType: 'number' },
+      product_id: { notNull: true, dataType: 'number' },
+      quantity: { notNull: true, dataType: 'number' },
+      vat_sales: { notNull: true, dataType: 'number' },
+      vat_exempt_sales: { notNull: true, dataType: 'number' },
+      vat_zero_rated_sales: { notNull: true, dataType: 'number' },
+      vat_amount: { notNull: true, dataType: 'number' },
+      discount_amount: { notNull: true, dataType: 'number' },
+    }
+  }, {
     name: 'day_end_reports',
-    version: 7,
+    version: 1,
     columns: {
       db_id: { notNull: false, dataType: 'number' },
       starting_transaction_number: { notNull: false, dataType: 'number' },
@@ -98,19 +114,6 @@ export default {
     columns: {
       db_id: { notNull: false, dataType: 'number' },
       customer_local_id: { notNull: true, dataType: 'number' },
-    }
-  }, {
-    name: 'transaction_products',
-    columns: {
-      db_id: { notNull: true, dataType: 'number' },
-      transaction_id: { notNull: true, dataType: 'number' },
-      product_id: { notNull: true, dataType: 'number' },
-      quantity: { notNull: true, dataType: 'number' },
-      vat_sales: { notNull: true, dataType: 'number' },
-      vat_exempt_sales: { notNull: true, dataType: 'number' },
-      vat_zero_rated_sales: { notNull: true, dataType: 'number' },
-      vat_amount: { notNull: true, dataType: 'number' },
-      discount_amount: { notNull: true, dataType: 'number' },
     }
   }, {
     name: 'transaction_reprints',

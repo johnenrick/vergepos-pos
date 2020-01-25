@@ -7,10 +7,16 @@ export default class Transact {
   transactionProductDB = new TransactionProduct()
   transact(transaction, transactionProducts){
     return new Promise((resolve, reject) => {
-      this.transactionNumberDB.add({ operation: 1, user_id: localStorage.getItem('user_id') * 1 }).then((transactionNumberResult) => {
+      let transactionNumberEntry = {
+        db_id: 0,
+        operation: 1,
+        store_terminal_id:localStorage.getItem('is_terminal') * 1,
+        user_id: localStorage.getItem('user_id') * 1
+      }
+      this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
         if(transactionNumberResult['id']){
           transaction['transaction_number_id'] = transactionNumberResult['id'] * 1
-          transaction['store_terminal_id'] = localStorage.getItem('is_terminal') * 1
+          transaction['db_id'] = 0
           this.transactionDB.add(transaction).then((response) => {
             if(response && response['id']){
               this.createTransactionProductRecursion(transactionProducts, 0, response['id']).then(result => {
@@ -31,8 +37,9 @@ export default class Transact {
       transactionProducts[index]['transaction_id'] = transactionID * 1
       transactionProducts[index]['product_id'] = transactionProducts[index]['id'] * 1
       delete transactionProducts[index]['id']
-      let newTransaction = {
+      let newTransactionProduct = {
         transaction_id: transactionID,
+        db_id: 0,
         product_id: transactionProducts[index]['product_id'] * 1,
         quantity: transactionProducts[index]['quantity'] * 1,
         vat_sales: transactionProducts[index]['vat_sales'] * 1,
@@ -42,7 +49,7 @@ export default class Transact {
         discount_amount: transactionProducts[index]['discount_amount'] * 1,
         discount_id: transactionProducts[index]['discount_id'] * 1
       }
-      this.transactionProductDB.add(newTransaction).then(response => {
+      this.transactionProductDB.add(newTransactionProduct).then(response => {
         index++
         if(index < transactionProducts.length){
           this.createTransactionProductRecursion(transactionProducts, index, transactionID).then(result => {

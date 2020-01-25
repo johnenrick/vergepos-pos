@@ -36,7 +36,7 @@ class DBMigrate {
       table['columns']['deleted_at'] = { notNull: false, dataType: 'number' }
     }
     if(typeof table['columns']['db_id'] !== 'undefined'){
-      table['columns']['db_id'] = { notNull: false, dataType: 'number', unique: true }
+      table['columns']['db_id'] = { notNull: false, dataType: 'number' }
     }
     return table['columns']
   }
