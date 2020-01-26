@@ -188,16 +188,13 @@ export default {
     changeQuantity () {
       this.changeQuantityClicked = true
     },
-    _addProduct (productID) {
-      Cart.commit('addItem', productID)
-    },
+    
     discountUpdated () {
     },
     checkout () {
       this.$refs.checkout._open()
     },
     openApplyDiscount(){
-      console.log('s', Cart.state)
       this.$refs.discountManagement._open()
     },
     draw () {

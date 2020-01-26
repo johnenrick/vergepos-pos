@@ -6,7 +6,7 @@
       </div>
       <div class="col-12 col-sm-12 col-md-7 pl-3">
         <control-box :is-synching="isSynching" />
-        <product-list ref="productList" @add-product="addItem" />
+        <product-list ref="productList"/>
       </div>
     </div>
   </div>
@@ -65,9 +65,6 @@ export default {
       }else{
         this.$refs.productList._initialize()
       }
-    },
-    addItem (productID) {
-      this.$refs.orderList._addProduct(productID)
     }
   }
 }

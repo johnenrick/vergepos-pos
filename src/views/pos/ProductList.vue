@@ -7,10 +7,7 @@
           @click="categoryFilterID = null"
           class="btn btn-primary w-100 font-weight-bold"
         >
-          {{ categoryFilterDescription }} <fa
-            class="float-right mt-1"
-            :icon="'times'"
-          />
+          {{ categoryFilterDescription }} <fa class="float-right mt-1" :icon="'times'" />
         </button>
         <input
           v-else
@@ -82,7 +79,7 @@
           v-show="typeof product['show'] === 'undefined' || product['show']"productList
         >
           <div
-            @click="$emit('add-product', product['db_id'])"
+            @click="addProduct(product['db_id'])"
             class="border  border-primary text-primary py-2 text-center px-1 item"
             style="max-height:66px; overflow-y:hidden"
           >
@@ -98,6 +95,7 @@
 import Vue from 'vue'
 import Product from '@/database/controller/product.js'
 import Category from '@/database/controller/category.js'
+import Cart from './cart-store'
 // import SyncStore from '@/database/sync/sync-store'
 export default {
   components: {
@@ -118,7 +116,9 @@ export default {
       categoryList: {
       },
       productList: {
-      }
+      },
+      isAdding: false,
+      pendingAddProduct: []
     }
   },
   methods: {
@@ -175,7 +175,36 @@ export default {
           Vue.set(this.productList[x], 'show', false)
         }
       }
-    }
+    },
+    addProduct (productID) {
+      console.log('adding', productID)
+      if(this.isAdding){
+        if(productID){
+          this.pendingAddProduct.push(productID)
+        }
+        return false
+      }
+      this.isAdding = true
+      if(productID === null){
+        productID = this.pendingAddProduct.pop()
+        console.log(productID)
+      }
+      
+      let param = {
+        product_id: productID,
+        callback: () => {
+          console.log('calledBack', productID, this.pendingAddProduct.length)
+          if(this.pendingAddProduct.length){
+            this.isAdding = false
+            this.addProduct(null)
+          }else{
+            this.isAdding = false
+          }
+        }
+      }
+      console.log('comiting?', productID)
+      Cart.commit('addItem', param)
+    },
   },
   watch: {
     searchFilterValue (newData) {

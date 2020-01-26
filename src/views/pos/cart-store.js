@@ -119,7 +119,11 @@ let store = new Vuex.Store({
       cacheCart(state)
     },
     deleteItem(state, itemIndex){
+      Vue.delete(state.itemLookUp, state.items[itemIndex]['id'])
       Vue.delete(state.items, itemIndex)
+      for(let x = 0; x < state.items.length; x++){
+        Vue.set(state.itemLookUp, state.items[x]['id'], x)
+      }
       calculateCartTotal(state)
     },
     setLatestTransactionNUmber(state, transactionNumber){
@@ -134,7 +138,14 @@ let store = new Vuex.Store({
       Vue.set(state, 'discountRemarks', discountRemarks)
       cacheCart(state)
     },
-    addItem(state, productID, callback){
+    addItem(state, productID){
+      let callback = null
+      if(typeof productID === 'object'){
+        if(typeof productID['callback'] !== 'undefined'){
+          callback = productID['callback']
+        }
+        productID = productID['product_id']
+      }
       if (typeof state.itemLookUp[productID] !== 'undefined') {
         Vue.set(state.items[state.itemLookUp[productID]], 'quantity', state.items[state.itemLookUp[productID]]['quantity'] * 1 + 1)
         calculateCartTotal(state)

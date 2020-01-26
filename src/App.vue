@@ -23,7 +23,6 @@
         </div>
       </div>
     </div>
-    <button @click="testDB">Test</button>
   </div>
 </template>
 <script>
@@ -118,18 +117,6 @@ export default {
     }
   },
   methods: {
-    testDB(){
-      console.log('testing')
-      let TransactionDB = new Transaction()
-      let query = {
-        where: {
-          db_id: 0
-        }
-      }
-      TransactionDB.get(query).then(result => {
-        console.log('result', query, result)
-      })
-    },
     sync(){
       this.$refs.modal._open()
       let migrate = new Migrate()
@@ -155,7 +142,6 @@ export default {
       this.$refs.modal._close()
       setTimeout(() => {
         this.upSync.sync()
-        this.testDB()
       }, 200)
     }
   },
