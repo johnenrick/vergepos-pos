@@ -17,8 +17,8 @@
           </tr>
         </thead>
         <tbody>
-          <template v-for="product in transactionProduct">
-            <tr>
+          <template v-for="(product, index) in transactionProduct">
+            <tr :key="index">
               <td class="">{{product['description']}}</td>
               <td class="text-right">{{product['price'] | numberFormat}}</td>
             </tr>
@@ -143,12 +143,26 @@ export default {
         return false
       }
       return new Promise((resolve, reject) => {
+        console.log('getting', this.transactionNumber)
         this.transactionDB.get({
-          where: {
-            transaction_number_id: this.transactionNumber
+          join: {
+            with: 'transaction_numbers',
+            on: 'transactions.transaction_number_id=transaction_numbers.id',
+            type: 'inner',
+            as: {
+              id: 'transaction_number_id',
+              db_id: 'transaction_number_db_id',
+              created_at: 'transaction_number_created_at',
+              updated_at: 'transaction_number_updated_at',
+              deleted_at: 'transaction_number_deleted_at',
+            },
+            where: {
+              number: this.transactionNumber
+            }
           }
         }).then((result) => {
           if(result.length){
+            console.log('res', result, this.transactionNumber)
             result = result[0]
             this.transactionDetail.id = result['id']
             this.transactionDetail.vatSales = result['total_vat_sales']
@@ -170,7 +184,7 @@ export default {
               },
               join: {
                 with: 'products',
-                on: 'transaction_products.product_id=products.id',
+                on: 'transaction_products.product_id=products.db_id',
                 type: 'inner',
                 as: {
                   'id': 'product_id',

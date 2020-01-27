@@ -1,4 +1,4 @@
-import { connection } from '../js_store/js-store-con'
+import { connection } from '../js_store/js-store-con' // https://jsstore.net/tutorial/get-started/
 let us = require('underscore')
 var pluralize = require('pluralize')
 
@@ -62,7 +62,6 @@ export default class Controller {
     if(typeof query['from'] === 'undefined'){
       query['from'] = this.tableName
     }
-
     if(typeof query['id'] !== 'undefined'){
       if(typeof query['where'] === 'undefined'){
         query['where'] = {}
@@ -105,16 +104,19 @@ export default class Controller {
     let completedQuery = 0
     return new Promise((resolve, reject) => {
       for(let withTable in query['with']){
-        let parentTable = pluralize.singular(query['from'])
+        let mainTable = pluralize.singular(query['from'])
         let withQuery = {
           from: withTable,
           where: {}
         }
-        withQuery['where'][parentTable + '_id'] = {
-          in: rootTableIdList
+        if(typeof query['with'][withTable]['is_parent'] === 'undefined' || !query['with'][withTable]['is_parent']){
+          withQuery['where'][mainTable + '_id'] = {
+            in: rootTableIdList
+          }
         }
+
         this.get(withQuery).then(response => {
-          let groupedResult = us.groupBy(response, parentTable + '_id')
+          let groupedResult = us.groupBy(response, mainTable + '_id')
           for(let parentId in groupedResult){
             result[idLookUp[parentId]][withTable] = groupedResult[parentId]
           }

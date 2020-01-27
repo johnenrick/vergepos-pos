@@ -51,10 +51,11 @@ export default {
     }
   }, {
     name: 'transaction_numbers',
-    version: 1,
+    version: 2,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       user_id: { notNull: true, dataType: 'number' },
+      number: { notNull: true, dataType: 'number' },
       store_terminal_id: { notNull: false, dataType: 'number' },
       operation: { notNull: true, dataType: 'number' } // 1 - transaction, 2 void, 3 - reprint
     }

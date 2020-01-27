@@ -60,32 +60,36 @@
       class="pb-2"
     >
       <div class="row align-items-center mx-0 px-2">
-        <div
-          v-for="category in categoryList"
-          class="col-4 px-1 py-1 itemContainer"
-          v-show="typeof category['show'] === 'undefined' || category['show']"
-        >
+        <template v-for="(category, index) in categoryList">
           <div
-            @click="setCategoryFilter(category['db_id'], category['description'])"
-            class="font-weight-bold text-uppercase border text-primary border-primary py-2 text-center px-1 item"
-            style="max-height:66px; overflow-y:hidden"
+            :key="index"
+            class="col-4 px-1 py-1 itemContainer"
+            v-show="typeof category['show'] === 'undefined' || category['show']"
           >
-            <span class="no_selection"> {{ category['description'] }}</span>
+            <div
+              @click="setCategoryFilter(category['db_id'], category['description'])"
+              class="font-weight-bold text-uppercase border text-primary border-primary py-2 text-center px-1 item"
+              style="max-height:66px; overflow-y:hidden"
+            >
+              <span class="no_selection"> {{ category['description'] }}</span>
+            </div>
           </div>
-        </div>
-        <div
-          v-for="product in productList"
-          class="col-4 px-1 py-1 itemContainer"
-          v-show="typeof product['show'] === 'undefined' || product['show']"productList
-        >
+        </template>
+        <template v-for="(product, index) in productList">
           <div
-            @click="addProduct(product['db_id'])"
-            class="border  border-primary text-primary py-2 text-center px-1 item"
-            style="max-height:66px; overflow-y:hidden"
+            :key="index"
+            class="col-4 px-1 py-1 itemContainer"
+            v-show="typeof product['show'] === 'undefined' || product['show']"
           >
-            <span class="no_selection"> {{ product['description'] }}</span>
+            <div
+              @click="addProduct(product['db_id'])"
+              class="border  border-primary text-primary py-2 text-center px-1 item"
+              style="max-height:66px; overflow-y:hidden"
+            >
+              <span class="no_selection"> {{ product['description'] }}</span>
+            </div>
           </div>
-        </div>
+        </template>
       </div>
     </div>
     <!-- <button @click="listItems">TEst</button> -->
@@ -177,7 +181,6 @@ export default {
       }
     },
     addProduct (productID) {
-      console.log('adding', productID)
       if(this.isAdding){
         if(productID){
           this.pendingAddProduct.push(productID)
@@ -187,13 +190,10 @@ export default {
       this.isAdding = true
       if(productID === null){
         productID = this.pendingAddProduct.pop()
-        console.log(productID)
       }
-      
       let param = {
         product_id: productID,
         callback: () => {
-          console.log('calledBack', productID, this.pendingAddProduct.length)
           if(this.pendingAddProduct.length){
             this.isAdding = false
             this.addProduct(null)
@@ -202,7 +202,6 @@ export default {
           }
         }
       }
-      console.log('comiting?', productID)
       Cart.commit('addItem', param)
     },
   },
@@ -214,7 +213,6 @@ export default {
       }, 600)
     },
     categoryFilterID (newData) {
-      console.log(newData)
       if (newData === null) {
         this.categoryFilterDescription = null
       }
