@@ -58,7 +58,7 @@ let ModuleDefault = {
     let formRetrieveParameter = {
     }
     return {
-      isOffline: true,
+      isOffline: false,
       config: {
         // module_name: 'Variable Management',
         api: 'product',
