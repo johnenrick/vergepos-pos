@@ -13,6 +13,7 @@
         <thead>
           <tr class="text-center">
             <th>Description</th>
+            <th>Qty</th>
             <th>Price</th>
           </tr>
         </thead>
@@ -20,6 +21,7 @@
           <template v-for="(product, index) in transactionProduct">
             <tr :key="index">
               <td class="">{{product['description']}}</td>
+              <td class="text-right">{{product['quantity']}}</td>
               <td class="text-right">{{product['price'] | numberFormat}}</td>
             </tr>
           </template>
