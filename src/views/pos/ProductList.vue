@@ -62,7 +62,6 @@
       <div class="row align-items-center mx-0 px-2">
         <template v-for="(category, index) in categoryList">
           <div
-            :key="index"
             class="col-4 px-1 py-1 itemContainer"
             v-show="typeof category['show'] === 'undefined' || category['show']"
           >
@@ -77,7 +76,6 @@
         </template>
         <template v-for="(product, index) in productList">
           <div
-            :key="index"
             class="col-4 px-1 py-1 itemContainer"
             v-show="typeof product['show'] === 'undefined' || product['show']"
           >

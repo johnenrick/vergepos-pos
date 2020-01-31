@@ -7,7 +7,6 @@
         <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig"></line-chart>
       </div>
     </div>
-
   </div>
 </template>
 <script>

@@ -37,7 +37,6 @@ import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
 import SyncAll from '@/database/sync/sync-all'
 import Migrate from '@/database/migrate'
 import UpSync from '@/system/upSync'
-import Transaction from '@/database/controller/transaction'
 window.$ = require('jquery')
 window.jQuery = window.$
 export default {
@@ -55,7 +54,6 @@ export default {
     if(!this.$auth.token()){
       this.dataSynced = 1
     }
-    
   },
   data () {
     return {
@@ -63,7 +61,6 @@ export default {
       syncAll: new SyncAll(),
       dataSynced: 0,
       navConfig: navigationConfig,
-      upSync: new UpSync(),
       sidebarMenu: [{
         icon: 'box',
         name: 'Product'
@@ -135,13 +132,12 @@ export default {
           this.doneSynching()
         }
       })
-      
     },
     doneSynching(){
       this.dataSynced = 1
       this.$refs.modal._close()
       setTimeout(() => {
-        this.upSync.sync()
+        UpSync.silentSync()
       }, 200)
     }
   },

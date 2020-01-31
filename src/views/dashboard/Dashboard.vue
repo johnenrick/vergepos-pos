@@ -6,20 +6,23 @@
     </div>
     <terminal-toggler/>
     <quick-report-card />
+    <activity-hour />
     <weekly-sale-graph />
   </div>
 </template>
 <script>
 import QuickReportCard from './QuickReportCards.vue'
 import WeeklySaleGraph from './WeeklySaleGraph.vue'
-
 import TerminalToggler from './TerminalToggler'
+import ActivityHour from './ActivityHour'
+
 // import User from '@/database/controller/user'
 export default {
   components: {
     QuickReportCard,
     WeeklySaleGraph,
-    TerminalToggler
+    TerminalToggler,
+    ActivityHour
   },
   mounted(){
   },

@@ -19,7 +19,7 @@
         <p v-else>Removing as terminal will clear the data on this device</p>
         <div v-if="!isUpSynching" class="text-center">
           <button @click="removeTerminal" class="btn btn-danger mr-2"><fa icon='desktop' /> Remove Terminal</button>
-          <button v-if="unsynchedTransaction" @click="uploadData" class="btn btn-outline-success mr-2"><fa icon="arrow-up" /> Upload Data</button>
+          <button v-if="unsynchedTransaction" @click="uploadData" class="btn btn-outline-success mr-2"><fa icon="arrow-up" /> Upload Data </button>
           <button @click="closeRemoveTerminal" class="btn btn-outline-secondary">Close</button>
         </div>
         <div v-else class="text-center">
@@ -34,6 +34,7 @@ import TerminalSelection from './TerminalSelection'
 import UserStore from '@/vue-web-core/system/store'
 import TransactionNumber from '@/database/controller/transaction-number'
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
+import UpSync from '@/system/upSync'
 export default {
   components: {
     TerminalSelection,
@@ -50,11 +51,15 @@ export default {
   methods: {
     uploadData(){
       this.isUpSynching = true
+      UpSync.sync().finally(() => {
+        UpSync.sync().finally(() => {
+          this.countUnsynchedTransaction()
+          this.isUpSynching = false
+        })
+      })
     },
     openTerminalSelection(){
       this.isConfuringTerminal = true
-      // localStorage.setItem('is_terminal', 1)
-      console.log(UserStore.getters.companyInformation)
       let param = {
         id: UserStore.getters.companyInformation.id,
         select: {
@@ -72,27 +77,36 @@ export default {
         }
       }
       this.apiRequest('company/retrieve', param, (response) => {
-        console.log(response)
         if(response['data'] && typeof response['data']['stores'] !== 'undefined' && response['data']['stores'].length && response['data']['stores'][0]['store_terminals'].length){
           localStorage.setItem('is_terminal', response['data']['stores'][0]['store_terminals'][0]['id'])
-          console.log('yawa')
           window.location = '/'
         }else{
           console.error('Cannot set Terminal', response['data'])
+          this.$refs.terminalSelection._open()
         }
         this.isConfuringTerminal = false
       })
-      // this.$refs.terminalSelection._open()
     },
-    openRemoveTerminal(){
+    countUnsynchedTransaction(){
       let transactionNumber = new TransactionNumber()
       let query = {
         where: {
           db_id: 0
         }
       }
-      transactionNumber.get(query).then(result => {
-        this.unsynchedTransaction = result.length
+      return new Promise((resolve, reject) => {
+        transactionNumber.get(query).then(result => {
+          console.log(result)
+          this.unsynchedTransaction = result.length
+        }).finally(() => {
+          resolve(this.unsynchedTransaction)
+        })
+      })
+    },
+    openRemoveTerminal(){
+      this.isConfuringTerminal = true
+      this.countUnsynchedTransaction().finally(() => {
+        this.isConfuringTerminal = false
       })
       this.$refs.removeTerminalModal._open()
     },
