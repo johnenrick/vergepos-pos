@@ -7,11 +7,12 @@
         <small><fa icon="info-circle" /> Type the products or product categories you want to generate report</small>
       </div>
       <div class="col-3">
-        <select class="form-control">
+        <select class="form-control" v-model="selectedReport">
           <option value="transaction">Transaction</option>
-          <option value="group_by_day">Group By Day</option>
-          <option value="transaction">Time In Day</option>
-          <option value="transaction">Day In Week</option>
+          <option value="hourly">Hourly</option>
+          <option value="daily">Daily</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
         </select>
       </div>
       <div class="col-3">
@@ -22,7 +23,7 @@
           :use12-hour="true"
           auto
           type="datetime"
-          value-zone="local"
+          value-zone="utc"
           zone="utc"
         />
       </div>
@@ -34,7 +35,7 @@
           :use12-hour="true"
           auto
           type="datetime"
-          value-zone="local"
+          value-zone="utc"
           zone="utc"
         />
       </div>
@@ -90,6 +91,7 @@ export default {
       weeklyTransactionProducts: [],
       totalDiscount: 0,
       totalAmount: 0,
+      selectedReport : 'transaction',
       tableSetting: {
         columns: [{
           name: 'description',
@@ -99,15 +101,17 @@ export default {
           callback: (value) => {
             return this.padNumber(value, 7)
           }
-        }, {
+        }, 
+        {
           name: 'created_at',
           title: 'Date & Time',
           titleClass: 'text-center',
           dataClass: 'text-center',
           callback: (value) => {
-            return this.formatDate(value, 'mm/dd/yy hh:mm')
+            return value
           }
-        }, {
+        }, 
+        {
           name: 'quantity',
           title: 'Qty',
           titleClass: 'text-center',
@@ -136,11 +140,18 @@ export default {
     openTransaction(transactionId){
     },
     generate(){
-      let startDatetimeFilter = new Date(this.startDatetimeFilter)
+      
+      let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T' , ' ').replace('Z' , ''));
+      // startDatetimeFilter = startDatetimeFilter.replace('T' , ' ')
+      // startDatetimeFilter = startDatetimeFilter.replace('Z', '')
+
+      console.log("startTime " + startDatetimeFilter, this.startDatetimeFilter)
+
       if(startDatetimeFilter === null){
         startDatetimeFilter = new Date()
         startDatetimeFilter.setHours(0, 0, 0)
       }
+
       let createdAtCondition = {
         '>': startDatetimeFilter.getTime()
       }
@@ -171,6 +182,7 @@ export default {
       this.transactionProducts = []
       this.dailyTransactionProducts = []
       this.weeklyTransactionProducts = []
+
       transactionProduct.get(query).then(response => {
         // let weekly = {}
         // let daily = {}
