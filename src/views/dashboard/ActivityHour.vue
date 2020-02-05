@@ -158,7 +158,6 @@ export default {
             index++
           }
         }
-        console.log('ActivityHour', activityHour)
         this.transactionGroupToGraph(activityHour)
       })
     },

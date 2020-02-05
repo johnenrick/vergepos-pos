@@ -140,17 +140,11 @@ export default {
         this.salesPerHour = this.currentSales / (this.timeDifference < 1 ? 1 : this.timeDifference)
       })
     },
-    fullDatetoTime(timestamp, format){
-      let format24 = ''
+    fullDatetoTime(timestamp){
       let date = new Date(timestamp)
       let hours = date.getHours()
       let minutes = date.getMinutes()
-      if(!format){
-        return this.time12HourFormat(hours, minutes)
-      } else{
-        format24 = (hours + ':' + minutes)
-        return (format24)
-      }
+      return this.time12HourFormat(hours, minutes)
     }
   },
 
