@@ -53,7 +53,7 @@ export default {
   },
   methods: {
     clearCart(){
-      Cart.commit('reset');
+      Cart.commit('reset')
     },
     refreshApp(){
       location.reload()
@@ -62,7 +62,7 @@ export default {
       this.$refs.TransactionViewer._open(Cart.state.latestTransactionNumber ? Cart.state.latestTransactionNumber : null)
     },
     benchmark(){
-      this.$refs.benchmark._benchmark()
+      this.$refs.benchmark._open()
     },
     runLiveTime(){
       let currentDate = new Date()

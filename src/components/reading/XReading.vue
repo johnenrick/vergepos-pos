@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div >
+    <h4 class="text-center">X Reading</h4>
     <reading-template
-      :data="startDatetime"
+      :date="startDatetime"
       :vatSales="vatSales"
       :vatExemptSales="vatExemptSales"
       :vatZeroRatedSales="vatZeroRatedSales"
@@ -107,6 +108,7 @@ export default {
           }else{
           }
           let transactionNumberIds = this.getTransactionNumberId(transactionNumbers)
+          console.log('transactionNumberIds', transactionNumberIds)
           query.where['transaction_numbers_id'] = {
             in: transactionNumberIds
           }
@@ -137,6 +139,9 @@ export default {
     getTransactions(query){
       let transactionDB = new Transaction()
       return new Promise((resolve, reject) => {
+        query['with'] = {
+          transaction_products: {}
+        }
         transactionDB.get(query).then((response) => {
           this.salesTransactionCount = response.length
           for(let x = 0; x < response.length; x++){

@@ -29,6 +29,7 @@
         "comma-dangle": "off",
         "prefer-promise-reject-errors": "off",
         "vue/valid-v-for": "off",
+        "vue/require-v-for-key": "off",
         "dot-notation": "off"
     }
 }

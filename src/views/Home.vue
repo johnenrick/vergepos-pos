@@ -16,12 +16,12 @@
               <form class="form-signin">
                 <div class="form-group">
                   <label >Email address</label>
-                  <input v-model="username" type="text" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                  <input @keyup="isTypingUsername" v-model="username" type="text" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
                 </div>
 
                 <div class="form-group">
                   <label>{{isOffline === false ? 'Password' : 'PIN'}}</label>
-                  <input v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                  <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
                 </div>
                 <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" class="btn btn-lg btn-primary btn-block text-uppercase mt-3" type="button">{{isLoading ? 'Signing In' : 'Sign In'}} <small v-if="isOffline">(Offline)</small></button>
               </form>
@@ -150,6 +150,16 @@ export default {
         }else{
           // alert('cant seem to find your place')
         }
+      }
+    },
+    isTypingUsername(e){
+      if(e.code === 'Enter'){
+        this.$refs.passwordInput.focus()
+      }
+    },
+    isTypingPassword(e){
+      if(e.code === 'Enter'){
+        this.signIn()
       }
     }
   },

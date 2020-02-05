@@ -188,7 +188,7 @@ export default {
     changeQuantity () {
       this.changeQuantityClicked = true
     },
-    
+
     discountUpdated () {
     },
     checkout () {
