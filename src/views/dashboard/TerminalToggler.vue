@@ -27,7 +27,7 @@
         </div>
       </template>
     </modal>
-  </div> 
+  </div>
 </template>
 <script>
 import TerminalSelection from './TerminalSelection'
@@ -83,8 +83,8 @@ export default {
         }else{
           console.error('Cannot set Terminal', response['data'])
           this.$refs.terminalSelection._open()
+          this.isConfuringTerminal = false
         }
-        this.isConfuringTerminal = false
       })
     },
     countUnsynchedTransaction(){
@@ -112,7 +112,7 @@ export default {
     },
     async removeTerminal(){
       this.isConfuringTerminal = true
-      localStorage.clear();
+      localStorage.clear()
       const dbs = await window.indexedDB.databases()
       dbs.forEach(db => { window.indexedDB.deleteDatabase(db.name) })
       window.location = '/'

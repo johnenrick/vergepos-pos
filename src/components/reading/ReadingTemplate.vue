@@ -5,7 +5,7 @@
         <tbody>
           <tr>
             <td>Date</td>
-            <td>{{date}}</td>
+            <td class="text-right">{{date | formatDate}}</td>
           </tr>
           <tr>
             <td>Transaction Numbers</td>
@@ -31,23 +31,26 @@
             <td>Vat Amount</td>
             <td class="text-right">{{vatAmount | numberFormat}}</td>
           </tr>
-          <tr>
-            <td>Discount</td>
-            <td class="text-right"></td>
+          <tr >
+            <td>Discount Amount</td>
+            <td class="text-right">({{totalDiscount | numberFormat}})</td>
+          </tr>
+          <tr class="bg-light text-center">
+            <td class="py-1" colspan="2"><small>Discount breakdown</small></td>
           </tr>
           <template v-for="discount in discountAmounts">
-            <tr>
-              <td class="text-center">{{discount['description']}}</td>
-              <td class="text-right">{{discount['amount'] | numberFormat}}</td>
+            <tr class="bg-light">
+              <td class="text-center py-1"><small>{{discount['description']}}</small></td>
+              <td class="text-right py-1"><small>{{discount['amount'] | numberFormat}}</small></td>
             </tr>
           </template>
-          <tr>
+          <!-- <tr>
             <td>Total Discount</td>
-            <td class="text-right">{{totalDiscount | numberFormat}}</td>
-          </tr>
-          <tr>
+            <td class="text-right"></td>
+          </tr> -->
+          <tr class="font-weight-bold">
             <td>Gross Amount</td>
-            <td class="text-right">{{vatSales + vatExemptSales + vatZeroRatedSales + vatAmount - totalDiscount | numberFormat}}</td>
+            <td class="text-right"><big>{{vatSales + vatExemptSales + vatZeroRatedSales + vatAmount - totalDiscount | numberFormat}}</big></td>
           </tr>
           <tr v-if="hasGrandTotal" class="font-weight-bold text-uppercase">
             <td>Previous Grand Total</td>
@@ -65,7 +68,7 @@
 <script>
 export default {
   props: {
-    date: String,
+    date: Date,
     vatSales: Number,
     vatExemptSales: Number,
     vatZeroRatedSales: Number,

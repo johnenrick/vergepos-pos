@@ -68,7 +68,6 @@
       </div>
     </div>
   </div>
-  </div>
 </template>
 <script>
 import Transaction from '@/database/controller/transaction'
@@ -138,7 +137,7 @@ export default {
           }
         }
 
-        this.salesPerHour = this.currentSales / (this.timeDifference < 1 ? 1 : this.timeDifference  )
+        this.salesPerHour = this.currentSales / (this.timeDifference < 1 ? 1 : this.timeDifference)
       })
     },
     fullDatetoTime(timestamp){

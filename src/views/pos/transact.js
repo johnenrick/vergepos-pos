@@ -10,8 +10,11 @@ export default class Transact {
       let transactionNumberEntry = {
         db_id: 0,
         operation: 1,
-        store_terminal_id:localStorage.getItem('is_terminal') * 1,
+        store_terminal_id: localStorage.getItem('is_terminal') * 1,
         user_id: localStorage.getItem('user_id') * 1
+      }
+      if(typeof transaction['created_at'] !== 'undefined'){
+        transactionNumberEntry['created_at'] = transaction['created_at']
       }
       this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
         if(transactionNumberResult['id']){
@@ -19,7 +22,8 @@ export default class Transact {
           transaction['db_id'] = 0
           this.transactionDB.add(transaction).then((response) => {
             if(response && response['id']){
-              this.createTransactionProductRecursion(transactionProducts, 0, response['id']).then(result => {
+              let transactionDate = typeof transaction['created_at'] !== 'undefined' ? transaction['created_at'] : null
+              this.createTransactionProductRecursion(transactionProducts, 0, response['id'], transactionDate).then(result => {
                 resolve(transactionNumberResult)
               }).catch((error) => {
                 reject(error)
@@ -28,11 +32,12 @@ export default class Transact {
           })
         }
       }).catch(errorResult => {
+        console.error(errorResult)
         reject(errorResult)
       })
     })
   }
-  createTransactionProductRecursion(transactionProducts, index, transactionID){
+  createTransactionProductRecursion(transactionProducts, index, transactionID, transactionDate = null){
     return new Promise((resolve, reject) => {
       transactionProducts[index]['transaction_id'] = transactionID * 1
       transactionProducts[index]['product_id'] = transactionProducts[index]['id'] * 1
@@ -48,6 +53,9 @@ export default class Transact {
         vat_amount: transactionProducts[index]['vat_amount'] * 1,
         discount_amount: transactionProducts[index]['discount_amount'] * 1,
         discount_id: transactionProducts[index]['discount_id'] * 1
+      }
+      if(transactionDate){
+        newTransactionProduct['created_at'] = transactionDate
       }
       this.transactionProductDB.add(newTransactionProduct).then(response => {
         index++
