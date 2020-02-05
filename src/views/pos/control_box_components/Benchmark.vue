@@ -37,7 +37,9 @@
         </div>
         {{isTesting}}
         <div v-show="!isTesting" class="text-center">
-          <button @click="benchmark" class="btn btn-primary">Start Benchmark</button>
+          <button @click="benchmark" class="btn btn-primary mr-1">Start Benchmark</button>
+          <button @click="close" class="btn btn-outline-secondary ">Close</button>
+
         </div>
         <div class="text-center p-2">
           Total Transactions to Create: <strong>{{totalTransactionToCreate}}</strong><br>
@@ -77,6 +79,9 @@ export default {
   methods: {
     _open(){
       this.$refs.modal._open()
+    },
+    close(){
+      this.$refs.modal._close()
     },
     initialize(){
       (new Product()).get().then(result => {

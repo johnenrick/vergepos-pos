@@ -126,7 +126,7 @@ export default {
           titleClass: 'text-center',
           dataClass: 'text-center',
           callback: (value) => {
-            return value // this.formatDate(value, 'mm/dd/yy hh:mm')
+            return this.formatDate(value, 'mm/dd/yy hh:mm')
           }
         }, {
           name: 'total_amount',
