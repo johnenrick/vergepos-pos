@@ -6,7 +6,7 @@
         <tr class="">
           <td>Date &amp; Time</td>
           <td class="text-right">{{transactionDetail.datetime | toReadableDateTime}}</td>
-          <td class="text-right">Transaction</td>
+          <td class="text-right">Transaction <p class="text-danger" v-if="transactionDetail.status === 2">(Voided)</p></td>
         </tr>
       </table>
       <table class="table table-sm mb-1">
@@ -67,15 +67,21 @@
       </table>
     </div>
     <div v-if="transactionDetail.id && !toVoid" class="p-2 pt-3">
-      <button v-if="transactionDetail.voidable && transactionDetail.status !== 2" @click="toVoid = true"  class="btn btn-danger"><fa :icon="'ban'" /> VOID</button>
-      <span v-if="transactionDetail.status === 2" class="badge badge-danger">Voided</span>
+      <button v-if="transactionDetail.voidable && transactionDetail.status !== 2" @click="triggerVoid"  class="btn btn-danger"><fa :icon="'ban'" /> VOID</button>
+      <span v-if="transactionDetail.status === 2" class="btn btn-danger">Voided</span>
       <button @click="print" class="btn btn-outline-primary float-right"><fa :icon="'print'" /> Reprint</button>
     </div>
     <div v-if="toVoid">
       <div class="input-group mt-2 pt-2">
+        <select class="form-control" v-model="selected">
+          <option v-for="user in users" :value="user" :key="user.id">
+            {{ user.email }}
+          </option>
+        </select>
         <input v-model="pin" @keypress.enter="voidTransaction" type="password" class="form-control" placeholder="PIN" aria-describedby="basic-addon2">
         <div class="input-group-append">
           <button @click="voidTransaction"  class="btn btn-outline-danger" type="button">Void</button>
+          <button @click="toVoid = false" class="btn btn-outline-primary"><fa :icon="'times'" /> </button>
         </div>
       </div>
       <span v-if="voidErrorMessage">{{voidErrorMessage}}</span>
@@ -116,6 +122,8 @@ export default {
       transactionNumber: null,
       transactionProduct: [],
       toVoid: false,
+      users: [],
+      selected : '',
       pin: '',
       voidErrorMessage: null,
       transactionDetail: {
@@ -224,27 +232,29 @@ export default {
     print(){
       this.$htmlToPaper('printMe')
     },
-    voidTransaction(){
-      this.voidErrorMessage = null
+    triggerVoid(){
+      console.log("TEST");
+      this.toVoid = true;
       this.userDB.get({
-        where: {
-          pin: this.pin,
-          id: localStorage.getItem('user_id') * 1
+        where :{
+          is_manager : 1
         }
-      }).then((result) => {
-        if(result.length){
-          this.transactionDB.update({
-            id: this.transactionDetail.id,
-            status: 2
-          }).then((updateResult) => {
-            this.transactionDetail.status = 2
-            this.voidErrorMessage = null
-            this.toVoid = false
-          })
-        }else{
-          this.voidErrorMessage = 'PIN is not valid'
-        }
+      }).then((e)=>{
+        this.users = e;
+        console.log("test:" + this.users);
       })
+    },
+    voidTransaction(){
+      if(this.pin == this.selected.pin){
+        this.transactionDB.update({
+          id: this.transactionDetail.id,
+          status : 2
+        }).then((result)=>{
+          this.transactionDetail.status = 2
+          this.voidErrorMessage = null
+          this.toVoid = false
+        })
+      }
     },
     reset(){
       this.errorMessage = null
