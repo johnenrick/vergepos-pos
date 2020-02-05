@@ -53,9 +53,11 @@
             <label class="col-sm-4 col-form-label text-right font-weight-bold">Quantity: </label>
             <div class="col-sm-8">
               <input
+                ref="quantityInput"
                 :placeholder="itemDetail['old_quantity']"
                 @click="itemDetail['old_quantity'] = itemDetail['quantity']; itemDetail['quantity'] = ''"
                 @blur="itemDetail['quantity'] === '' ? itemDetail['quantity'] = itemDetail['old_quantity'] * 1 : null"
+                @keyup="isTypingQuantity"
                 v-model="itemDetail['quantity']"
                 type="number"
                 class="form-control text-right"
@@ -123,6 +125,11 @@ export default {
         })
       }
       $(this.$refs.modal).modal('show')
+    },
+    isTypingQuantity(e){
+      if(e.code === 'Enter'){
+        this.$refs.quantityInput.blur()
+      }
     }
   }
 }

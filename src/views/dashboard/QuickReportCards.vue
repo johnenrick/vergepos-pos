@@ -138,7 +138,7 @@ export default {
           }
         }
 
-        this.salesPerHour = this.currentSales / (this.timeDifference < 1 ? 1 : this.timeDifference  )
+        this.salesPerHour = this.currentSales / (this.timeDifference < 1 ? 1 : this.timeDifference)
       })
     },
     fullDatetoTime(timestamp){

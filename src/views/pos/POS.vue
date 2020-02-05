@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <div class="row no-gutters">
+    <div v-if="isTerminal" class="row no-gutters">
       <div class="col-12 col-sm-12 col-md-5">
         <order-list ref="orderList" />
       </div>
@@ -8,6 +8,11 @@
         <control-box :is-synching="isSynching" />
         <product-list ref="productList"/>
       </div>
+    </div>
+    <div v-else class="text-center pt-4">
+      <big class="border rounded p-3 border-warning">
+        <fa class="text-warning" icon="exclamation-triangle" /> This device is not a terminal. Just go back to the <router-link to="/" class="font-weight-bold" >Dashboard</router-link> and click <strong class="badge badge-secondary badge-lg p-2"><big > <fa icon="cash-register" /> Set As Terminal</big></strong> button
+      </big>
     </div>
   </div>
 </template>
@@ -32,6 +37,7 @@ export default {
   },
   data () {
     return {
+      isTerminal: localStorage.getItem('is_terminal'),
       doneSynching: false
     }
   },

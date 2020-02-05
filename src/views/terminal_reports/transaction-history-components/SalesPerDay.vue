@@ -66,7 +66,6 @@ export default {
           y: (transactionGroup[date]['discount_amount']).toFixed(2)
         })
       }
-      console.log('transactionAmountTrend', transactionAmountTrend)
       this.datacollection = {
         labels: dateLabel,
         bezierCurve: false,

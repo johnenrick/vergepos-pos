@@ -1,6 +1,6 @@
 <template>
   <div>
-    <input v-model="inputValue" @touchend="touched" @click="inputValue = ''" @blur="validateInput" class="form-control text-right">
+    <input ref="input" type="number" @keyup="doneTyping" v-model="inputValue" @touchend="touched" @click="inputValue = ''" @blur="validateInput" class="form-control text-right">
   </div>
 </template>
 <script>
@@ -36,6 +36,13 @@ export default {
     },
     touched(){
       console.log('toched')
+    },
+    doneTyping(e){
+      console.log(e, 'event')
+      if(e.code === 'Enter'){
+        this.$refs.input.blur()
+        this.$emit('')
+      }
     }
   },
   watch: {

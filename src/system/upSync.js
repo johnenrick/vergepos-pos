@@ -116,8 +116,8 @@ class UpSync {
     let transactionProductDB = new TransactionProduct()
     let transactionNumberDB = new TransactionNumber()
     return new Promise(async(resolve, reject) => {
-      await transactionDB.update({id: transaction['id'], db_id: transactionResponse['id']});
-      await transactionNumberDB.update({id: transaction['transaction_number_id'], db_id: transactionResponse['transaction_number']['id']});
+      await transactionDB.update({ id: transaction['id'], db_id: transactionResponse['id'] })
+      await transactionNumberDB.update({ id: transaction['transaction_number_id'], db_id: transactionResponse['transaction_number']['id'] })
       if(transactionResponse['transaction_products'].length === transaction['transaction_products'].length){
         for(let x = 0; x < transactionResponse['transaction_products'].length; x++){
           if(!transaction['transaction_products'][x]['id']){
@@ -125,7 +125,7 @@ class UpSync {
               id: transaction['transaction_products'][x]['id'],
               db_id: transactionResponse['transaction_products'][x]['id'],
             }
-            await transactionProductDB.update(transactionProductParam);
+            await transactionProductDB.update(transactionProductParam)
           }
         }
       }else{
@@ -133,14 +133,13 @@ class UpSync {
       }
       resolve(true)
     })
-
   }
   prepareTransactionNumber(transaction){
     // console.log('transaction', transaction['id'], transaction['transaction_number_user_id'], typeof transaction['transaction_number_user_id'], transaction['transaction_number_user_id'] * 1)
     transaction['transaction_number'] = {
-      user_id: transaction['transaction_number_user_id'] ,
-      number: transaction['transaction_number_number'] ,
-      operation: transaction['transaction_number_operation'] ,
+      user_id: transaction['transaction_number_user_id'],
+      number: transaction['transaction_number_number'],
+      operation: transaction['transaction_number_operation'],
     }
     // delete transaction['transaction_number_db_id']
     // delete transaction['transaction_number_user_id']

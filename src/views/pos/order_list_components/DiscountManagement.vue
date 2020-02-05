@@ -188,7 +188,7 @@ export default {
         this.discountList = response || []
         for(let x = 0; x < this.discountList.length; x++){
           Vue.set(this.discountListLookup, this.discountList[x]['db_id'], x)
-          
+
           this.discountList[x]['value_percentage'] = Calc.numberFormat(this.discountList[x]['value'] / 100)
         }
       })

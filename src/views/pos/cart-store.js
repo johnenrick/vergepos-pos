@@ -1,8 +1,6 @@
 import Vuex from 'vuex'
 import Vue from 'vue'
-import Product from '@/database/controller/product.js'
 import Calculator from '@/vue-web-core/helper/calculator'
-const ProductDB = new Product()
 const calculateCartTotal = (state) => {
   state.totalVatSales = 0
   state.totalVatAmount = 0
@@ -86,17 +84,11 @@ let store = new Vuex.Store({
             for(let ccitem in cachedCart[item]){
               Vue.set(state[item], ccitem, cachedCart[item][ccitem])
             }
-          }else if(typeof state[item] === 'array'){
-            for(let x = 0; x < cachedCart[item].length; x++){
-              state[item].push(cachedCart[item][x])
-            }
           }else{
-            
             Vue.set(state, item, cachedCart[item])
           }
         }
       }
-      
     },
     calculateTotal(state){
       calculateCartTotal(state)
@@ -140,9 +132,13 @@ let store = new Vuex.Store({
     },
     addItem(state, productID){
       let callback = null
+      let productDetail = null
       if(typeof productID === 'object'){
         if(typeof productID['callback'] !== 'undefined'){
           callback = productID['callback']
+        }
+        if(typeof productID['product_detail'] !== 'undefined'){
+          productDetail = productID['product_detail']
         }
         productID = productID['product_id']
       }
@@ -150,40 +146,28 @@ let store = new Vuex.Store({
         Vue.set(state.items[state.itemLookUp[productID]], 'quantity', state.items[state.itemLookUp[productID]]['quantity'] * 1 + 1)
         calculateCartTotal(state)
         if(typeof callback === 'function') callback()
-      } else {
-        let param = {
-          where: {
-            db_id: productID
-          }
-        }
-        ProductDB.get(param).then((result) => {
-          if (result.length) {
-            result = result[0]
-            state.items.push({
-              id: result.db_id,
-              local_id: result.id, // indexedDB ID
-              order_item_identifier: result.db_id + '-' + (new Date()).getTime(),
-              description: result.description,
-              category_id: result.category_id,
-              quantity: 1,
-              price: result.price,
-              vat_sales: 0,
-              vat_exempt_quatity: 0,
-              vat_exempt_sales: 0,
-              vat_zero_rated_quantity: 0, // quantity of items that are vat exempted
-              vat_zero_rated_sales: 0,
-              vat_amount: 0,
-              discount_amount: 0,
-              discount_id: 0,
-              discount_quantity: 0 // the quantity of items to be discounted
-            })
-            Vue.set(state.itemLookUp, productID, state.items.length - 1)
-          }else{
-            console.info((productID + '').replace('c', ''))
-          }
-          calculateCartTotal(state)
-          if(typeof callback === 'function') callback()
+      } else { // add new product
+        state.items.push({
+          id: productDetail.db_id,
+          local_id: productDetail.id, // indexedDB ID
+          order_item_identifier: productDetail.db_id + '-' + (new Date()).getTime(),
+          description: productDetail.description,
+          category_id: productDetail.category_id,
+          quantity: 1,
+          price: productDetail.price,
+          vat_sales: 0,
+          vat_exempt_quatity: 0,
+          vat_exempt_sales: 0,
+          vat_zero_rated_quantity: 0, // quantity of items that are vat exempted
+          vat_zero_rated_sales: 0,
+          vat_amount: 0,
+          discount_amount: 0,
+          discount_id: 0,
+          discount_quantity: 0 // the quantity of items to be discounted
         })
+        Vue.set(state.itemLookUp, productID, state.items.length - 1)
+        if(typeof callback === 'function') callback()
+        calculateCartTotal(state)
       }
     },
     reset(state){

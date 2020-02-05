@@ -23,7 +23,7 @@ export default class TransactionNumber extends Controller {
       limit: 1,
       order: {
         by: 'number',
-        type: 'desc' //supprted sort type is - asc,desc
+        type: 'desc' // supprted sort type is - asc,desc
       }
     }
     return new Promise((resolve, reject) => {
@@ -32,7 +32,6 @@ export default class TransactionNumber extends Controller {
         if(result.length && result[0]['number']){
           latestNumber = result[0]['number']
         }
-        console.log('latest', result)
         resolve(latestNumber)
       }).catch((errorResult) => {
         result(0)

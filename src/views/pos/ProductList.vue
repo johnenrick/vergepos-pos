@@ -60,19 +60,21 @@
       class="pb-2"
     >
       <div class="row align-items-center mx-0 px-2">
-        <template v-for="(category, index) in categoryList">
-          <div
-            class="col-4 px-1 py-1 itemContainer"
-            v-show="typeof category['show'] === 'undefined' || category['show']"
-          >
+        <template v-if="!categoryFilterID">
+          <template  v-for="(category) in categoryList">
             <div
-              @click="setCategoryFilter(category['db_id'], category['description'])"
-              class="font-weight-bold text-uppercase border text-primary border-primary py-2 text-center px-1 item"
-              style="max-height:66px; overflow-y:hidden"
+              class="col-4 px-1 py-1 itemContainer"
+              v-show="typeof category['show'] === 'undefined' || category['show']"
             >
-              <span class="no_selection"> {{ category['description'] }}</span>
+              <div
+                @click="setCategoryFilter(category['db_id'], category['description'])"
+                class="font-weight-bold text-uppercase border text-primary border-primary py-2 text-center px-1 item"
+                style="max-height:66px; overflow-y:hidden"
+              >
+                <span class="no_selection"> {{ category['description'] }}</span>
+              </div>
             </div>
-          </div>
+          </template>
         </template>
         <template v-for="(product, index) in productList">
           <div
@@ -80,8 +82,8 @@
             v-show="typeof product['show'] === 'undefined' || product['show']"
           >
             <div
-              @click="addProduct(product['db_id'])"
-              class="border  border-primary text-primary py-2 text-center px-1 item"
+              @click="addProduct(product['db_id'], index)"
+              class="border border-primary text-primary py-2 text-center px-1 item"
               style="max-height:66px; overflow-y:hidden"
             >
               <span class="no_selection"> {{ product['description'] }}</span>
@@ -178,7 +180,7 @@ export default {
         }
       }
     },
-    addProduct (productID) {
+    addProduct (productID, productListIndex) {
       if(this.isAdding){
         if(productID){
           this.pendingAddProduct.push(productID)
@@ -191,6 +193,7 @@ export default {
       }
       let param = {
         product_id: productID,
+        product_detail: this.productList[productListIndex],
         callback: () => {
           if(this.pendingAddProduct.length){
             this.isAdding = false
@@ -219,7 +222,9 @@ export default {
   }
 }
 </script>
-<style scoped>
+<style scoped lang="scss">
+@import "@/assets/style/custom-theme.scss";
+
 #container{
   min-height: 300px; overflow-y: scroll
 }
@@ -243,7 +248,7 @@ export default {
 #container::-webkit-scrollbar-thumb:hover {
   background: #550055;
 }
-.itemContainer:hover{
+.itemContainer .border-primary:hover{
   cursor: pointer
 }
 .itemContainer{
@@ -260,5 +265,8 @@ export default {
     -khtml-user-select: none; /* webkit (konqueror) browsers */
     -ms-user-select: none; /* IE10+ */
 }
-
+.itemContainer .border-primary:active:hover {
+  background-color:$primary;
+  color: white!important
+}
 </style>

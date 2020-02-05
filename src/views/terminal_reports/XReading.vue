@@ -1,7 +1,7 @@
 <template>
-  <div class="section">
+  <div class="section p-2">
     <h2>X Reading</h2>
-    <div class="row ">
+    <div class="row mb-2 justify-content-center">
       <div class="col-12 col-md-6 col-lg-4 mb-3 ">
         <div class="form-group row">
           <label class="col-form-label col-4">Start Date</label>
@@ -38,8 +38,8 @@
           <div class="col-8">
             <select v-model="cashierId" class="form-control">
               <option value="0" selected>Any</option>
-              <template  v-for="cashier in cashierList">
-                <option :value="cashier['db_id']" >{{cashier['first_name'] + ' ' + cashier['last_name']}}</option>
+              <template  v-for="(cashier, index) in cashierList">
+                <option :value="cashier['db_id']" :key="index">{{cashier['first_name'] + ' ' + cashier['last_name']}}</option>
               </template>
             </select>
           </div>
@@ -50,9 +50,12 @@
         </div>
       </div>
     </div>
-    <div class="row ">
-      <div class="col-12 col-md-6 col-lg-4">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-6 col-lg-4 border rounded py-2">
         <x-reading ref="xReading"  />
+        <div class="w-100 text-right pb-2">
+          <button class="btn btn-success"><fa icon="print"/> Print Reading</button>
+        </div>
       </div>
     </div>
   </div>
