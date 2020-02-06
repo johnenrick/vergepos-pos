@@ -54,7 +54,7 @@
       <div class="col-12 col-md-6 col-lg-4 border rounded py-2">
         <x-reading ref="xReading"  />
         <div class="w-100 text-right pb-2">
-          <button class="btn btn-success"><fa icon="print"/> Print Reading</button>
+          <button class="btn btn-success" @click="printXReading()"><fa icon="print"/> Print Reading</button>
         </div>
       </div>
     </div>
@@ -99,6 +99,9 @@ export default {
     }
   },
   methods: {
+    printXReading(){
+      this.$refs.xReading.printXReading()
+    },
     init(){
       let currentDate = new Date()
       let defaultTime = currentDate.getFullYear() + '-' + this.padNumber(currentDate.getMonth() + 1) + '-' + this.padNumber(currentDate.getDate()) + 'T' + this.padNumber(0) + ':' + this.padNumber(0) + ':' + this.padNumber(0) + '.000Z'

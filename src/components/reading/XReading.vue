@@ -2,6 +2,7 @@
   <div >
     <h4 class="text-center">X Reading</h4>
     <reading-template
+      ref="ReadingTemplate"
       :date="startDatetime"
       :vatSales="vatSales"
       :vatExemptSales="vatExemptSales"
@@ -128,6 +129,9 @@ export default {
           resolve(null)
         })
       })
+    },
+    printXReading(){
+      this.$refs.ReadingTemplate.printXReading()
     },
     getTransactionNumberId(transactionNumbers){
       let ids = []

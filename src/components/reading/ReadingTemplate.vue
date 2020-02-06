@@ -1,6 +1,6 @@
 <template>
   <div class="" style="">
-    <div>
+    <div id="printMe">
       <table class="table">
         <tbody>
           <tr>
@@ -13,27 +13,27 @@
           </tr>
           <tr>
             <td>Vat Sales</td>
-            <td class="text-right">{{vatSales | numberFormat}}</td>
+            <td class="text-right">{{vatSales | numberToMoney}}</td>
           </tr>
           <tr>
             <td>Vat Exempt Sales</td>
-            <td class="text-right">{{vatExemptSales | numberFormat}}</td>
+            <td class="text-right">{{vatExemptSales | numberToMoney}}</td>
           </tr>
           <tr>
             <td>Vat Zero Rate Sales</td>
-            <td class="text-right">{{vatZeroRatedSales | numberFormat}}</td>
+            <td class="text-right">{{vatZeroRatedSales | numberToMoney}}</td>
           </tr>
           <tr>
             <td>Total Sales</td>
-            <td class="text-right">{{totalSales | numberFormat}}</td>
+            <td class="text-right">{{totalSales | numberToMoney}}</td>
           </tr>
           <tr>
             <td>Vat Amount</td>
-            <td class="text-right">{{vatAmount | numberFormat}}</td>
+            <td class="text-right">{{vatAmount | numberToMoney}}</td>
           </tr>
           <tr >
             <td>Discount Amount</td>
-            <td class="text-right">({{totalDiscount | numberFormat}})</td>
+            <td class="text-right">({{totalDiscount | numberToMoney}})</td>
           </tr>
           <tr class="bg-light text-center">
             <td class="py-1" colspan="2"><small>Discount breakdown</small></td>
@@ -41,7 +41,7 @@
           <template v-for="discount in discountAmounts">
             <tr class="bg-light">
               <td class="text-center py-1"><small>{{discount['description']}}</small></td>
-              <td class="text-right py-1"><small>{{discount['amount'] | numberFormat}}</small></td>
+              <td class="text-right py-1"><small>{{discount['amount'] | numberToMoney}}</small></td>
             </tr>
           </template>
           <!-- <tr>
@@ -50,7 +50,7 @@
           </tr> -->
           <tr class="font-weight-bold">
             <td>Gross Amount</td>
-            <td class="text-right"><big>{{vatSales + vatExemptSales + vatZeroRatedSales + vatAmount - totalDiscount | numberFormat}}</big></td>
+            <td class="text-right"><big>{{vatSales + vatExemptSales + vatZeroRatedSales + vatAmount - totalDiscount | numberToMoney}}</big></td>
           </tr>
           <tr v-if="hasGrandTotal" class="font-weight-bold text-uppercase">
             <td>Previous Grand Total</td>
@@ -66,6 +66,22 @@
   </div>
 </template>
 <script>
+import Vue from 'vue'
+import VueHtmlToPaper from 'vue-html-to-paper'
+
+const options = {
+  name: '_blank',
+  specs: [
+    'fullscreen=yes',
+    'titlebar=yes',
+    'scrollbars=yes'
+  ],
+  styles: [
+    'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css',
+    'https://unpkg.com/kidlat-css/css/kidlat.css'
+  ]
+}
+Vue.use(VueHtmlToPaper, options)
 export default {
   props: {
     date: Date,
@@ -92,6 +108,9 @@ export default {
   },
   methods: {
     init(){
+    },
+    printXReading(){
+      this.$htmlToPaper('printMe')
     }
   },
   computed: {
