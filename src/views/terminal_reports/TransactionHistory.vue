@@ -10,7 +10,7 @@
           :use12-hour="true"
           auto
           type="datetime"
-          value-zone="local"
+          value-zone="utc"
           zone="utc"
         />
       </div>
@@ -22,12 +22,13 @@
           :use12-hour="true"
           auto
           type="datetime"
-          value-zone="local"
+          value-zone="utc"
           zone="utc"
         />
       </div>
       <div class="col-6">
-        <button @click="generate" class="btn btn-primary">Generate</button>
+        <button v-if="isGenerating" disabled class="btn btn-primary">Generating...</button>
+        <button v-else @click="generate" class="btn btn-primary">Generate</button>
         <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right"><fa icon="chart-line" /> Show Graph</button>
         <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right"><fa icon="chart-line" /> Hide Graph</button>
       </div>
@@ -111,6 +112,7 @@ export default {
       transactions: [],
       totalDiscount: 0,
       totalAmount: 0,
+      isGenerating: false,
       tableSetting: {
         columns: [{
           name: 'transaction_number_id',
@@ -171,7 +173,8 @@ export default {
       this.$refs.TransactionViewer._open(transactionId)
     },
     generate(){
-      let startDatetimeFilter = new Date(this.startDatetimeFilter)
+      this.isGenerating = true
+      let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('Z', ''))
       if(startDatetimeFilter === null){
         startDatetimeFilter = new Date()
         startDatetimeFilter.setHours(0, 0, 0)
@@ -180,9 +183,11 @@ export default {
         '>': startDatetimeFilter.getTime()
       }
       if(this.endDatetimeFilter){
-        createdAtCondition['<'] = (new Date(this.endDatetimeFilter)).getTime()
+        createdAtCondition['<'] = (new Date(this.endDatetimeFilter.replace('Z', ''))).getTime()
       }else{
-        createdAtCondition['<'] = (new Date()).getTime()
+        let endTime = new Date()
+        endTime.setHours(23, 59, 59)
+        createdAtCondition['<'] = endTime.getTime()
       }
       let query = {
         where: {
@@ -238,6 +243,7 @@ export default {
           })
         }).finally(() => {
           resolve(null)
+          this.isGenerating = false
         })
       })
     },
