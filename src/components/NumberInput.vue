@@ -35,10 +35,8 @@ export default {
       }
     },
     touched(){
-      console.log('toched')
     },
     doneTyping(e){
-      console.log(e, 'event')
       if(e.code === 'Enter'){
         this.$refs.input.blur()
         this.$emit('')
