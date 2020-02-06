@@ -1,70 +1,71 @@
 <template>
   <div>
     <div v-if="errorMessage" class="text-danger text-center font-weight-bold border border-danger rounded py-2">{{errorMessage}}</div>
-    <div id="printMe" class="shadow p-2 mb-2">
-      <table class="table table-sm">
-        <tr class="">
-          <td>Date &amp; Time</td>
-          <td class="text-right">{{transactionDetail.datetime | toReadableDateTime}}</td>
-          <td class="text-right">Transaction <p class="text-danger" v-if="transactionDetail.status === 2">(Voided)</p></td>
-        </tr>
-      </table>
-      <table class="table table-sm mb-1">
-        <thead>
-          <tr class="text-center">
-            <th>Description</th>
-            <th>Qty</th>
-            <th>Price</th>
+    <div id="printMe" class="shadow p-2 mb-2" >
+      <div :style="isPrinting ? printingStyle : ''">
+        <table class="table table-sm" style="width:100%">
+          <tr class="">
+            <td class="text-uppercase" colspan="2">{{transactionDetail.datetime | toReadableDateTime}}</td>
+            <td class="text-right">Transaction <p class="text-danger" v-if="transactionDetail.status === 2">(Voided)</p></td>
           </tr>
-        </thead>
-        <tbody>
-          <template v-for="(product, index) in transactionProduct">
-            <tr :key="index">
-              <td class="">{{product['description']}}</td>
-              <td class="text-right">{{product['quantity']}}</td>
-              <td class="text-right">{{product['price'] | numberFormat}}</td>
+        </table>
+        <table class="table table-sm mb-1" style="width:100%">
+          <thead>
+            <tr class="text-center">
+              <th>Description</th>
+              <th>Qty</th>
+              <th>Price</th>
             </tr>
-          </template>
-        </tbody>
-      </table>
-      <table class="table table-sm topDivider mb-0">
-        <tr class="font-weight-bold">
-          <td>Subt Total</td>
-          <td class="text-right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
-        </tr>
-        <tr>
-          <td>VAT Sales</td>
-          <td class="text-right">{{transactionDetail.vatSales | numberFormat}}</td>
-        </tr>
-        <tr>
-          <td>VAT Exempt Sales</td>
-          <td class="text-right">{{transactionDetail.vatExemptSales | numberFormat}}</td>
-        </tr>
-        <tr>
-          <td>VAT Zero Rated Sales</td>
-          <td class="text-right">{{transactionDetail.vatZeroRatedSales | numberFormat}}</td>
-        </tr>
-        <tr>
-          <td>VAT Amount</td>
-          <td class="text-right">{{transactionDetail.vatAmount | numberFormat}}</td>
-        </tr>
-        <tr>
-          <td>Discount</td>
-          <td class="text-right">{{transactionDetail.total_discount_amount | numberFormat}}</td>
-        </tr>
-        <tr class="font-weight-bold text-uppercase">
-          <td>Total Amount</td>
-          <td class="text-right">{{transactionDetail.totalAmount | numberFormat}}</td>
-        </tr>
-        <tr>
-          <td>Cash</td>
-          <td class="text-right">{{transactionDetail.cashTendered | numberFormat}}</td>
-        </tr>
-        <tr>
-          <td>Change</td>
-          <td class="text-right">{{(transactionDetail.cashTendered - transactionDetail.totalAmount) | numberFormat}}</td>
-        </tr>
-      </table>
+          </thead>
+          <tbody>
+            <template v-for="(product, index) in transactionProduct">
+              <tr :key="index">
+                <td class="">{{product['description']}}</td>
+                <td class="text-right">{{product['quantity']}}</td>
+                <td class="text-right">{{product['price'] | numberFormat}}</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+        <table class="table table-sm topDivider mb-0" style="width:100%">
+          <tr class="font-weight-bold">
+            <td>Subt Total</td>
+            <td class="text-right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
+          </tr>
+          <tr>
+            <td>VAT Sales</td>
+            <td class="text-right">{{transactionDetail.vatSales | numberFormat}}</td>
+          </tr>
+          <tr>
+            <td>VAT Exempt Sales</td>
+            <td class="text-right">{{transactionDetail.vatExemptSales | numberFormat}}</td>
+          </tr>
+          <tr>
+            <td>VAT Zero Rated Sales</td>
+            <td class="text-right">{{transactionDetail.vatZeroRatedSales | numberFormat}}</td>
+          </tr>
+          <tr>
+            <td>VAT Amount</td>
+            <td class="text-right">{{transactionDetail.vatAmount | numberFormat}}</td>
+          </tr>
+          <tr>
+            <td>Discount</td>
+            <td class="text-right">{{transactionDetail.total_discount_amount | numberFormat}}</td>
+          </tr>
+          <tr class="font-weight-bold text-uppercase">
+            <td>Total Amount</td>
+            <td class="text-right">{{transactionDetail.totalAmount | numberFormat}}</td>
+          </tr>
+          <tr>
+            <td>Cash</td>
+            <td class="text-right">{{transactionDetail.cashTendered | numberFormat}}</td>
+          </tr>
+          <tr>
+            <td>Change</td>
+            <td class="text-right">{{(transactionDetail.cashTendered - transactionDetail.totalAmount) | numberFormat}}</td>
+          </tr>
+        </table>
+      </div>
     </div>
     <div v-if="transactionDetail.id && !toVoid" class="p-2 pt-3">
       <button v-if="transactionDetail.voidable && transactionDetail.status !== 2" @click="triggerVoid"  class="btn btn-danger"><fa :icon="'ban'" /> VOID</button>
@@ -126,6 +127,10 @@ export default {
       selected : '',
       pin: '',
       voidErrorMessage: null,
+      printingStyle: {
+        width: '15em',
+        'font-size': '6pt'
+      },
       transactionDetail: {
         id: null,
         subTotal: 0,
@@ -140,7 +145,8 @@ export default {
         datetime: '0/0/0',
         status: 1,
         voidable: false
-      }
+      },
+      isPrinting: false
     }
   },
   methods: {
@@ -153,7 +159,6 @@ export default {
         return false
       }
       return new Promise((resolve, reject) => {
-        console.log('getting', this.transactionNumber)
         this.transactionDB.get({
           join: {
             with: 'transaction_numbers',
@@ -172,7 +177,6 @@ export default {
           }
         }).then((result) => {
           if(result.length){
-            console.log('res', result, this.transactionNumber)
             result = result[0]
             this.transactionDetail.id = result['id']
             this.transactionDetail.vatSales = result['total_vat_sales']
@@ -230,7 +234,11 @@ export default {
       })
     },
     print(){
-      this.$htmlToPaper('printMe')
+      this.isPrinting = true
+      setTimeout(() => {
+        this.$htmlToPaper('printMe')
+        // this.isPrinting = false
+      }, 1000)
     },
     triggerVoid(){
       console.log("TEST");
