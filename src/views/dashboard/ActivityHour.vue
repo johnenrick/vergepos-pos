@@ -59,6 +59,8 @@ export default {
           graphObject[startCtr]['y'] = groupOfTransactions[index]['transactions']
         }
       }
+      start = this.fullDatetoTime(this.roundMinutes(this.timeToFullDate(start)), 24)
+      end = this.fullDatetoTime(this.roundMinutes(this.timeToFullDate(end)), 24)
       this.removeExcess(graphObject, start, end)
       let xLabel = []
       for(let x in graphObject){
@@ -158,7 +160,9 @@ export default {
             index++
           }
         }
-        this.transactionGroupToGraph(activityHour)
+        if(testResult.length >= 1){
+          this.transactionGroupToGraph(activityHour)
+        }
       })
     },
     dateSetter(start, end, graphObject){
