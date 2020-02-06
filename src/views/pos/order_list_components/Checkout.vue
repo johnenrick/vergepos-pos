@@ -205,7 +205,7 @@ export default {
           this.$refs.receipt.print()
         }
         if(this.printOnCheckOut === true){
-          this.$refs.receipt._view(response['id']).then(funcCallback)
+          this.$refs.receipt._view(response['number']).then(funcCallback)
         }
         setTimeout(() => {
           this.$emit('transaction-created', response)
