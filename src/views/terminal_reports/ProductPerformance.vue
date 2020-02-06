@@ -3,7 +3,7 @@
     <h2>Product Performance</h2>
     <div class="row mb-4">
       <div class="col-12 pb-2">
-        <vue-select v-model="selectFilterValue" :options="selectFilterOption" :multiple="true" placeholder="Category and Product Filter" />
+        <vue-select v-model="selectFilterValue" :options="selectFilterOption" label="description" :multiple="true" placeholder="Category and Product Filter" />
         <small><fa icon="info-circle" /> Type the products or product categories you want to generate report</small>
       </div>
       <div class="col-3">
@@ -69,6 +69,8 @@ import TransactionProduct from '@/database/controller/transaction-product.js'
 import Vuetable from 'vuetable-2/src/components/Vuetable' // https://ratiw.github.io/vuetable-2/#/Special-Fields?id=-__slotltnamegt
 import VueSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
+import Product from '@/database/controller/product.js'
+
 export default {
   components: {
     Vuetable,
@@ -83,7 +85,8 @@ export default {
       graphType: 'null',
       startDatetimeFilter: null,
       endDatetimeFilter: null,
-      selectFilterValue: null,
+      productDB : new Product(),
+      selectFilterValue: [],
       selectFilterOption: [],
       transactions: [],
       transactionProducts: [],
@@ -93,22 +96,23 @@ export default {
       totalAmount: 0,
       selectedReport : 'transaction',
       tableSetting: {
-        columns: [{
+        columns: [
+        {
+        name: 'created_at',
+        title: 'Date & Time',
+        titleClass: 'text-center',
+        dataClass: 'text-center',
+        callback: (value) => {
+            return value
+          }
+        },  
+        {
           name: 'description',
           title: 'Description',
           titleClass: 'text-center',
           dataClass: 'text-center',
           callback: (value) => {
             return this.padNumber(value, 7)
-          }
-        }, 
-        {
-          name: 'created_at',
-          title: 'Date & Time',
-          titleClass: 'text-center',
-          dataClass: 'text-center',
-          callback: (value) => {
-            return value
           }
         }, 
         {
@@ -122,7 +126,7 @@ export default {
           titleClass: 'text-center',
           dataClass: 'text-right',
           callback: (value) => {
-            return (value).toFixed(2)
+            return ("P" + this.numberToMoney(value))
           }
         }]
       }
@@ -133,19 +137,22 @@ export default {
       let currentDate = new Date()
       let defaultTime = currentDate.getFullYear() + '-' + this.padNumber(currentDate.getMonth() + 1) + '-' + this.padNumber(currentDate.getDate()) + 'T' + this.padNumber(0) + ':' + this.padNumber(0) + ':' + this.padNumber(0) + '.000Z'
       this.startDatetimeFilter = defaultTime
+      this.productDB.get().then((e) =>{
+        this.selectFilterOption = e
+        // console.log(this.selectFilterOption);
+        // console.log(this.selectFilterOption[0].description)
+      });
       this.generate()
+      
     },
     viewGraph(){
     },
     openTransaction(transactionId){
     },
     generate(){
-      
       let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T' , ' ').replace('Z' , ''));
-      // startDatetimeFilter = startDatetimeFilter.replace('T' , ' ')
-      // startDatetimeFilter = startDatetimeFilter.replace('Z', '')
 
-      console.log("startTime " + startDatetimeFilter, this.startDatetimeFilter)
+      // console.log("startTime " + startDatetimeFilter, this.startDatetimeFilter)
 
       if(startDatetimeFilter === null){
         startDatetimeFilter = new Date()
@@ -163,7 +170,7 @@ export default {
       let query = {
         join: {
           with: 'products',
-          on: 'transaction_products.product_id=products.id',
+          on: 'transaction_products.product_id=products.db_id',
           type: 'inner',
           as: {
             'id': 'transaction_number_id',
@@ -174,6 +181,7 @@ export default {
           }
         },
         where: {
+          // product_id : (this.selectFilterValue == null) ?  1 : this.selectFilterValue[0].db_id,
           created_at: createdAtCondition
         }
       }
@@ -184,12 +192,67 @@ export default {
       this.weeklyTransactionProducts = []
 
       transactionProduct.get(query).then(response => {
-        // let weekly = {}
-        // let daily = {}
-        for(let x = 0; x < response.length; x++){
-          response[x]['amount'] = response[x]['vat_amount'] + response[x]['vat_sales']
-          this.transactionProducts.push(response[x])
+        console.log(response);
+
+        if(this.selectedReport == 'transaction'){
+          if(response.length != 0){
+            let productArr = {}
+            if(this.selectFilterValue.length != 0){
+              for(let x = 0; x < response.length; x++){
+                for(let y = 0; y < this.selectFilterValue.length; y++){
+                  if(response[x]['product_id'] == this.selectFilterValue[y]['db_id']){
+                    if(typeof productArr[response[x]['product_id']] === 'undefined'){
+                      productArr[response[x]['product_id']] = {
+                        quantity: 0,
+                        amount: 0
+                      }
+                    }
+                    productArr[response[x]['product_id']]['created_at'] = 'N/A'
+                    productArr[response[x]['product_id']]['description'] = response[x]['description']
+                    productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount']  + response[x]['vat_exempt_sales']* 1
+                    productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
+                  }
+                }
+              }
+            }else{
+              for(let x= 0; x< response.length; x++){
+                if(typeof productArr[response[x]['product_id']] === 'undefined'){
+                  productArr[response[x]['product_id']] = {
+                    quantity: 0,
+                    amount: 0
+                  }
+                }
+                productArr[response[x]['product_id']]['created_at'] = 'N/A'
+                productArr[response[x]['product_id']]['description'] = response[x]['description']
+                productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount']  + response[x]['vat_exempt_sales']* 1
+                productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
+              }
+            }
+            
+            for(let x in productArr){
+              this.transactionProducts.push(productArr[x])
+            }
+
+            // console.log(this.transactionProducts);
+          }
+        }else{//else if(this.selectedReport == 'hourly'){
+          if(this.selectFilterValue.length != 0){
+            for(let x= 0; x<response.length; x++){
+              for(let y= 0; y<this.selectFilterValue.length; y++){
+                if(response[x]['product_id'] == this.selectFilterValue[y]['db_id']){
+                  response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] 
+                  this.transactionProducts.push(response[x])
+                }
+              }
+            }
+          }else{
+            for(let x= 0; x<response.length; x++){
+              response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] 
+              this.transactionProducts.push(response[x])
+            }
+          }          
         }
+        
         // resolve(response)
         // this.generateReport()
       }).catch(error => {
