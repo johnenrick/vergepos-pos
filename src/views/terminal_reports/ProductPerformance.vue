@@ -46,6 +46,9 @@
       </div>
     </div>
     <div class="row">
+      <div class="col-">
+        <transaction-graph ref="TransactionGraph" :data="transactionProducts"/>
+      </div>
       <div class="col-12">
         <vuetable ref="vuetable"
           :track-by="'id'"
@@ -70,12 +73,14 @@ import Vuetable from 'vuetable-2/src/components/Vuetable' // https://ratiw.githu
 import VueSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import Product from '@/database/controller/product.js'
+import TransactionGraph from './TransactionGraph.vue'
 
 export default {
   components: {
     Vuetable,
     Datetime,
-    VueSelect
+    VueSelect,
+    TransactionGraph
   },
   mounted(){
     this.init()

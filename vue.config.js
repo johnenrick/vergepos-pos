@@ -2,7 +2,13 @@ module.exports = {
   publicPath: '',
 
   pwa: {
-    name: 'VergePOS by Verge Technologies'
+    name: 'VergePOS by Verge Technologies',
+    short_name: "VergePOS",
+    themeColor: "#000000",
+    workboxPluginMode: "InjectManifest",
+    workboxOptions: {
+      swSrc: "src/service-worker.js" // CHECK CORRECT PATH!
+    }
   },
 
   devServer: {
