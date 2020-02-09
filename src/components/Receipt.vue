@@ -253,6 +253,7 @@ export default {
       })
     },
     voidTransaction(){
+      this.voidErrorMessage = '';
       if(this.pin == this.selected.pin){
         this.transactionDB.update({
           id: this.transactionDetail.id,
@@ -262,6 +263,8 @@ export default {
           this.voidErrorMessage = null
           this.toVoid = false
         })
+      }else{
+        this.voidErrorMessage = "PIN Is Incorrect"
       }
     },
     reset(){
