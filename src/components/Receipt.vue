@@ -4,10 +4,12 @@
     <div id="printMe" class="shadow p-2 mb-2" >
       <div :style="isPrinting ? printingStyle : ''">
         <table class="table table-sm" style="width:100%">
-          <tr class="">
-            <td class="text-uppercase" colspan="2">{{transactionDetail.datetime | toReadableDateTime}}</td>
-            <td class="text-right">Transaction <p class="text-danger" v-if="transactionDetail.status === 2">(Voided)</p></td>
-          </tr>
+          <tbody>
+            <tr class="">
+              <td class="text-uppercase" colspan="2">{{transactionDetail.datetime | toReadableDateTime}}</td>
+              <td class="text-right" style="text-align: right">{{transactionNumber}} <p class="text-danger" v-if="transactionDetail.status === 2">(Voided)</p></td>
+            </tr>
+          </tbody>
         </table>
         <table class="table table-sm mb-1" style="width:100%">
           <thead>
@@ -21,49 +23,51 @@
             <template v-for="(product, index) in transactionProduct">
               <tr :key="index">
                 <td class="">{{product['description']}}</td>
-                <td class="text-right">{{product['quantity']}}</td>
-                <td class="text-right">{{product['price'] | numberFormat}}</td>
+                <td class="text-right" style="text-align: right">{{product['quantity']}}</td>
+                <td class="text-right" style="text-align: right">{{product['price'] | numberFormat}}</td>
               </tr>
             </template>
           </tbody>
         </table>
-        <table class="table table-sm topDivider mb-0" style="width:100%">
-          <tr class="font-weight-bold">
-            <td>Subt Total</td>
-            <td class="text-right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>VAT Sales</td>
-            <td class="text-right">{{transactionDetail.vatSales | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>VAT Exempt Sales</td>
-            <td class="text-right">{{transactionDetail.vatExemptSales | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>VAT Zero Rated Sales</td>
-            <td class="text-right">{{transactionDetail.vatZeroRatedSales | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>VAT Amount</td>
-            <td class="text-right">{{transactionDetail.vatAmount | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>Discount</td>
-            <td class="text-right">{{transactionDetail.total_discount_amount | numberFormat}}</td>
-          </tr>
-          <tr class="font-weight-bold text-uppercase">
-            <td>Total Amount</td>
-            <td class="text-right">{{transactionDetail.totalAmount | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>Cash</td>
-            <td class="text-right">{{transactionDetail.cashTendered | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>Change</td>
-            <td class="text-right">{{(transactionDetail.cashTendered - transactionDetail.totalAmount) | numberFormat}}</td>
-          </tr>
+        <table class="table table-sm topDivider mb-0 w-100" style="width:100%">
+          <tbody>
+            <tr class="font-weight-bold" >
+              <td>Subt Total</td>
+              <td style="text-align: right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>VAT Sales</td>
+              <td style="text-align: right">{{transactionDetail.vatSales | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>VAT Exempt Sales</td>
+              <td style="text-align: right">{{transactionDetail.vatExemptSales | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>ZR Sales</td>
+              <td style="text-align: right">{{transactionDetail.vatZeroRatedSales | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>VAT Amount</td>
+              <td style="text-align: right">{{transactionDetail.vatAmount | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>Discount</td>
+              <td style="text-align: right">{{transactionDetail.total_discount_amount | numberFormat}}</td>
+            </tr>
+            <tr class="font-weight-bold text-uppercase">
+              <td>Total</td>
+              <td style="text-align: right">{{transactionDetail.totalAmount | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>Cash</td>
+              <td style="text-align: right">{{transactionDetail.cashTendered | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>Change</td>
+              <td style="text-align: right">{{(transactionDetail.cashTendered - transactionDetail.totalAmount) | numberFormat}}</td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
@@ -99,9 +103,9 @@ import VueHtmlToPaper from 'vue-html-to-paper'
 const options = {
   name: '_blank',
   specs: [
-    'fullscreen=yes',
-    'titlebar=yes',
-    'scrollbars=yes'
+    'fullscreen=no',
+    'titlebar=no',
+    'scrollbars=no'
   ],
   styles: [
     'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css',
@@ -128,8 +132,9 @@ export default {
       pin: '',
       voidErrorMessage: null,
       printingStyle: {
-        width: '15em',
-        'font-size': '6pt'
+        'width': '300px',
+        'font-size': '3pt',
+        'font-family': 'monospace'
       },
       transactionDetail: {
         id: null,
