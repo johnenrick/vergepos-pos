@@ -129,7 +129,7 @@ export default {
       transactionProduct: [],
       toVoid: false,
       users: [],
-      selected : '',
+      selected : null,
       pin: '',
       voidErrorMessage: null,
       printingStyle: {
