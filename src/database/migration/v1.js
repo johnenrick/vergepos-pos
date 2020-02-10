@@ -132,5 +132,11 @@ export default {
       transacton_number_id: { notNull: false, dataType: 'number' },
       remarks: { notNull: true, dataType: 'string' }
     }
+  }, {
+    name: 'others',
+    columns: {
+      key: {notNull: true, dataType: 'string'},
+      value: {notNull: true, dataType: 'string'}
+    }
   }]
 }

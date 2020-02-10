@@ -1,7 +1,7 @@
 <template>
   <div>
     <div v-if="errorMessage" class="text-danger text-center font-weight-bold border border-danger rounded py-2">{{errorMessage}}</div>
-    <div id="printMe" class="shadow p-2 mb-2" >
+    <div :id="randomId" class="shadow p-2 mb-2" >
       <div :style="isPrinting ? printingStyle : ''">
         <table class="table table-sm" style="width:100%">
           <tbody>
@@ -74,7 +74,7 @@
     <div v-if="transactionDetail.id && !toVoid" class="p-2 pt-3">
       <button v-if="transactionDetail.voidable && transactionDetail.status !== 2" @click="triggerVoid"  class="btn btn-danger"><fa :icon="'ban'" /> VOID</button>
       <span v-if="transactionDetail.status === 2" class="btn btn-danger">Voided</span>
-      <button @click="print" class="btn btn-outline-primary float-right"><fa :icon="'print'" /> Reprint</button>
+      <button @click="print" type="button" class="btn btn-outline-primary float-right"><fa :icon="'print'" /> Reprint</button>
     </div>
     <div v-if="toVoid">
       <div class="input-group mt-2 pt-2">
@@ -102,7 +102,7 @@ import Vue from 'vue'
 import VueHtmlToPaper from 'vue-html-to-paper'
 
 const options = {
-  name: '_blank',
+  // name: '_blank',
   specs: [
     'fullscreen=no',
     'titlebar=no',
@@ -118,8 +118,13 @@ Vue.use(VueHtmlToPaper, options)
 export default {
   props: {
   },
+  mounted(){
+    this.randomId = 'printMe' + this.generateRandomNumber(1, 10000)
+    console.log(this.randomId)
+  },
   data(){
     return {
+      randomId: null,
       isLoading: false,
       errorMessage: null,
       transactionDB: new Transaction(),
@@ -133,8 +138,8 @@ export default {
       pin: '',
       voidErrorMessage: null,
       printingStyle: {
-        'width': '300px',
-        'font-size': '3pt',
+        'width': '250px',
+        'font-size': '5pt',
         'font-family': 'monospace'
       },
       transactionDetail: {
@@ -242,8 +247,10 @@ export default {
     print(){
       this.isPrinting = true
       setTimeout(() => {
-        this.$htmlToPaper('printMe')
-        // this.isPrinting = false
+        this.$htmlToPaper(this.randomId, () => {
+          this.isPrinting = false
+        })
+        
       }, 1000)
     },
     triggerVoid(){
