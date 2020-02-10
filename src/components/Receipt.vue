@@ -79,7 +79,7 @@
     <div v-if="toVoid">
       <div class="input-group mt-2 pt-2">
         <select class="form-control" v-model="selected">
-          <option disabled selected>Select Manager</option>
+          <option :value="null" disabled selected>Select Manager</option>
           <option v-for="user in users" :value="user" :key="user.id">
             {{ user.email }}
           </option>
@@ -134,7 +134,7 @@ export default {
       transactionProduct: [],
       toVoid: false,
       users: [],
-      selected : '',
+      selected : null,
       pin: '',
       voidErrorMessage: null,
       printingStyle: {
