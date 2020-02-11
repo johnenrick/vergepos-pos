@@ -1,6 +1,7 @@
 <template>
   <div class="row pb-3">
     <div class="col-12 col-md-9">
+      <button @click="toggleFullscreen" class="btn btn-lg btn-outline-dark mr-1" :title="isFullscreen ? 'Minimize Screen' : 'Full Screen'"><fa :icon="!isFullscreen ? 'window-maximize' : 'window-minimize'" /></button>
       <button @click="refreshApp" class="btn btn-lg btn-outline-dark mr-1" title="Refresh the app">
         <fa :icon="'redo'" />
       </button>
@@ -26,6 +27,7 @@
 <script>
 import TransactionViewer from './control_box_components/TransactionViewer'
 import Benchmark from './control_box_components/Benchmark'
+import ToggleFullscreen from '@/helpers/toggle-fullscreen'
 import Cart from './cart-store'
 export default {
   components: {
@@ -48,10 +50,14 @@ export default {
   data(){
     return {
       liveTime: null,
-      connectionSpeed: 0
+      connectionSpeed: 0,
+      isFullscreen: false
     }
   },
   methods: {
+    toggleFullscreen(){
+      this.isFullscreen = ToggleFullscreen.toggle()
+    },
     clearCart(){
       Cart.commit('reset')
     },

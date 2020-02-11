@@ -47,12 +47,7 @@ let routes = [
   {
     path: '/pos',
     name: 'POS',
-    component: () => {
-      store.commit('setModuleLoading', true)
-      return {
-        component: import('@/views/pos/POS.vue')
-      }
-    },
+    component: require('@/views/pos/POS.vue').default,
     meta: {
       auth: true
     }
@@ -73,12 +68,7 @@ let routes = [
   {
     path: '/product',
     name: 'Product',
-    component: () => {
-      store.commit('setModuleLoading', true)
-      return {
-        component: import('@/views/product_management/ProductManagement.vue')
-      }
-    },
+    component: require('@/views/product_management/ProductManagement.vue').default,
     meta: {
       auth: true
     }
@@ -97,48 +87,33 @@ let routes = [
     }
   },
   {
-    path: '/z-reading',
-    name: 'ZReading',
-    component: () => {
-      store.commit('setModuleLoading', true)
-      return {
-        component: import('@/views/terminal_reports/ZReading.vue')
-      }
-    },
-    meta: {
-    }
-  },
-  {
     path: '/x-reading',
     name: 'XReading',
-    component: () => {
-      store.commit('setModuleLoading', true)
-      return {
-        component: import('@/views/terminal_reports/XReading.vue')
-      }
-    },
+    component: require('@/views/terminal_reports/XReading.vue').default,
     meta: {
     }
   },
   {
     path: '/transaction-history',
     name: 'TransactionHistory',
-    component: () => {
-      store.commit('setModuleLoading', true)
-      return {
-        component: import('@/views/terminal_reports/TransactionHistory.vue')
-      }
-    },
+    component: require('@/views/terminal_reports/TransactionHistory.vue').default,
     meta: {
     }
   },
   {
     path: '/product-performance',
     name: 'productPerformance',
+    component: require('@/views/terminal_reports/ProductPerformance.vue').default,
+    meta: {
+    }
+  },
+  {
+    path: '/z-reading',
+    name: 'ZReading',
     component: () => {
       store.commit('setModuleLoading', true)
       return {
-        component: import('@/views/terminal_reports/ProductPerformance.vue')
+        component: import('@/views/terminal_reports/ZReading.vue')
       }
     },
     meta: {
@@ -159,12 +134,14 @@ let routes = [
   {
     path: '/business-detail',
     name: 'BusinessDetail',
-    component: () => {
-      store.commit('setModuleLoading', true)
-      return {
-        component: import('@/views/business-detail/BusinessDetail.vue')
-      }
-    },
+    component: require('@/views/business-detail/BusinessDetail.vue').default,
+    meta: {
+    }
+  },
+  {
+    path: '/account-setting',
+    name: 'AccountSetting',
+    component: require('@/views/account/AccountSetting.vue').default,
     meta: {
     }
   }

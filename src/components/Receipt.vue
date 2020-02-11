@@ -1,13 +1,15 @@
 <template>
   <div>
     <div v-if="errorMessage" class="text-danger text-center font-weight-bold border border-danger rounded py-2">{{errorMessage}}</div>
-    <div id="printMe" class="shadow p-2 mb-2" >
+    <div :id="randomId" class="shadow p-2 mb-2" >
       <div :style="isPrinting ? printingStyle : ''">
         <table class="table table-sm" style="width:100%">
-          <tr class="">
-            <td class="text-uppercase" colspan="2">{{transactionDetail.datetime | toReadableDateTime}}</td>
-            <td class="text-right">Transaction <p class="text-danger" v-if="transactionDetail.status === 2">(Voided)</p></td>
-          </tr>
+          <tbody>
+            <tr class="">
+              <td class="text-uppercase" colspan="2">{{transactionDetail.datetime | toReadableDateTime}}</td>
+              <td class="text-right" style="text-align: right">{{transactionNumber}} <p class="text-danger" v-if="transactionDetail.status === 2">(Voided)</p></td>
+            </tr>
+          </tbody>
         </table>
         <table class="table table-sm mb-1" style="width:100%">
           <thead>
@@ -21,60 +23,63 @@
             <template v-for="(product, index) in transactionProduct">
               <tr :key="index">
                 <td class="">{{product['description']}}</td>
-                <td class="text-right">{{product['quantity']}}</td>
-                <td class="text-right">{{product['price'] | numberFormat}}</td>
+                <td class="text-right" style="text-align: right">{{product['quantity']}}</td>
+                <td class="text-right" style="text-align: right">{{product['price'] | numberFormat}}</td>
               </tr>
             </template>
           </tbody>
         </table>
-        <table class="table table-sm topDivider mb-0" style="width:100%">
-          <tr class="font-weight-bold">
-            <td>Subt Total</td>
-            <td class="text-right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>VAT Sales</td>
-            <td class="text-right">{{transactionDetail.vatSales | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>VAT Exempt Sales</td>
-            <td class="text-right">{{transactionDetail.vatExemptSales | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>VAT Zero Rated Sales</td>
-            <td class="text-right">{{transactionDetail.vatZeroRatedSales | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>VAT Amount</td>
-            <td class="text-right">{{transactionDetail.vatAmount | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>Discount</td>
-            <td class="text-right">{{transactionDetail.total_discount_amount | numberFormat}}</td>
-          </tr>
-          <tr class="font-weight-bold text-uppercase">
-            <td>Total Amount</td>
-            <td class="text-right">{{transactionDetail.totalAmount | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>Cash</td>
-            <td class="text-right">{{transactionDetail.cashTendered | numberFormat}}</td>
-          </tr>
-          <tr>
-            <td>Change</td>
-            <td class="text-right">{{(transactionDetail.cashTendered - transactionDetail.totalAmount) | numberFormat}}</td>
-          </tr>
+        <table class="table table-sm topDivider mb-0 w-100" style="width:100%">
+          <tbody>
+            <tr class="font-weight-bold" >
+              <td>Subt Total</td>
+              <td style="text-align: right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>VAT Sales</td>
+              <td style="text-align: right">{{transactionDetail.vatSales | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>VAT Exempt Sales</td>
+              <td style="text-align: right">{{transactionDetail.vatExemptSales | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>ZR Sales</td>
+              <td style="text-align: right">{{transactionDetail.vatZeroRatedSales | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>VAT Amount</td>
+              <td style="text-align: right">{{transactionDetail.vatAmount | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>Discount</td>
+              <td style="text-align: right">{{transactionDetail.total_discount_amount | numberFormat}}</td>
+            </tr>
+            <tr class="font-weight-bold text-uppercase">
+              <td>Total</td>
+              <td style="text-align: right">{{transactionDetail.totalAmount | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>Cash</td>
+              <td style="text-align: right">{{transactionDetail.cashTendered | numberFormat}}</td>
+            </tr>
+            <tr>
+              <td>Change</td>
+              <td style="text-align: right">{{(transactionDetail.cashTendered - transactionDetail.totalAmount) | numberFormat}}</td>
+            </tr>
+          </tbody>
         </table>
       </div>
     </div>
     <div v-if="transactionDetail.id && !toVoid" class="p-2 pt-3">
       <button v-if="transactionDetail.voidable && transactionDetail.status !== 2" @click="triggerVoid"  class="btn btn-danger"><fa :icon="'ban'" /> VOID</button>
       <span v-if="transactionDetail.status === 2" class="btn btn-danger">Voided</span>
-      <button @click="print" class="btn btn-outline-primary float-right"><fa :icon="'print'" /> Reprint</button>
+      <button @click="print" type="button" class="btn btn-outline-primary float-right"><fa :icon="'print'" /> Reprint</button>
     </div>
     <div v-if="toVoid">
       <div class="input-group mt-2 pt-2">
         <select class="form-control" v-model="selected">
+          <option :value="null" disabled selected>Select Manager</option>
           <option v-for="user in users" :value="user" :key="user.id">
             {{ user.email }}
           </option>
@@ -97,11 +102,11 @@ import Vue from 'vue'
 import VueHtmlToPaper from 'vue-html-to-paper'
 
 const options = {
-  name: '_blank',
+  // name: '_blank',
   specs: [
-    'fullscreen=yes',
-    'titlebar=yes',
-    'scrollbars=yes'
+    'fullscreen=no',
+    'titlebar=no',
+    'scrollbars=no'
   ],
   styles: [
     'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css',
@@ -113,8 +118,13 @@ Vue.use(VueHtmlToPaper, options)
 export default {
   props: {
   },
+  mounted(){
+    this.randomId = 'printMe' + this.generateRandomNumber(1, 10000)
+    console.log(this.randomId)
+  },
   data(){
     return {
+      randomId: null,
       isLoading: false,
       errorMessage: null,
       transactionDB: new Transaction(),
@@ -124,12 +134,13 @@ export default {
       transactionProduct: [],
       toVoid: false,
       users: [],
-      selected : '',
+      selected : null,
       pin: '',
       voidErrorMessage: null,
       printingStyle: {
-        width: '15em',
-        'font-size': '6pt'
+        'width': '250px',
+        'font-size': '5pt',
+        'font-family': 'monospace'
       },
       transactionDetail: {
         id: null,
@@ -236,8 +247,10 @@ export default {
     print(){
       this.isPrinting = true
       setTimeout(() => {
-        this.$htmlToPaper('printMe')
-        // this.isPrinting = false
+        this.$htmlToPaper(this.randomId, () => {
+          this.isPrinting = false
+        })
+        
       }, 1000)
     },
     triggerVoid(){
@@ -253,6 +266,7 @@ export default {
       })
     },
     voidTransaction(){
+      this.voidErrorMessage = '';
       if(this.pin == this.selected.pin){
         this.transactionDB.update({
           id: this.transactionDetail.id,
@@ -262,6 +276,8 @@ export default {
           this.voidErrorMessage = null
           this.toVoid = false
         })
+      }else{
+        this.voidErrorMessage = "PIN Is Incorrect"
       }
     },
     reset(){

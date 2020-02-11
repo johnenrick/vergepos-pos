@@ -10,8 +10,8 @@
           :use12-hour="true"
           auto
           type="datetime"
-          value-zone="utc"
-          zone="utc"
+          value-zone="local"
+          zone="local"
         />
       </div>
       <div class="col-3">
@@ -22,8 +22,8 @@
           :use12-hour="true"
           auto
           type="datetime"
-          value-zone="utc"
-          zone="utc"
+          value-zone="local"
+          zone="local"
         />
       </div>
       <div class="col-6">
