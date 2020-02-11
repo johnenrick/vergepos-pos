@@ -6,6 +6,14 @@
         <p class="card-text"><fa icon="info-circle" /> Shows you what hours you are more busy in terms of number of transactions</p>
       </div>
       <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig"></line-chart>
+      <div class="row">
+        <div class="col-6">
+        <button class="btn btn-outline-info btn-block" @click="getTimeStartAndEnd('previous')">Previous Day</button>
+        </div>
+        <div class="col-6">
+          <button class="btn" :disabled="isDisabled" :class="isCurDate" @click="getTimeStartAndEnd('next')">Next Day</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -18,6 +26,10 @@ export default {
   },
   data() {
     return{
+      isDisabled: true,
+      isCurDate: 'btn-outline-secondary btn-block',
+      startDateFilter: new Date(),
+      endDateFilter: new Date(),
       datacollection: {},
       chartConfig: {
         maintainAspectRatio: false,
@@ -72,9 +84,10 @@ export default {
         datasets: [
           {
             label: 'Transactions',
-            fill: false,
-            borderColor: '#28a745',
-            backgroundColor: '#ffffff',
+            fill: 'origin',
+            borderColor: '#63cce9',
+            pointBackgroundColor: '#ffffff',
+            backgroundColor: '#63cce9',
             data: graphObject
           }
         ]
@@ -106,18 +119,17 @@ export default {
       let activityHour = [{}]
       let testResult = {}
       let next = 0
-      let startDateFilter = new Date()
-      startDateFilter.setHours(0)
-      startDateFilter.setMinutes(0)
-      startDateFilter.setSeconds(1)
-      let endDateFilter = new Date()
-      endDateFilter.setMinutes(59)
-      endDateFilter.setSeconds(59)
+      this.startDateFilter.setHours(0)
+      this.startDateFilter.setMinutes(0)
+      this.startDateFilter.setSeconds(1)
+      this.endDateFilter.setHours(23)
+      this.endDateFilter.setMinutes(59)
+      this.endDateFilter.setSeconds(59)
       let query = {
         where: {
           created_at: {
-            '>': startDateFilter.getTime(),
-            '<': endDateFilter.getTime(),
+            '>': this.startDateFilter.getTime(),
+            '<': this.endDateFilter.getTime(),
           },
           status: 1
         },
@@ -214,6 +226,25 @@ export default {
       while(this.timeToFullDate(graphObject[graphObject.length - 1]['x']) > end){
         graphObject.pop()
       }
+    },
+    getTimeStartAndEnd(direction){
+      let curDate = this.startDateFilter
+      if(direction === 'previous'){
+        curDate = this.startDateFilter.getDate() - 1
+        this.isCurDate = 'btn-outline-info btn-block'
+        this.isDisabled = false
+      } else{
+        if(curDate < new Date()){
+          curDate = this.startDateFilter.getDate() + 1
+          if(curDate === new Date().getDate()){
+            this.isCurDate = 'btn-outline-secondary btn-block'
+            this.isDisabled = true
+          }
+        }
+      }
+      this.startDateFilter.setDate(curDate)
+      this.endDateFilter.setDate(curDate)
+      this.groupTransactions()
     },
     timeToFullDate(time){
       let temp = ''

@@ -44,11 +44,12 @@
         <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right"><fa icon="chart-line" /> Show Graph</button>
         <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right"><fa icon="chart-line" /> Hide Graph</button>
       </div>
+      <transaction-graph
+      ref='graph'
+      :dataProp="transactionProducts"
+      />
     </div>
     <div class="row">
-      <div class="col-">
-        <transaction-graph ref="TransactionGraph" :data="transactionProducts"/>
-      </div>
       <div class="col-12">
         <vuetable ref="vuetable"
           :track-by="'id'"
@@ -63,18 +64,19 @@
         </vuetable>
       </div>
     </div>
+    <div>
+    </div>
   </div>
 </template>
 <script>
 import { Datetime } from 'vue-datetime' // https://github.com/mariomka/vue-datetime?ref=madewithvuejs.com
 import 'vue-datetime/dist/vue-datetime.css'
 import TransactionProduct from '@/database/controller/transaction-product.js'
+import TransactionGraph from '@/views/terminal_reports/product-performance-components/TransactionGraph'
 import Vuetable from 'vuetable-2/src/components/Vuetable' // https://ratiw.github.io/vuetable-2/#/Special-Fields?id=-__slotltnamegt
 import VueSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import Product from '@/database/controller/product.js'
-import TransactionGraph from './TransactionGraph.vue'
-
 export default {
   components: {
     Vuetable,
@@ -90,7 +92,7 @@ export default {
       graphType: 'null',
       startDatetimeFilter: null,
       endDatetimeFilter: null,
-      productDB : new Product(),
+      productDB: new Product(),
       selectFilterValue: [],
       selectFilterOption: [],
       transactions: [],
@@ -99,41 +101,41 @@ export default {
       weeklyTransactionProducts: [],
       totalDiscount: 0,
       totalAmount: 0,
-      selectedReport : 'transaction',
+      selectedReport: 'transaction',
       tableSetting: {
         columns: [
-        {
-        name: 'created_at',
-        title: 'Date & Time',
-        titleClass: 'text-center',
-        dataClass: 'text-center',
-        callback: (value) => {
-            return value
-          }
-        },  
-        {
-          name: 'description',
-          title: 'Description',
-          titleClass: 'text-center',
-          dataClass: 'text-center',
-          callback: (value) => {
-            return this.padNumber(value, 7)
-          }
-        }, 
-        {
-          name: 'quantity',
-          title: 'Qty',
-          titleClass: 'text-center',
-          dataClass: 'text-right'
-        }, {
-          name: 'amount',
-          title: 'Amount',
-          titleClass: 'text-center',
-          dataClass: 'text-right',
-          callback: (value) => {
-            return ("P" + this.numberToMoney(value))
-          }
-        }]
+          {
+            name: 'created_at',
+            title: 'Date & Time',
+            titleClass: 'text-center',
+            dataClass: 'text-center',
+            callback: (value) => {
+              return value
+            }
+          },
+          {
+            name: 'description',
+            title: 'Description',
+            titleClass: 'text-center',
+            dataClass: 'text-center',
+            callback: (value) => {
+              return this.padNumber(value, 7)
+            }
+          },
+          {
+            name: 'quantity',
+            title: 'Qty',
+            titleClass: 'text-center',
+            dataClass: 'text-right'
+          }, {
+            name: 'amount',
+            title: 'Amount',
+            titleClass: 'text-center',
+            dataClass: 'text-right',
+            callback: (value) => {
+              return ('P' + this.numberToMoney(value))
+            }
+          }]
       }
     }
   },
@@ -142,20 +144,19 @@ export default {
       let currentDate = new Date()
       let defaultTime = currentDate.getFullYear() + '-' + this.padNumber(currentDate.getMonth() + 1) + '-' + this.padNumber(currentDate.getDate()) + 'T' + this.padNumber(0) + ':' + this.padNumber(0) + ':' + this.padNumber(0) + '.000Z'
       this.startDatetimeFilter = defaultTime
-      this.productDB.get().then((e) =>{
+      this.productDB.get().then((e) => {
         this.selectFilterOption = e
         // console.log(this.selectFilterOption);
         // console.log(this.selectFilterOption[0].description)
-      });
+      })
       this.generate()
-      
     },
     viewGraph(){
     },
     openTransaction(transactionId){
     },
     generate(){
-      let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T' , ' ').replace('Z' , ''));
+      let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', ''))
 
       // console.log("startTime " + startDatetimeFilter, this.startDatetimeFilter)
 
@@ -197,30 +198,29 @@ export default {
       this.weeklyTransactionProducts = []
 
       transactionProduct.get(query).then(response => {
-        console.log(response);
-
-        if(this.selectedReport == 'transaction'){
-          if(response.length != 0){
+        if(this.selectedReport === 'transaction'){
+          if(response.length !== 0){
             let productArr = {}
-            if(this.selectFilterValue.length != 0){
+            if(this.selectFilterValue.length !== 0){
               for(let x = 0; x < response.length; x++){
                 for(let y = 0; y < this.selectFilterValue.length; y++){
-                  if(response[x]['product_id'] == this.selectFilterValue[y]['db_id']){
+                  if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
                     if(typeof productArr[response[x]['product_id']] === 'undefined'){
                       productArr[response[x]['product_id']] = {
                         quantity: 0,
                         amount: 0
                       }
                     }
+                    productArr[response[x]['product_id']]['product_id'] = response[x]['product_id']
                     productArr[response[x]['product_id']]['created_at'] = 'N/A'
                     productArr[response[x]['product_id']]['description'] = response[x]['description']
-                    productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount']  + response[x]['vat_exempt_sales']* 1
+                    productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
                     productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
                   }
                 }
               }
             }else{
-              for(let x= 0; x< response.length; x++){
+              for(let x = 0; x < response.length; x++){
                 if(typeof productArr[response[x]['product_id']] === 'undefined'){
                   productArr[response[x]['product_id']] = {
                     quantity: 0,
@@ -229,35 +229,33 @@ export default {
                 }
                 productArr[response[x]['product_id']]['created_at'] = 'N/A'
                 productArr[response[x]['product_id']]['description'] = response[x]['description']
-                productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount']  + response[x]['vat_exempt_sales']* 1
+                productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
                 productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
               }
             }
-            
             for(let x in productArr){
               this.transactionProducts.push(productArr[x])
             }
 
             // console.log(this.transactionProducts);
           }
-        }else{//else if(this.selectedReport == 'hourly'){
-          if(this.selectFilterValue.length != 0){
-            for(let x= 0; x<response.length; x++){
-              for(let y= 0; y<this.selectFilterValue.length; y++){
-                if(response[x]['product_id'] == this.selectFilterValue[y]['db_id']){
-                  response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] 
+        } else { // else if(this.selectedReport == 'hourly'){
+          if(this.selectFilterValue.length !== 0){
+            for(let x = 0; x < response.length; x++){
+              for(let y = 0; y < this.selectFilterValue.length; y++){
+                if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
+                  response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
                   this.transactionProducts.push(response[x])
                 }
               }
             }
           }else{
-            for(let x= 0; x<response.length; x++){
-              response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] 
+            for(let x = 0; x < response.length; x++){
+              response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
               this.transactionProducts.push(response[x])
             }
-          }          
+          }
         }
-        
         // resolve(response)
         // this.generateReport()
       }).catch(error => {
@@ -272,6 +270,7 @@ export default {
     },
     generateReport(){
       console.log('generating', this.graphType, this.transactions.length)
+      this.$refs.graph.plotData()
       let reportType = this.graphType
       if(reportType === 'time_in_day'){
         this.$refs.timeInDay._generate()
