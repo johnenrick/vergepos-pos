@@ -3,7 +3,13 @@
     <div class="card border-info mb-3" >
       <div class="card-header bg-info text-white">Activity</div>
       <div class="card-body text-primary" >
-        <p class="card-text"><fa icon="info-circle" />{{cardText}}</p>
+        <p class="card-text"><fa icon="info-circle" /> Shows you what hours you are more busy in terms of number of transactions</p>
+        <div class="row">
+          <div class="col-12">
+            <p v-if="isLoading === false" class="mb-0">Showing data on <strong>{{curDate | formatDate('M d, yyyy')}}</strong></p>
+            <p v-else class="mb-0"><fa icon="hourglass-half" />Loading...</p>
+          </div>
+        </div>
       <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig"></line-chart>
       <div class="row">
         <div class="col-6">
@@ -26,9 +32,11 @@ export default {
   },
   data() {
     return{
+      isLoading: false,
+      curDate: '',
+      graphColor: '#63cce9',
       isLastTransaction: false,
       firstTransaction: '',
-      cardText: ' Shows you what hours you are more busy in terms of number of transactions',
       isPreviousDisabled: false,
       isNextDisabled: true,
       isNextLast: 'btn-outline-secondary btn-block',
@@ -57,82 +65,9 @@ export default {
       this.getFirstTransaction()
       this.groupTransactions()
     },
-    transactionGroupToGraph(groupOfTransactions){
-      let graphObject = [{}]
-      let startCtr = 0
-      let endCtr = 0
-      let start = groupOfTransactions[0]['time_start']
-      let end = groupOfTransactions[groupOfTransactions.length - 1]['time_end']
-      this.dateSetter(start, end, graphObject)
-      for(let index in groupOfTransactions){
-        startCtr = this.roundMinutes(this.timeToFullDate(groupOfTransactions[index]['time_start'])).getHours() * 2
-        if(this.roundMinutes(this.timeToFullDate(groupOfTransactions[index]['time_start'])).getMinutes() === 30){
-          startCtr++
-        }
-        endCtr = this.roundMinutes(this.timeToFullDate(groupOfTransactions[index]['time_end'])).getHours() * 2
-        if(this.roundMinutes(this.timeToFullDate(groupOfTransactions[index]['time_end'])).getMinutes() === 30){
-          endCtr++
-        }
-        for(;startCtr <= endCtr; startCtr++){
-          graphObject[startCtr]['y'] = groupOfTransactions[index]['transactions']
-        }
-      }
-      start = this.fullDatetoTime(this.roundMinutes(this.timeToFullDate(start)), 24)
-      end = this.fullDatetoTime(this.roundMinutes(this.timeToFullDate(end)), 24)
-      this.removeExcess(graphObject, start, end)
-      let xLabel = []
-      for(let x in graphObject){
-        xLabel.push(graphObject[x]['x'])
-      }
-      this.datacollection = {
-        labels: xLabel,
-        bezierCurve: false,
-        datasets: [
-          {
-            label: 'Transactions',
-            fill: 'origin',
-            borderColor: '#63cce9',
-            pointBackgroundColor: '#ffffff',
-            backgroundColor: '#63cce9',
-            data: graphObject
-          }
-        ]
-      }
-      if(this.isLastTransaction === false){
-        this.isPreviousDisabled = false
-        this.isPreviousLast = 'btn-outline-info btn-block'
-      } else{
-        this.isPreviousLast = 'btn-outline-secondary btn-block'
-      }
-      if(new Date().getDate() !== this.startDateFilter.getDate()){
-        this.isNextDisabled = false
-      }
-      this.cardText = ' Shows you what hours you are more busy in terms of number of transactions'
-    },
-    roundMinutes(time){
-      let temp = time.getMinutes()
-      let hh = time.getHours()
-      if(temp > 30){
-        if(temp > 45){
-          hh++
-          time.setHours(hh)
-          time.setMinutes(0)
-        } else{
-          time.setMinutes(30)
-        }
-      } else{
-        if(temp > 15){
-          time.setMinutes(30)
-        } else{
-          time.setMinutes(0)
-        }
-      }
-      time.setSeconds(0)
-      time.setMilliseconds(0)
-      return time
-    },
     groupTransactions(){
-      this.cardText = 'Loading...'
+      this.curDate = this.startDateFilter
+      this.isLoading = true
       this.isPreviousDisabled = true
       if(this.isNextDisabled === false){
         this.isNextDisabled = true
@@ -140,12 +75,8 @@ export default {
       let activityHour = [{}]
       let testResult = {}
       let next = 0
-      this.startDateFilter.setHours(0)
-      this.startDateFilter.setMinutes(0)
-      this.startDateFilter.setSeconds(1)
-      this.endDateFilter.setHours(23)
-      this.endDateFilter.setMinutes(59)
-      this.endDateFilter.setSeconds(59)
+      this.startDateFilter.setHours(0, 0, 0, 1)
+      this.endDateFilter.setHours(23, 59, 59, 999)
       let query = {
         where: {
           created_at: {
@@ -166,6 +97,7 @@ export default {
         testResult = response || []
         if(testResult.length > 0){
           this.checkIfLastTransaction(testResult[0]['created_at'])
+          this.graphColor = '#63cce9'
           for(let x in testResult){
             if(x < ((testResult.length) - 1)){
               next = (x * 1) + 1
@@ -196,6 +128,8 @@ export default {
             }
           }
         } else{
+          this.checkIfLastTransaction(new Date())
+          this.graphColor = '#6c757d'
           activityHour[index]['time_start'] = this.fullDatetoTime(this.startDateFilter)
           activityHour[index]['time_end'] = this.fullDatetoTime(this.endDateFilter)
           activityHour[index]['transactions'] = 0
@@ -203,12 +137,84 @@ export default {
         this.transactionGroupToGraph(activityHour)
       })
     },
+    transactionGroupToGraph(groupOfTransactions){
+      let graphObject = [{}]
+      let startCtr = 0
+      let endCtr = 0
+      let start = groupOfTransactions[0]['time_start']
+      let end = groupOfTransactions[groupOfTransactions.length - 1]['time_end']
+      this.dateSetter(start, end, graphObject)
+      for(let index in groupOfTransactions){
+        startCtr = this.roundMinutes(this.timeToFullDate(groupOfTransactions[index]['time_start'])).getHours() * 2
+        if(this.roundMinutes(this.timeToFullDate(groupOfTransactions[index]['time_start'])).getMinutes() === 30){
+          startCtr++
+        }
+        endCtr = this.roundMinutes(this.timeToFullDate(groupOfTransactions[index]['time_end'])).getHours() * 2
+        if(this.roundMinutes(this.timeToFullDate(groupOfTransactions[index]['time_end'])).getMinutes() === 30){
+          endCtr++
+        }
+        for(;startCtr <= endCtr; startCtr++){
+          graphObject[startCtr]['y'] = groupOfTransactions[index]['transactions']
+        }
+      }
+      start = this.fullDatetoTime(this.roundMinutes(this.timeToFullDate(start)), 24)
+      end = this.fullDatetoTime(this.roundMinutes(this.timeToFullDate(end)), 24)
+      let xLabel = []
+      for(let x in graphObject){
+        xLabel.push(graphObject[x]['x'])
+      }
+      this.datacollection = {
+        labels: xLabel,
+        bezierCurve: false,
+        datasets: [
+          {
+            label: 'Transactions',
+            fill: 'origin',
+            borderColor: this.graphColor,
+            pointBackgroundColor: '#ffffff',
+            backgroundColor: this.graphColor,
+            data: graphObject
+          }
+        ]
+      }
+      if(this.isLastTransaction === false){
+        this.isPreviousDisabled = false
+        this.isPreviousLast = 'btn-outline-info btn-block'
+      } else{
+        this.isPreviousLast = 'btn-outline-secondary btn-block'
+      }
+      if(new Date().getDate() !== this.startDateFilter.getDate()){
+        this.isNextDisabled = false
+      }
+      this.isLoading = false
+    },
+    roundMinutes(time){
+      let temp = time.getMinutes()
+      let hh = time.getHours()
+      if(temp > 30){
+        if(temp > 45){
+          hh++
+          time.setHours(hh)
+          time.setMinutes(0, 0, 0)
+        } else{
+          time.setMinutes(30, 0, 0)
+        }
+      } else{
+        if(temp > 15){
+          time.setMinutes(30, 0, 0)
+        } else{
+          time.setMinutes(0, 0, 0)
+        }
+      }
+      return time
+    },
     checkIfLastTransaction(curTime){
       curTime = new Date(curTime)
       curTime.setHours(0, 0, 0, 0)
       if(curTime.getDate() === this.firstTransaction.getDate() && curTime.getMonth() === this.firstTransaction.getMonth() && curTime.getFullYear() === this.firstTransaction.getFullYear()){
         this.isLastTransaction = true
       } else{
+        this.isLastTransaction = false
       }
     },
     getFirstTransaction(){
@@ -219,9 +225,14 @@ export default {
         }
       };
       (new Transaction()).get(query).then((response) => {
-        this.firstTransaction = response[0]['created_at']
-        this.firstTransaction = new Date(this.firstTransaction)
-        this.firstTransaction.setHours(0, 0, 0, 0)
+        if(response.length > 0){
+          this.firstTransaction = response[0]['created_at']
+          this.firstTransaction = new Date(this.firstTransaction)
+          this.firstTransaction.setHours(0, 0, 0, 0)
+        } else{
+          this.firstTransaction = new Date()
+          this.firstTransaction.setHours(0, 0, 0, 0)
+        }
       })
     },
     dateSetter(start, end, graphObject){
@@ -244,10 +255,7 @@ export default {
       let hh = 0
       let mm = 0
       let ctr = 0
-      x.setHours(hh)
-      x.setMinutes(mm)
-      x.setSeconds(0)
-      x.setMilliseconds(0)
+      x.setHours(hh, mm, 0, 0)
       do{
         graphObject[ctr]['x'] = this.fullDatetoTime(x, 24)
         graphObject[ctr]['y'] = 0
@@ -301,10 +309,7 @@ export default {
       let hh = temp[0]
       let mm = temp[1]
       time = new Date()
-      time.setHours(hh)
-      time.setMinutes(mm)
-      time.setSeconds(0)
-      time.setMilliseconds(0)
+      time.setHours(hh, mm, 0, 0)
       return time
     },
     timeToMinutes(time){
