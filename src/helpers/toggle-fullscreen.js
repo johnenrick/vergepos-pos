@@ -8,10 +8,9 @@ let toggle = (isFull = null) => {
   }else if(isFull === 'default'){
     isFullscreen = false
   }
-  if (elem.webkitRequestFullscreen) {
+  if (isFullscreen === false) {
     elem.webkitRequestFullscreen()
-  }
-  if (!window.screenTop && !window.screenY) {
+  } else{
     document.webkitExitFullscreen()
   }
   console.log(elem)
