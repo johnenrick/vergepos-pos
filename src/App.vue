@@ -129,7 +129,7 @@ export default {
   watch: {
     userID(newData){
       console.log('logged', newData)
-      this.navConfig.noSideBar = !(newData || false)
+      this.navConfig.noSideBar = !(newData > 0)
       navigationConfig.noSideBar = this.navConfig.noSideBar
       this.sync()
     }
