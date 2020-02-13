@@ -14,6 +14,8 @@ let toggle = (isFull = null) => {
   if (!window.screenTop && !window.screenY) {
     document.webkitExitFullscreen()
   }
+  console.log(elem)
+  console.log(document)
   return isFullscreen
 }
 export default {

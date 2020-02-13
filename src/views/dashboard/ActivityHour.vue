@@ -3,16 +3,16 @@
     <div class="card border-info mb-3" >
       <div class="card-header bg-info text-white">Activity</div>
       <div class="card-body text-primary" >
-        <p class="card-text"><fa icon="info-circle" /> Shows you what hours you are more busy in terms of number of transactions</p>
-      </div>
+        <p class="card-text"><fa icon="info-circle" />{{cardText}}</p>
       <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig"></line-chart>
       <div class="row">
         <div class="col-6">
-        <button class="btn btn-outline-info btn-block" @click="getTimeStartAndEnd('previous')">Previous Day</button>
+        <button class="btn" :disabled="isPreviousDisabled" :class="isPreviousLast" @click="getTimeStartAndEnd('previous')">Previous Day</button>
         </div>
         <div class="col-6">
-          <button class="btn" :disabled="isDisabled" :class="isCurDate" @click="getTimeStartAndEnd('next')">Next Day</button>
+          <button class="btn" :disabled="isNextDisabled" :class="isNextLast" @click="getTimeStartAndEnd('next')">Next Day</button>
         </div>
+      </div>
       </div>
     </div>
   </div>
@@ -26,8 +26,13 @@ export default {
   },
   data() {
     return{
-      isDisabled: true,
-      isCurDate: 'btn-outline-secondary btn-block',
+      isLastTransaction: false,
+      firstTransaction: '',
+      cardText: ' Shows you what hours you are more busy in terms of number of transactions',
+      isPreviousDisabled: false,
+      isNextDisabled: true,
+      isNextLast: 'btn-outline-secondary btn-block',
+      isPreviousLast: 'btn-outline-info btn-block',
       startDateFilter: new Date(),
       endDateFilter: new Date(),
       datacollection: {},
@@ -49,6 +54,7 @@ export default {
   },
   methods: {
     _initialize(){
+      this.getFirstTransaction()
       this.groupTransactions()
     },
     transactionGroupToGraph(groupOfTransactions){
@@ -92,6 +98,16 @@ export default {
           }
         ]
       }
+      if(this.isLastTransaction === false){
+        this.isPreviousDisabled = false
+        this.isPreviousLast = 'btn-outline-info btn-block'
+      } else{
+        this.isPreviousLast = 'btn-outline-secondary btn-block'
+      }
+      if(new Date().getDate() !== this.startDateFilter.getDate()){
+        this.isNextDisabled = false
+      }
+      this.cardText = ' Shows you what hours you are more busy in terms of number of transactions'
     },
     roundMinutes(time){
       let temp = time.getMinutes()
@@ -116,6 +132,11 @@ export default {
       return time
     },
     groupTransactions(){
+      this.cardText = 'Loading...'
+      this.isPreviousDisabled = true
+      if(this.isNextDisabled === false){
+        this.isNextDisabled = true
+      }
       let activityHour = [{}]
       let testResult = {}
       let next = 0
@@ -143,38 +164,64 @@ export default {
       let index = 0;
       (new Transaction()).get(query).then((response) => {
         testResult = response || []
-        for(let x in testResult){
-          if(x < ((testResult.length) - 1)){
-            next = (x * 1) + 1
-          }
-          t1 = this.timeToMinutes(testResult[x]['created_at'])
-          t2 = this.timeToMinutes(testResult[next]['created_at'])
-          if(isNaN(activityHour[index]['transactions'])){
-            activityHour[index]['transactions'] = 0
-          }
-          if((t2 - t1) <= 15){
-            if(activityHour[index]['time_start'] === undefined){
-              activityHour[index]['time_start'] = (this.fullDatetoTime(new Date(testResult[x]['created_at']), 24))
-              activityHour[index]['transactions']++
+        if(testResult.length > 0){
+          this.checkIfLastTransaction(testResult[0]['created_at'])
+          for(let x in testResult){
+            if(x < ((testResult.length) - 1)){
+              next = (x * 1) + 1
+            }
+            t1 = this.timeToMinutes(testResult[x]['created_at'])
+            t2 = this.timeToMinutes(testResult[next]['created_at'])
+            if(isNaN(activityHour[index]['transactions'])){
+              activityHour[index]['transactions'] = 0
+            }
+            if((t2 - t1) <= 15){
+              if(activityHour[index]['time_start'] === undefined){
+                activityHour[index]['time_start'] = (this.fullDatetoTime(new Date(testResult[x]['created_at']), 24))
+                activityHour[index]['transactions']++
+              } else{
+                activityHour[index]['transactions']++
+              }
+              if((x * 1) === ((testResult.length) - 1)){
+                activityHour[index]['time_end'] = (this.fullDatetoTime(new Date(testResult[x]['created_at']), 24))
+              }
             } else{
-              activityHour[index]['transactions']++
-            }
-            if((x * 1) === ((testResult.length) - 1)){
+              activityHour.push({})
+              if(activityHour[index]['time_start'] === undefined){
+                activityHour[index]['time_start'] = (this.fullDatetoTime(new Date(testResult[x]['created_at']), 24))
+              }
               activityHour[index]['time_end'] = (this.fullDatetoTime(new Date(testResult[x]['created_at']), 24))
+              activityHour[index]['transactions']++
+              index++
             }
-          } else{
-            activityHour.push({})
-            if(activityHour[index]['time_start'] === undefined){
-              activityHour[index]['time_start'] = (this.fullDatetoTime(new Date(testResult[x]['created_at']), 24))
-            }
-            activityHour[index]['time_end'] = (this.fullDatetoTime(new Date(testResult[x]['created_at']), 24))
-            activityHour[index]['transactions']++
-            index++
           }
+        } else{
+          activityHour[index]['time_start'] = this.fullDatetoTime(this.startDateFilter)
+          activityHour[index]['time_end'] = this.fullDatetoTime(this.endDateFilter)
+          activityHour[index]['transactions'] = 0
         }
-        if(testResult.length >= 1){
-          this.transactionGroupToGraph(activityHour)
+        this.transactionGroupToGraph(activityHour)
+      })
+    },
+    checkIfLastTransaction(curTime){
+      curTime = new Date(curTime)
+      curTime.setHours(0, 0, 0, 0)
+      if(curTime.getDate() === this.firstTransaction.getDate() && curTime.getMonth() === this.firstTransaction.getMonth() && curTime.getFullYear() === this.firstTransaction.getFullYear()){
+        this.isLastTransaction = true
+      } else{
+      }
+    },
+    getFirstTransaction(){
+      let query = {
+        order: {
+          by: 'created_at',
+          type: 'ASC'
         }
+      };
+      (new Transaction()).get(query).then((response) => {
+        this.firstTransaction = response[0]['created_at']
+        this.firstTransaction = new Date(this.firstTransaction)
+        this.firstTransaction.setHours(0, 0, 0, 0)
       })
     },
     dateSetter(start, end, graphObject){
@@ -223,22 +270,24 @@ export default {
       while(this.timeToFullDate(graphObject[0]['x']) < start){
         graphObject.shift()
       }
-      while(this.timeToFullDate(graphObject[graphObject.length - 1]['x']) > end){
-        graphObject.pop()
+      if(graphObject[graphObject.length - 1 >= 1]){
+        while(this.timeToFullDate(graphObject[graphObject.length - 1]['x']) > end){
+          graphObject.pop()
+        }
       }
     },
     getTimeStartAndEnd(direction){
       let curDate = this.startDateFilter
       if(direction === 'previous'){
         curDate = this.startDateFilter.getDate() - 1
-        this.isCurDate = 'btn-outline-info btn-block'
-        this.isDisabled = false
+        this.isNextLast = 'btn-outline-info btn-block'
+        this.isNextDisabled = false
       } else{
         if(curDate < new Date()){
           curDate = this.startDateFilter.getDate() + 1
           if(curDate === new Date().getDate()){
-            this.isCurDate = 'btn-outline-secondary btn-block'
-            this.isDisabled = true
+            this.isNextLast = 'btn-outline-secondary btn-block'
+            this.isNextDisabled = true
           }
         }
       }
