@@ -120,7 +120,6 @@ export default {
   },
   mounted(){
     this.randomId = 'printMe' + this.generateRandomNumber(1, 10000)
-    console.log(this.randomId)
   },
   data(){
     return {
@@ -134,7 +133,7 @@ export default {
       transactionProduct: [],
       toVoid: false,
       users: [],
-      selected : null,
+      selected: null,
       pin: '',
       voidErrorMessage: null,
       printingStyle: {
@@ -250,34 +249,31 @@ export default {
         this.$htmlToPaper(this.randomId, () => {
           this.isPrinting = false
         })
-        
       }, 1000)
     },
     triggerVoid(){
-      console.log("TEST");
-      this.toVoid = true;
+      this.toVoid = true
       this.userDB.get({
-        where :{
-          is_manager : 1
+        where: {
+          is_manager: 1
         }
-      }).then((e)=>{
-        this.users = e;
-        console.log("test:" + this.users);
+      }).then((e) => {
+        this.users = e
       })
     },
     voidTransaction(){
-      this.voidErrorMessage = '';
-      if(this.pin == this.selected.pin){
+      this.voidErrorMessage = ''
+      if(this.pin === this.selected.pin){
         this.transactionDB.update({
           id: this.transactionDetail.id,
-          status : 2
-        }).then((result)=>{
+          status: 2
+        }).then((result) => {
           this.transactionDetail.status = 2
           this.voidErrorMessage = null
           this.toVoid = false
         })
       }else{
-        this.voidErrorMessage = "PIN Is Incorrect"
+        this.voidErrorMessage = 'PIN Is Incorrect'
       }
     },
     reset(){

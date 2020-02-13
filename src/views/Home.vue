@@ -16,12 +16,12 @@
               <form class="form-signin">
                 <div class="form-group">
                   <label >Email address</label>
-                  <input @keyup="isTypingUsername" v-model="username" type="text" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+                  <input @keyup="isTypingUsername" v-model="username" type="text" id="inputEmail" class="form-control" placeholder="Email address" required autofocus autocomplete="username">
                 </div>
 
                 <div class="form-group">
                   <label>{{isOffline === false ? 'Password' : 'PIN'}}</label>
-                  <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+                  <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required autocomplete="current-password">
                 </div>
                 <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" class="btn btn-lg btn-primary btn-block text-uppercase mt-3" type="button">{{isLoading ? 'Signing In' : 'Sign In'}} <small v-if="isOffline">(Offline)</small></button>
               </form>
@@ -43,18 +43,6 @@ export default {
   components: {
   },
   mounted(){
-    // this.$auth.ready(() => {
-    //   console.log('piskot')
-    //   store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
-    //   if(this.$auth.check()){
-    //     this.redirect()
-    //   }else{
-    //
-    //   }
-    //
-    // })
-    // this.username = 'plenosjohn@yahoo.com'
-    // this.password = 'dev'
     this.clearOfflineAuthentication()
     this.checkIfOnline(() => {
       this.redirect()
@@ -77,12 +65,10 @@ export default {
   },
   methods: {
     clearOfflineAuthentication(){
-
     },
     checkIfOnline(callback){
       // return this.isOffline = true
       this.checkConnectivity().then((ping) => {
-        console.log('ping', ping)
         this.isOffline = false
       }).catch((status) => {
         this.isOffline = true
@@ -93,20 +79,29 @@ export default {
       })
     },
     offlineSignIn(){
+      if(!localStorage.getItem('is_terminal')){
+        this.errorMessage = 'Offline Mode is only available for Terminals. You need to log in with internet then set this device as a terminal'
+        return false
+      }
       this.isLoading = true
       this.errorMessage = ''
       let userDB = new User()
-      userDB.get({
+      let param = {
         where: {
           email: this.username,
           pin: this.password
         }
-      }).then(result => {
+      }
+      userDB.get(param).then((result) => {
         if(result.length){
-          localStorage.setItem('offline_id', result[0]['id'])
+          console.log('signin result', result, result[0]['db_id'])
+          localStorage.setItem('user_id', result[0]['db_id'])
+          VueCoreStore.dispatch('setCompanyInformationOffline')
+          VueCoreStore.dispatch('setUserInformationOffline')
         }else{
           this.errorMessage = 'Invalid credentials'
         }
+        this.isLoading = false
       }).catch(error => {
         console.error(error)
       }).finally(() => {
@@ -138,18 +133,22 @@ export default {
       })
     },
     redirect(){
-      if(this.$auth.user().id){
-        if(typeof VueCoreStore.state.userRoles[100] !== 'undefined'){
+      if(VueCoreStore.getters.user){
+        if(typeof VueCoreStore.state.userRoles['100'] !== 'undefined'){
           this.$router.push({
             path: '/dashboard'
-          }, () => {})
-        }else if(typeof VueCoreStore.state.userRoles[101] !== 'undefined'){
+          }, () => {
+          })
+        }else if(typeof VueCoreStore.state.userRoles['101'] !== 'undefined'){
           this.$router.push({
             path: '/pos'
           }, () => {})
         }else{
-          // alert('cant seem to find your place')
+          console.log(VueCoreStore.state.userRoles)
+          alert('cant seem to find your place')
         }
+      }else{
+        console.info('not logged in')
       }
     },
     isTypingUsername(e){

@@ -11,7 +11,7 @@
       </template>
     </modal>
     <header-menu :menu="headerMenu"  :default-company-name="'VergePOS'"/>
-    <div id="wrapper" v-bind:class="$auth.check() && (navConfig.sidebarToggled && !navConfig.noSideBar) ? 'toggled' : ''">
+    <div id="wrapper" v-bind:class="(navConfig.sidebarToggled && !navConfig.noSideBar) ? 'toggled' : ''">
       <side-bar :menu="sidebarMenu" />
       <div id="page-content-wrapper" style="overflow-wrap: break-word;">
         <div v-if="!isLoadingModule && dataSynced === 1" class="container-fluid-none">
@@ -20,6 +20,7 @@
         <div v-else class="text-center">
           <img src="/img/loading.gif" width="100px">
           <br>Loading components...
+          {{isLoadingModule + ''}} {{dataSynced + ''}}
         </div>
       </div>
     </div>
@@ -35,8 +36,10 @@ import HeaderMenu from '@/vue-web-core/components/common/navigation/HeaderMenu.v
 import SideBar from '@/vue-web-core/components/common/navigation/SideBar.vue'
 import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
 import SyncAll from '@/database/sync/sync-all'
+import SyncStore from '@/database/sync/sync-store'
 import Migrate from '@/database/migrate'
 import UpSync from '@/system/upSync'
+import Menu from '@/system/menus'
 window.$ = require('jquery')
 window.jQuery = window.$
 export default {
@@ -50,10 +53,25 @@ export default {
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
     $('#app').show()
-
-    if(!this.$auth.token()){
-      this.dataSynced = 1
-    }
+    this.checkConnectivity().then((ping) => { // Online
+      if(localStorage.getItem('default_auth_token')){ // Online and logged in
+        this.$auth.ready(() => {
+          this.sync().finally(() => {
+            store.dispatch('setUserInformation')
+            store.dispatch('setCompanyInformation')
+          })
+        })
+      }else{ // Only but not logged in
+        store.dispatch('setUserInformation')
+        store.dispatch('setCompanyInformation')
+        this.sync()
+      }
+    }).catch((status) => { // Offline
+      this.sync().finally(() => {
+        store.dispatch('setUserInformationOffline')
+      })
+    }).finally(() => {
+    })
   },
   data () {
     return {
@@ -61,94 +79,64 @@ export default {
       syncAll: new SyncAll(),
       dataSynced: 0,
       navConfig: navigationConfig,
-      sidebarMenu: [{
-        icon: 'box',
-        name: 'Product'
-      }, {
-        icon: 'boxes',
-        name: 'Category'
-      }, {
-        icon: 'percent',
-        name: 'Discount'
-      }, {
-        icon: 'file-contract',
-        name: 'Terminal Reports',
-        sub_item: [{
-          name: 'Transactions',
-          route: 'transaction-history'
-        }, {
-          name: 'Product Performance',
-          route: 'product-performance'
-        }, {
-          name: 'X Reading'
-        }]
-      }, {
-        icon: 'file-contract',
-        name: 'Reports',
-        sub_item: [{
-          name: 'Product Performance'
-        }, {
-          name: 'Overall Z Reading'
-        }]
-      }, {
-        icon: 'tools',
-        name: 'Business',
-        sub_item: [{
-          icon: 'users',
-          name: 'Users',
-          route: '/user_management'
-        }, {
-          icon: 'store',
-          name: 'Business Detail'
-        }]
-      }],
-      headerMenu: [{
-        name: 'Manage',
-        link: 'dashboard',
-        icon: 'list'
-      }, {
-        icon: 'cash-register',
-        name: 'POS',
-        no_sidebar: true
-      }]
+      sidebarMenu: Menu.side_menus,
+      headerMenu: Menu.header_menus
     }
   },
   methods: {
     sync(){
-      this.$refs.modal._open()
-      let migrate = new Migrate()
-      migrate.migrate(() => {
-        this.migrated = true
-        if(this.userID){
-          this.syncAll.downSync((progress) => {
-            this.dataSynced = progress
-            if(progress === 1){
-              setTimeout(() => {
-                this.doneSynching()
-              }, 500)
-            }
-          })
-        }else{
-          this.doneSynching()
+      if(this.migrated){
+        return false
+      }
+      setTimeout(() => {
+        if(this.dataSynced !== 1){
+          this.$refs.modal._open()
         }
+      }, 1000)
+      let migrate = new Migrate()
+      this.migrated = true
+      return new Promise((resolve, reject) => {
+        migrate.migrate(() => {
+          if(this.userID){
+            this.syncAll.downSync((progress) => {
+              this.dataSynced = progress
+              if(progress === 1){
+                setTimeout(() => {
+                  this.doneSynching()
+                }, 500)
+              }
+            })
+          }else{
+            SyncStore.commit('isNotSynching')
+            this.doneSynching()
+          }
+          resolve(true)
+        })
       })
     },
     doneSynching(){
       this.dataSynced = 1
-      this.$refs.modal._close()
       setTimeout(() => {
-        UpSync.silentSync()
-      }, 200)
+        this.$refs.modal._close()
+      }, 1000)
+      if(this.userID){
+        setTimeout(() => {
+          UpSync.silentSync()
+        }, 200)
+      }
     }
   },
   watch: {
     userID(newData){
+      console.log('logged', newData)
+      this.navConfig.noSideBar = !(newData || false)
+      navigationConfig.noSideBar = this.navConfig.noSideBar
       this.sync()
     }
   },
   computed: {
     userID(){
-      return store.state.userInformation.id
+      return store.state.userInformation ? store.state.userInformation.id : null
     },
     isLoadingModule () {
       return store.state.isModuleLoading

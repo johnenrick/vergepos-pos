@@ -35,7 +35,7 @@ export default class UserSync extends Sync{
             let userData = {
               db_id: response['data'][x]['id'],
               email: response['data'][x]['email'],
-              pin: response['data'][x]['pin'],
+              pin: response['data'][x]['pin'] ? response['data'][x]['pin'] : '',
               is_cashier: 0,
               is_manager: 0,
               is_admin: 0,

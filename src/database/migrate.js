@@ -10,11 +10,7 @@ class DBMigrate {
   async migrate (isReadyCallback) {
     this.prepareSchema()
     let isDbCreated = await connection.initDb(this.schema)
-    if(isDbCreated){
-      console.info('DB Created or Updated', schemaV1, schemaV1.tables)
-    }else{
-      console.log('No DB Created', schemaV1)
-    }
+    console.log('DB initialized', isDbCreated)
     isReadyCallback(true)
   }
   prepareSchema(){

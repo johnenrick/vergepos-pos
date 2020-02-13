@@ -88,7 +88,7 @@ class UpSync {
   }
   requestTransaction(transactions){
     let param = {
-      store_terminal_id: localStorage.getItem('is_terminal'),
+      store_terminal_id: localStorage.getItem('is_terminal') * 1,
       transactions: transactions
     }
     return new Promise((resolve, reject) => {

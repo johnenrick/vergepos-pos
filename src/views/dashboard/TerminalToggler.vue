@@ -79,6 +79,7 @@ export default {
       this.apiRequest('company/retrieve', param, (response) => {
         if(response['data'] && typeof response['data']['stores'] !== 'undefined' && response['data']['stores'].length && response['data']['stores'][0]['store_terminals'].length){
           localStorage.setItem('is_terminal', response['data']['stores'][0]['store_terminals'][0]['id'])
+          console.log(response['data']['stores'])
           window.location = '/'
         }else{
           console.error('Cannot set Terminal', response['data'])

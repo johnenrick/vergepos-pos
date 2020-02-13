@@ -90,6 +90,7 @@ export default class Controller {
         }
       }).catch(error => {
         console.log('error', error)
+      }).finally(() => {
       })
     })
   }

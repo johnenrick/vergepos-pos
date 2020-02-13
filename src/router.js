@@ -7,19 +7,18 @@ let routes = [
   {
     path: '/',
     name: 'home',
-    component: () => import('./views/Home.vue')
-    // component: () => import('./views/routine_timer/RoutineTimer.vue')
+    component: require('./views/Home.vue').default
   }, {
     path: '/dashboard',
     name: 'dashboard',
     component: () => import('./views/dashboard/Dashboard.vue'),
     meta: {
-      auth: true
+      // auth: false,
+      auth_offline: true
     }
-    // component: () => import('./views/routine_timer/RoutineTimer.vue')
   },
   {
-    path: '/company_registration',
+    path: '/company-registration',
     name: 'CompanyRegistration',
     component: () => {
       store.commit('setModuleLoading', true)
@@ -49,7 +48,8 @@ let routes = [
     name: 'POS',
     component: require('@/views/pos/POS.vue').default,
     meta: {
-      auth: true
+      // auth: true
+      auth_offline: true
     }
   },
   {
@@ -91,6 +91,7 @@ let routes = [
     name: 'XReading',
     component: require('@/views/terminal_reports/XReading.vue').default,
     meta: {
+      auth_offline: true
     }
   },
   {
@@ -98,6 +99,7 @@ let routes = [
     name: 'TransactionHistory',
     component: require('@/views/terminal_reports/TransactionHistory.vue').default,
     meta: {
+      auth_offline: true
     }
   },
   {
@@ -105,6 +107,7 @@ let routes = [
     name: 'productPerformance',
     component: require('@/views/terminal_reports/ProductPerformance.vue').default,
     meta: {
+      auth_offline: true
     }
   },
   {
@@ -129,6 +132,7 @@ let routes = [
       }
     },
     meta: {
+      auth_offline: true
     }
   },
   {
@@ -136,6 +140,7 @@ let routes = [
     name: 'BusinessDetail',
     component: require('@/views/business-detail/BusinessDetail.vue').default,
     meta: {
+      auth_offline: true
     }
   },
   {
@@ -143,6 +148,7 @@ let routes = [
     name: 'AccountSetting',
     component: require('@/views/account/AccountSetting.vue').default,
     meta: {
+      auth_offline: true
     }
   }
 ]
@@ -154,9 +160,23 @@ router.beforeResolve((to, from, next) => {
   if (to.name) {
     store.commit('setModuleLoading', true)
   }
-  next()
+  if(from.path !== to.path){
+    if(typeof to.meta.auth_offline !== 'undefined'){
+      if(to.meta.auth_offline && store.getters.user){
+        next()
+      }else{
+        next({ path: '/' })
+        store.commit('setModuleLoading', false)
+      }
+    }else{
+      next()
+    }
+  }else{
+    next()
+  }
 })
 router.afterEach((to, from) => {
+  console.log('after', from.path, to.path)
   // Complete the animation of the route progress bar.
   store.commit('setModuleLoading', false)
 })

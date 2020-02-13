@@ -44,7 +44,6 @@ export default {
   computed: {
     isSynching: {
       get: function(){
-        console.log('syncha', SyncStore.state.isSynching)
         if(SyncStore.state.isSynching === false){
           this.postSync()
         }

@@ -135,8 +135,8 @@ export default {
   }, {
     name: 'others',
     columns: {
-      key: {notNull: true, dataType: 'string'},
-      value: {notNull: true, dataType: 'string'}
+      key: { notNull: true, dataType: 'string' },
+      value: { notNull: true, dataType: 'string' }
     }
   }]
 }
