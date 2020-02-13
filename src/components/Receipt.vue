@@ -3,6 +3,14 @@
     <div v-if="errorMessage" class="text-danger text-center font-weight-bold border border-danger rounded py-2">{{errorMessage}}</div>
     <div :id="randomId" class="shadow p-2 mb-2" >
       <div :style="isPrinting ? printingStyle : ''">
+        <div class="text-center">
+        <p class="mb-0">
+          <strong style="text-transform: uppercase">{{companyInformation.name}}</strong>
+          <span v-if="companyInformation.address !== null || companyInformation.address === ''"><br>{{companyInformation.address}}</span>
+          <span v-if="companyInformation.contact_number !== null"><br>{{companyInformation.contact_number}}</span>
+        </p>
+        </div>
+        <br>
         <table class="table table-sm" style="width:100%">
           <tbody>
             <tr class="">
@@ -69,6 +77,14 @@
             </tr>
           </tbody>
         </table>
+        <br>
+        <div class="text-center">
+          <p>
+            VergePOS<br>
+            vergepos.com<br>
+            Cebu City, Cebu
+          </p>
+        </div>
       </div>
     </div>
     <div v-if="transactionDetail.id && !toVoid" class="p-2 pt-3">
@@ -96,6 +112,7 @@
 </template>
 <script>
 import Transaction from '@/database/controller/transaction'
+import store from '@/vue-web-core/system/store'
 import User from '@/database/controller/user'
 import TransactionProduct from '@/database/controller/transaction-product'
 import Vue from 'vue'
@@ -293,6 +310,11 @@ export default {
     numberFormat: (value) => {
       value = typeof value !== 'undefined' ? value : 0
       return value.toFixed(2)
+    }
+  },
+  computed: {
+    companyInformation(){
+      return store.state.companyInformation ? store.state.companyInformation : null
     }
   }
 }
