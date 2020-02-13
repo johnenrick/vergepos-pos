@@ -39,14 +39,14 @@ export default {
       name: 'X Reading'
     }]
   }, {
-    icon: 'file-contract',
-    name: 'Reports',
-    sub_item: [{
-      name: 'Product Performance'
-    }, {
-      name: 'Overall Z Reading'
-    }]
-  }, {
+  //   icon: 'file-contract',
+  //   name: 'Reports',
+  //   sub_item: [{
+  //     name: 'Product Performance'
+  //   }, {
+  //     name: 'Overall Z Reading'
+  //   }]
+  // }, {
     icon: 'tools',
     name: 'Business',
     sub_item: [{

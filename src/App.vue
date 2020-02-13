@@ -97,6 +97,7 @@ export default {
       this.migrated = true
       return new Promise((resolve, reject) => {
         migrate.migrate(() => {
+          console.log('usussu', this.userID)
           if(this.userID){
             this.syncAll.downSync((progress) => {
               this.dataSynced = progress
@@ -110,6 +111,7 @@ export default {
             SyncStore.commit('isNotSynching')
             this.doneSynching()
           }
+          this.migrated = false
           resolve(true)
         })
       })
@@ -128,7 +130,6 @@ export default {
   },
   watch: {
     userID(newData){
-      console.log('logged', newData)
       this.navConfig.noSideBar = !(newData > 0)
       navigationConfig.noSideBar = this.navConfig.noSideBar
       this.sync()

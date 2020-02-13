@@ -157,6 +157,7 @@ let router = new Router({
 })
 router.beforeResolve((to, from, next) => {
   // If this isn't an initial page load.
+  console.log('after', from.path, to.path)
   if (to.name) {
     store.commit('setModuleLoading', true)
   }
@@ -165,8 +166,14 @@ router.beforeResolve((to, from, next) => {
       if(to.meta.auth_offline && store.getters.user){
         next()
       }else{
-        next({ path: '/' })
-        store.commit('setModuleLoading', false)
+        setTimeout(() => { // recheck again just incase store is not ready yet
+          if(to.meta.auth_offline && store.getters.user){
+            next()
+          }else{
+            next({ path: '/' })
+            store.commit('setModuleLoading', false)
+          }
+        }, 500)
       }
     }else{
       next()
