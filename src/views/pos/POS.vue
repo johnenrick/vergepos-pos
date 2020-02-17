@@ -17,7 +17,6 @@
   </div>
 </template>
 <script>
-import navConfig from '@/vue-web-core/components/common/navigation/config.js'
 import OrderList from './OrderList.vue'
 import ProductList from './ProductList.vue'
 import ControlBox from './ControlBox.vue'
@@ -29,11 +28,9 @@ export default {
     ControlBox
   },
   mounted () {
-    navConfig.noSideBar = true
     // this.postSync()
   },
   beforeDestroy () {
-    navConfig.noSideBar = false
   },
   data () {
     return {

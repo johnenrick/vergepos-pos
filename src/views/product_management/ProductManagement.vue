@@ -1,6 +1,6 @@
 <template>
   <div class="section">
-    <basic-module v-if="!isOffline" :config="config" />
+    <basic-module v-if="!isOffline && isOffline !== null" :config="config" />
     <template v-else>
       <h2>Product List<small>(Offline)</small></h2>
       <product-list-offline  />
@@ -18,6 +18,15 @@ let ModuleDefault = {
     ProductListOffline
   },
   mounted () {
+    console.log('nimal')
+    this.checkConnectivity().then((ping) => {
+      console.log('yow')
+      this.isOffline = false
+    }).catch(() => {
+      console.log('hey')
+      this.isOffline = true
+    })
+    console.log('yawa')
   },
   data () {
     let tableSettingRetrieveParameter = {
@@ -58,7 +67,7 @@ let ModuleDefault = {
     let formRetrieveParameter = {
     }
     return {
-      isOffline: false,
+      isOffline: null,
       config: {
         // module_name: 'Variable Management',
         api: 'product',

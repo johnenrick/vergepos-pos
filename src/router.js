@@ -1,13 +1,17 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import store from '@/vue-web-core/system/store'
+import navConfig from '@/vue-web-core/components/common/navigation/config.js'
 
 Vue.use(Router)
 let routes = [
   {
     path: '/',
     name: 'home',
-    component: require('./views/Home.vue').default
+    component: require('./views/Home.vue').default,
+    meta: {
+      no_sidebar: true
+    }
   }, {
     path: '/dashboard',
     name: 'dashboard',
@@ -27,11 +31,12 @@ let routes = [
       }
     },
     meta: {
-      auth: false
+      auth: false,
+      no_sidebar: true
     }
   },
   {
-    path: '/user_management',
+    path: '/user-management',
     name: 'UserManagement',
     component: () => {
       store.commit('setModuleLoading', true)
@@ -40,7 +45,7 @@ let routes = [
       }
     },
     meta: {
-      // auth: false
+      auth_offline: true
     }
   },
   {
@@ -49,7 +54,8 @@ let routes = [
     component: require('@/views/pos/POS.vue').default,
     meta: {
       // auth: true
-      auth_offline: true
+      auth_offline: true,
+      no_sidebar: true
     }
   },
   {
@@ -70,7 +76,7 @@ let routes = [
     name: 'Product',
     component: require('@/views/product_management/ProductManagement.vue').default,
     meta: {
-      auth: true
+      auth_offline: true
     }
   },
   {
@@ -157,33 +163,34 @@ let router = new Router({
 })
 router.beforeResolve((to, from, next) => {
   // If this isn't an initial page load.
-  console.log('after', from.path, to.path)
   if (to.name) {
     store.commit('setModuleLoading', true)
   }
   if(from.path !== to.path){
     if(typeof to.meta.auth_offline !== 'undefined'){
-      if(to.meta.auth_offline && store.getters.user){
-        next()
-      }else{
-        setTimeout(() => { // recheck again just incase store is not ready yet
-          if(to.meta.auth_offline && store.getters.user){
-            next()
-          }else{
-            next({ path: '/' })
-            store.commit('setModuleLoading', false)
-          }
-        }, 500)
-      }
+      store.commit('isReady', () => {
+        if(to.meta.auth_offline && store.getters.user){
+          next()
+        }else{
+          next({ path: '/' })
+          store.commit('setModuleLoading', false)
+        }
+      })
     }else{
       next()
     }
   }else{
     next()
+    store.commit('setModuleLoading', false)
+  }
+  if(typeof to.meta.no_sidebar !== 'undefined' && to.meta.no_sidebar){
+    navConfig.noSideBar = true
+  }else{
+    navConfig.noSideBar = false
   }
 })
 router.afterEach((to, from) => {
-  console.log('after', from.path, to.path)
+  // console.log('after', from.path, to.path)
   // Complete the animation of the route progress bar.
   store.commit('setModuleLoading', false)
 })

@@ -97,7 +97,6 @@ export default {
         if(result.length){
           console.log('signin result', result, result[0]['db_id'])
           localStorage.setItem('user_id', result[0]['db_id'])
-          VueCoreStore.dispatch('setCompanyInformationOffline')
           VueCoreStore.dispatch('setUserInformationOffline')
         }else{
           this.errorMessage = 'Invalid credentials'
@@ -120,7 +119,6 @@ export default {
           localStorage.setItem('user_id', response.data.user.id)
           localStorage.setItem('roles', JSON.stringify(response.data.user.roles))
           // store.commit('setAuthToken', response.data.access_token)
-          VueCoreStore.dispatch('setCompanyInformation')
           VueCoreStore.dispatch('setUserInformation')
           this.isLoading = false
         }
@@ -145,7 +143,7 @@ export default {
             path: '/pos'
           }, () => {})
         }else{
-          console.log(VueCoreStore.state.userRoles)
+          console.log(VueCoreStore.state.userRoles, VueCoreStore.getters.user)
           alert('cant seem to find your place')
         }
       }else{

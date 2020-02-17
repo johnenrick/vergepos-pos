@@ -108,6 +108,8 @@ class UpSync {
         }else{
           resolve(true)
         }
+      }, () => {
+        reject(true)
       })
     })
   }

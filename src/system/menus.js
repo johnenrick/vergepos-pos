@@ -52,7 +52,7 @@ export default {
     sub_item: [{
       icon: 'users',
       name: 'Users',
-      route: '/user_management'
+      route: '/user-management'
     }, {
       icon: 'store',
       name: 'Business Detail'

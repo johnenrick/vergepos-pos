@@ -1,6 +1,6 @@
 <template>
   <div>
-    View Product in Offline Mode
+    <p><fa icon="info-circle" class="text-info" /> You are in Offline mode. You can only view products but cannot manage</p>
     <Vuetable :fields="tableSetting.columns"
     :api-mode="false"
     :data="productList"

@@ -11,10 +11,10 @@
       </template>
     </modal>
     <header-menu :menu="headerMenu"  :default-company-name="'VergePOS'"/>
-    <div id="wrapper" v-bind:class="(navConfig.sidebarToggled && !navConfig.noSideBar) ? 'toggled' : ''">
+    <div id="wrapper" v-bind:class="(noSidebar) ? 'toggled' : ''">
       <side-bar :menu="sidebarMenu" />
       <div id="page-content-wrapper" style="overflow-wrap: break-word;">
-        <div v-if="!isLoadingModule && dataSynced === 1" class="container-fluid-none">
+        <div v-if="!isLoadingModule" class="container-fluid-none">
           <router-view/>
         </div>
         <div v-else class="text-center">
@@ -53,29 +53,30 @@ export default {
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
     $('#app').show()
-    this.checkConnectivity().then((ping) => { // Online
-      if(localStorage.getItem('default_auth_token')){ // Online and logged in
-        this.$auth.ready(() => {
-          this.sync().finally(() => {
-            store.dispatch('setUserInformation')
-            store.dispatch('setCompanyInformation')
-          })
-        })
-      }else{ // Only but not logged in
-        store.dispatch('setUserInformation')
-        store.dispatch('setCompanyInformation')
-        this.sync()
-      }
-    }).catch((status) => { // Offline
-      this.sync().finally(() => {
+    this.migrateDB().finally(() => {
+      this.checkConnectivity().then((ping) => { // Online
+        if(this.$auth.check()){ // Online and logged in
+          // TODO Diri ang problema kay dili siya ready
+          console.log('online login ready')
+          store.dispatch('setUserInformation')
+          this.sync()
+        }else{ // Online but not logged in
+          console.log('online - log out 2')
+          store.dispatch('setUserInformation')
+          this.sync()
+        }
+      }).catch((status) => { // Offline
+        console.log('offline', status)
         store.dispatch('setUserInformationOffline')
+        this.sync()
+      }).finally(() => {
       })
-    }).finally(() => {
     })
   },
   data () {
     return {
       migrated: false,
+      isOffline: false,
       syncAll: new SyncAll(),
       dataSynced: 0,
       navConfig: navigationConfig,
@@ -84,60 +85,79 @@ export default {
     }
   },
   methods: {
+    migrateDB(){
+      return new Promise((resolve, reject) => {
+        if(this.migrated){
+          resolve(true)
+        }else{
+          let migrate = new Migrate()
+          migrate.migrate(() => {
+            this.migrated = true
+            resolve(true)
+          })
+        }
+      })
+    },
     sync(){
-      if(this.migrated){
-        return false
-      }
       setTimeout(() => {
         if(this.dataSynced !== 1){
           this.$refs.modal._open()
         }
-      }, 1000)
-      let migrate = new Migrate()
-      this.migrated = true
+      }, 300)
       return new Promise((resolve, reject) => {
-        migrate.migrate(() => {
-          console.log('usussu', this.userID)
-          if(this.userID){
-            this.syncAll.downSync((progress) => {
-              this.dataSynced = progress
-              if(progress === 1){
-                setTimeout(() => {
-                  this.doneSynching()
-                }, 500)
-              }
-            })
-          }else{
-            SyncStore.commit('isNotSynching')
-            this.doneSynching()
+        (async () => {
+          if(!this.migrated){
+            await this.migrateDB()
           }
-          this.migrated = false
-          resolve(true)
-        })
+          store.commit('isReady', () => {
+            if(this.userID){
+              this.checkConnectivity().then((ping) => {
+                this.syncAll.downSync((progress) => {
+                  this.dataSynced = progress
+                  if(progress === 1){
+                    setTimeout(() => {
+                      this.doneSynching()
+                      resolve(true)
+                    }, 500)
+                  }
+                })
+              }).catch(() => {
+                SyncStore.commit('isNotSynching')
+                this.doneSynching()
+                resolve(true)
+              })
+            }else{
+              SyncStore.commit('isNotSynching')
+              this.doneSynching()
+              resolve(true)
+            }
+          })
+        })()
       })
     },
     doneSynching(){
       this.dataSynced = 1
       setTimeout(() => {
         this.$refs.modal._close()
-      }, 1000)
+      }, 400)
       if(this.userID){
         setTimeout(() => {
           UpSync.silentSync()
-        }, 200)
+        }, 100)
       }
     }
   },
   watch: {
     userID(newData){
-      this.navConfig.noSideBar = !(newData > 0)
-      navigationConfig.noSideBar = this.navConfig.noSideBar
       this.sync()
     }
   },
   computed: {
     userID(){
       return store.state.userInformation ? store.state.userInformation.id : null
+    },
+    noSidebar(){
+      return !navigationConfig.noSideBar && navigationConfig.sidebarToggled
     },
     isLoadingModule () {
       return store.state.isModuleLoading
