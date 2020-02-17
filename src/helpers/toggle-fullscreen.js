@@ -8,13 +8,11 @@ let toggle = (isFull = null) => {
   }else if(isFull === 'default'){
     isFullscreen = false
   }
-  if (isFullscreen === false) {
+  if (isFullscreen === true) {
     elem.webkitRequestFullscreen()
   } else{
     document.webkitExitFullscreen()
   }
-  console.log(elem)
-  console.log(document)
   return isFullscreen
 }
 export default {
