@@ -40,12 +40,16 @@ export default class Controller {
       data['created_at'] = (new Date(data['created_at'])).getTime()
     }
     return new Promise((resolve, reject) => {
+      let where = {}
+      if(typeof data['id'] === 'undefined' && typeof data['db_id'] !== 'undefined'){
+        where['db_id'] = data['db_id']
+      }else if(typeof data['id'] !== 'undefined'){
+        where['id'] = data['id']
+      }
       connection.update({
         in: this.tableName,
         set: data,
-        where: {
-          id: data['id']
-        }
+        where: where
       }).then(response => {
         resolve(response)
       }).catch(error => {
