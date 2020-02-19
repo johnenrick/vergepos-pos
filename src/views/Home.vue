@@ -89,6 +89,7 @@ export default {
     },
     offlineSignIn(){
       if(!localStorage.getItem('is_terminal')){
+        this.$auth.logout()
         this.errorMessage = 'Offline Mode is only available for Terminals. You need to log in with internet then set this device as a terminal'
         return false
       }

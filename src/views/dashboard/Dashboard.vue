@@ -25,12 +25,16 @@ export default {
     ActivityHour
   },
   mounted(){
+    this.init()
   },
   data(){
     return {
     }
   },
   methods: {
+    init(){
+      // TODO refresh the charts
+    }
   }
 }
 </script>

@@ -10,7 +10,7 @@ class UpSync {
     this.sync().finally(() => {
       setTimeout(() => {
         this.silentSync()
-      }, 10000)
+      }, 20000)
     })
   }
   sync(){
