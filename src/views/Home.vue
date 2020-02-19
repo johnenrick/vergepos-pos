@@ -18,7 +18,6 @@
                   <label >Email address</label>
                   <input @keyup="isTypingUsername" v-model="username" type="text" id="inputEmail" class="form-control" placeholder="Email address" required autofocus autocomplete="username">
                 </div>
-
                 <div class="form-group">
                   <label>{{isOffline === false ? 'Password' : 'PIN'}}</label>
                   <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required autocomplete="current-password">
@@ -44,6 +43,15 @@ export default {
   components: {
   },
   mounted(){
+    if(VueCoreStore.getters.devConfig){
+      let devConfig = VueCoreStore.getters.devConfig
+      this.username = devConfig.default_username
+      if(devConfig.connection * 1){
+        this.password = devConfig.default_password + ''
+      }else{
+        this.password = devConfig.default_pin + ''
+      }
+    }
     this.clearOfflineAuthentication()
     this.checkIfOnline(() => {
       this.redirect()
@@ -53,8 +61,8 @@ export default {
   },
   data(){
     return {
-      username: 'juancruz@gmail.com',
-      password: '123456',
+      username: '',
+      password: '',
       isLoading: false,
       errorMessage: '',
       token: null,
@@ -95,7 +103,6 @@ export default {
       }
       userDB.get(param).then((result) => {
         if(result.length){
-          console.log('signin result', result, result[0]['db_id'])
           localStorage.setItem('user_id', result[0]['db_id'])
           VueCoreStore.dispatch('setUserInformationOffline')
         }else{
@@ -143,7 +150,6 @@ export default {
             path: '/pos'
           }, () => {})
         }else{
-          console.log(VueCoreStore.state.userRoles, VueCoreStore.getters.user)
           alert('cant seem to find your place')
         }
       }else{

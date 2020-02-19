@@ -156,6 +156,14 @@ let routes = [
     meta: {
       auth_offline: true
     }
+  },
+  {
+    path: '/dev-config',
+    name: 'DevConfig',
+    component: require('@/views/dev-config/Config.vue').default,
+    meta: {
+      no_sidebar: true
+    }
   }
 ]
 let router = new Router({
