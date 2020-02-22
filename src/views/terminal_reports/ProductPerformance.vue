@@ -242,24 +242,6 @@ export default {
         }else {
           if(response.length !== 0){
             if(this.selectFilterValue.length !== 0){
-              // OLD
-              /* for(let x = 0; x < response.length; x++){
-                for(let y = 0; y < this.selectFilterValue.length; y++){
-                  if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
-                    if(typeof productArr[response[x]['product_id']] === 'undefined'){
-                      productArr[response[x]['product_id']] = {
-                        quantity: 0,
-                        amount: 0
-                      }
-                    }
-                    productArr[response[x]['product_id']]['product_id'] = response[x]['product_id']
-                    productArr[response[x]['product_id']]['created_at'] = 'N/A'
-                    productArr[response[x]['product_id']]['description'] = response[x]['description']
-                    productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
-                    productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
-                  }
-                }
-              } */
               for(let x = 0; x < response.length; x++){
                 for(let y = 0; y < this.selectFilterValue.length; y++){
                   if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
@@ -271,9 +253,9 @@ export default {
                         description: response[x]['description'],
                         data: [
                           {
-                            created_at: response[x]['created_at'],
-                            total_amount: response[x]['amount'],
-                            total_quantity: response[x]['quantity']
+                            x: response[x]['created_at'],
+                            // total_amount: response[x]['amount'],
+                            y: response[x]['quantity']
                           }
                         ]
                       }
@@ -281,9 +263,9 @@ export default {
                       for(let index in this.dailyTransactionProducts){
                         for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++){
                           // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
-                          if(index === response[x]['product_id'] && new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() === new Date(response[x]['created_at']).getDate()){
-                            this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
-                            this.dailyTransactionProducts[index]['data'][i].total_quantity += response[x]['quantity']
+                          if(index == response[x]['product_id'] && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() == new Date(response[x]['created_at']).getDate()){
+                            // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
+                            this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
                           }
                         }
                       }
@@ -301,9 +283,9 @@ export default {
                     description: response[x]['description'],
                     data: [
                       {
-                        created_at: response[x]['created_at'],
-                        total_amount: response[x]['amount'],
-                        total_quantity: response[x]['quantity']
+                        x: response[x]['created_at'],
+                        // total_amount: response[x]['amount'],
+                        y: response[x]['quantity']
                       }
                     ]
                   }
@@ -311,9 +293,9 @@ export default {
                   for(let index in this.dailyTransactionProducts){
                     for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++){
                       // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
-                      if(index === response[x]['product_id'] && new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() === new Date(response[x]['created_at']).getDate()){
-                        this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
-                        this.dailyTransactionProducts[index]['data'][i].total_quantity += response[x]['quantity']
+                      if(index == response[x]['product_id'] && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() == new Date(response[x]['created_at']).getDate()){
+                        // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
+                        this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
                       }
                     }
                   }
