@@ -93,6 +93,9 @@
       <button @click="print" type="button" class="btn btn-outline-primary float-right"><fa :icon="'print'" /> Reprint</button>
     </div>
     <div v-if="toVoid">
+      <div class="pt-2 mt-2">
+        <input v-model="remarks" type="text" placeholder="Remarks" class="form-control">
+      </div>
       <div class="input-group mt-2 pt-2">
         <select class="form-control" v-model="selected">
           <option :value="null" disabled selected>Select Manager</option>
@@ -115,6 +118,9 @@ import Transaction from '@/database/controller/transaction'
 import store from '@/vue-web-core/system/store'
 import User from '@/database/controller/user'
 import TransactionProduct from '@/database/controller/transaction-product'
+import TransactionVoids from '@/database/controller/transaction-void'
+import TransactionNumber from '@/database/controller/transaction-number'
+
 import Vue from 'vue'
 import VueHtmlToPaper from 'vue-html-to-paper'
 
@@ -145,6 +151,8 @@ export default {
       errorMessage: null,
       transactionDB: new Transaction(),
       transactionProductDB: new TransactionProduct(),
+      transactionVoidDB: new TransactionVoids(),
+      transactionNumberDB: new TransactionNumber(),
       userDB: new User(),
       transactionNumber: null,
       transactionProduct: [],
@@ -152,6 +160,7 @@ export default {
       users: [],
       selected: null,
       pin: '',
+      remarks: '',
       voidErrorMessage: null,
       printingStyle: {
         'width': '250px',
@@ -285,9 +294,26 @@ export default {
           id: this.transactionDetail.id,
           status: 2
         }).then((result) => {
-          this.transactionDetail.status = 2
-          this.voidErrorMessage = null
-          this.toVoid = false
+          let transactionNumberEntry = {
+            db_id: 0,
+            operation: 1,
+            store_terminal_id: localStorage.getItem('is_terminal') * 1,
+            user_id: localStorage.getItem('user_id') * 1
+          }
+
+          this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
+            let transactionvoidEntry = {
+              transaction_id: this.transactionNumber,
+              transaction_number_id: transactionNumberResult['id'] * 1,
+              db_id: 0,
+              remarks: this.remarks
+            }
+            this.transactionVoidDB.add(transactionvoidEntry).then((response) => {
+              this.transactionDetail.status = 2
+              this.voidErrorMessage = null
+              this.toVoid = false
+            })
+          })
         })
       }else{
         this.voidErrorMessage = 'PIN Is Incorrect'

@@ -97,8 +97,9 @@ export default {
       selectFilterOption: [],
       transactions: [],
       transactionProducts: [],
-      dailyTransactionProducts: [],
+      dailyTransactionProducts: {},
       weeklyTransactionProducts: [],
+      sumTransaction: [],
       totalDiscount: 0,
       totalAmount: 0,
       selectedReport: 'transaction',
@@ -236,10 +237,93 @@ export default {
             for(let x in productArr){
               this.transactionProducts.push(productArr[x])
             }
-
-            // console.log(this.transactionProducts);
+            console.log('ALLTIME', this.transactionProducts)
           }
-        } else { // else if(this.selectedReport == 'hourly'){
+        }else {
+          if(response.length !== 0){
+            if(this.selectFilterValue.length !== 0){
+              // OLD
+              /* for(let x = 0; x < response.length; x++){
+                for(let y = 0; y < this.selectFilterValue.length; y++){
+                  if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
+                    if(typeof productArr[response[x]['product_id']] === 'undefined'){
+                      productArr[response[x]['product_id']] = {
+                        quantity: 0,
+                        amount: 0
+                      }
+                    }
+                    productArr[response[x]['product_id']]['product_id'] = response[x]['product_id']
+                    productArr[response[x]['product_id']]['created_at'] = 'N/A'
+                    productArr[response[x]['product_id']]['description'] = response[x]['description']
+                    productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
+                    productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
+                  }
+                }
+              } */
+              for(let x = 0; x < response.length; x++){
+                for(let y = 0; y < this.selectFilterValue.length; y++){
+                  if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
+                    response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
+                    this.transactionProducts.push(response[x])
+
+                    if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
+                      this.dailyTransactionProducts[response[x]['product_id']] = {
+                        description: response[x]['description'],
+                        data: [
+                          {
+                            created_at: response[x]['created_at'],
+                            total_amount: response[x]['amount'],
+                            total_quantity: response[x]['quantity']
+                          }
+                        ]
+                      }
+                    }else{
+                      for(let index in this.dailyTransactionProducts){
+                        for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++){
+                          // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
+                          if(index === response[x]['product_id'] && new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() === new Date(response[x]['created_at']).getDate()){
+                            this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
+                            this.dailyTransactionProducts[index]['data'][i].total_quantity += response[x]['quantity']
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }else{
+              for(let x = 0; x < response.length; x++){
+                response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
+                this.transactionProducts.push(response[x])
+
+                if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
+                  this.dailyTransactionProducts[response[x]['product_id']] = {
+                    description: response[x]['description'],
+                    data: [
+                      {
+                        created_at: response[x]['created_at'],
+                        total_amount: response[x]['amount'],
+                        total_quantity: response[x]['quantity']
+                      }
+                    ]
+                  }
+                }else{
+                  for(let index in this.dailyTransactionProducts){
+                    for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++){
+                      // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
+                      if(index === response[x]['product_id'] && new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() === new Date(response[x]['created_at']).getDate()){
+                        this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
+                        this.dailyTransactionProducts[index]['data'][i].total_quantity += response[x]['quantity']
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            console.log('DAILY', this.dailyTransactionProducts)
+          }
+        }
+        /* else { // else if(this.selectedReport == 'hourly'){
           if(this.selectFilterValue.length !== 0){
             for(let x = 0; x < response.length; x++){
               for(let y = 0; y < this.selectFilterValue.length; y++){
@@ -249,13 +333,29 @@ export default {
                 }
               }
             }
-          }else{
+            console.log("TIMELY" , this.transactionProducts);
+          }
+          else{
             for(let x = 0; x < response.length; x++){
               response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
-              this.transactionProducts.push(response[x])
+              this.transactionProducts.push(response[x]);
+              if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
+                this.dailyTransactionProducts[response[x]['product_id']] = {
+                  description:'',
+                  data : {
+                    created_at : [],
+                    total_amount: 0,
+                    total_qty: 0
+                  }
+                }
+              }
+              this.dailyTransactionProducts[response[x]['product_id']]['description'] = response[x]['description']
+              this.dailyTransactionProducts[response[x]['product_id']]['data'].created_at.push(response[x]['created_at'])
+              this.dailyTransactionProducts[response[x]['product_id']]['data'].total_amount += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
+              this.dailyTransactionProducts[response[x]['product_id']]['data'].total_qty += response[x]['quantity'] * 1
             }
           }
-        }
+        } */
         // resolve(response)
         // this.generateReport()
       }).catch(error => {
