@@ -69,6 +69,8 @@
   </div>
 </template>
 <script>
+
+import Vue from 'vue'
 import { Datetime } from 'vue-datetime' // https://github.com/mariomka/vue-datetime?ref=madewithvuejs.com
 import 'vue-datetime/dist/vue-datetime.css'
 import TransactionProduct from '@/database/controller/transaction-product.js'
@@ -77,6 +79,7 @@ import Vuetable from 'vuetable-2/src/components/Vuetable' // https://ratiw.githu
 import VueSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import Product from '@/database/controller/product.js'
+
 export default {
   components: {
     Vuetable,
@@ -97,8 +100,9 @@ export default {
       selectFilterOption: [],
       transactions: [],
       transactionProducts: [],
-      dailyTransactionProducts: [],
+      dailyTransactionProducts: {},
       weeklyTransactionProducts: [],
+      sumTransaction: [],
       totalDiscount: 0,
       totalAmount: 0,
       selectedReport: 'transaction',
@@ -110,7 +114,8 @@ export default {
             titleClass: 'text-center',
             dataClass: 'text-center',
             callback: (value) => {
-              return value
+              // return (new Date(value * 1000)).toLocaleString("en-US");
+              return value !== 'N/A' ? new Date(value).toUTCString().split(' ').slice(0, 5).join(' ') : ' '
             }
           },
           {
@@ -119,7 +124,8 @@ export default {
             titleClass: 'text-center',
             dataClass: 'text-center',
             callback: (value) => {
-              return this.padNumber(value, 7)
+              // return this.padNumber(value, 7)
+              return value
             }
           },
           {
@@ -157,7 +163,6 @@ export default {
     },
     generate(){
       let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', ''))
-
       // console.log("startTime " + startDatetimeFilter, this.startDatetimeFilter)
 
       if(startDatetimeFilter === null){
@@ -236,10 +241,100 @@ export default {
             for(let x in productArr){
               this.transactionProducts.push(productArr[x])
             }
-
-            // console.log(this.transactionProducts);
+            console.log('ALLTIME', this.transactionProducts)
           }
-        } else { // else if(this.selectedReport == 'hourly'){
+        }else {
+          if(response.length !== 0){
+            if(this.selectFilterValue.length !== 0){
+              for(let x = 0; x < response.length; x++){
+                for(let y = 0; y < this.selectFilterValue.length; y++){
+                  if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
+                    response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
+                    this.transactionProducts.push(response[x])
+
+                    let prepareData = []
+                    if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
+                      for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr < new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
+                        let data = {
+                          x: '',
+                          y: 0
+                        }
+                        if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
+                          Vue.set(data, 'y', response[x]['quantity'])
+                        }
+
+                        let modifiedDate = new Date()
+
+                        modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
+                        Vue.set(data, 'x', modifiedDate.toString())
+
+                        prepareData.push(data)
+                      }
+
+                      this.dailyTransactionProducts[response[x]['product_id']] = {
+                        description: response[x]['description'],
+                        data: prepareData
+                      }
+                    }else{
+                      for(let index in this.dailyTransactionProducts){
+                        for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++){
+                          // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
+                          if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()){
+                            // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
+                            this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }else{
+              for(let x = 0; x < response.length; x++){
+                response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
+                this.transactionProducts.push(response[x])
+
+                let prepareData = []
+
+                if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
+                  for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr < new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
+                    let data = {
+                      x: '',
+                      y: 0
+                    }
+                    if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
+                      Vue.set(data, 'y', response[x]['quantity'])
+                    }
+                    let modifiedDate = new Date()
+
+                    modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
+                    Vue.set(data, 'x', modifiedDate.toString())
+
+                    prepareData.push(data)
+                  }
+                  console.log('PREPARED DATA', prepareData)
+
+                  this.dailyTransactionProducts[response[x]['product_id']] = {
+                    description: response[x]['description'],
+                    data: prepareData
+                  }
+                }else{
+                  for(let index in this.dailyTransactionProducts){
+                    for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++) {
+                      // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
+                      if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()) {
+                      // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
+                        this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            console.log('DAILY', this.dailyTransactionProducts)
+          }
+        }
+        /* else { // else if(this.selectedReport == 'hourly'){
           if(this.selectFilterValue.length !== 0){
             for(let x = 0; x < response.length; x++){
               for(let y = 0; y < this.selectFilterValue.length; y++){
@@ -249,18 +344,37 @@ export default {
                 }
               }
             }
-          }else{
+            console.log("TIMELY" , this.transactionProducts);
+          }
+          else{
             for(let x = 0; x < response.length; x++){
               response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
-              this.transactionProducts.push(response[x])
+              this.transactionProducts.push(response[x]);
+              if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
+                this.dailyTransactionProducts[response[x]['product_id']] = {
+                  description:'',
+                  data : {
+                    created_at : [],
+                    total_amount: 0,
+                    total_qty: 0
+                  }
+                }
+              }
+              this.dailyTransactionProducts[response[x]['product_id']]['description'] = response[x]['description']
+              this.dailyTransactionProducts[response[x]['product_id']]['data'].created_at.push(response[x]['created_at'])
+              this.dailyTransactionProducts[response[x]['product_id']]['data'].total_amount += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
+              this.dailyTransactionProducts[response[x]['product_id']]['data'].total_qty += response[x]['quantity'] * 1
             }
           }
-        }
+        } */
         // resolve(response)
         // this.generateReport()
       }).catch(error => {
-        reject(error)
+        console.log(error)
       })
+    },
+    addInitQuantity(){
+
     },
     reset(){
       this.transactions = []
@@ -287,7 +401,7 @@ export default {
         case 2:
           return '<span class="badge badge-danger">Voided</span>'
       }
-    }
+    },
   },
   watch: {
     startDatetimeFilter(newDatetime){
