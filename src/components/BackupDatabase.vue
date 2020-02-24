@@ -1,5 +1,7 @@
 <template>
-    <button @click="exportDatabase" class="btn btn-primary">Export</button>
+    <div class="bg-secondary text-white p-2 rounded">
+        <fa icon="info-circle" /> It is strongly recommend that you <strong><a href="#" @click="exportDatabase"><u>EXPORT</u></a></strong> your data to have a backup incase anything happens
+    </div>
 </template>
 
 <script>

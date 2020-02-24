@@ -2,9 +2,9 @@
   <div class="p-3">
     <div class="mb-3">
       <h2 class="font-weight-bold mb-4">Welcome to your VergePOS Dashboard!</h2>
-      <backup-database></backup-database>
       <p>You dashboard will give you quick reports about your business. From number of transactions to daily sales report!. You can also find other resources here such as <a href="">VergePOS Tutorials</a>, Business Tips, and many more...</p>
     </div>
+    <backup-database></backup-database>
     <terminal-toggler/>
     <quick-report-card />
     <activity-hour />
