@@ -218,19 +218,20 @@ export default {
       if(this.pin === ''){
         delete query.pin
       }
-      console.log(query);
-      (new User()).update(query).then((response) => {
-        this.isEdit = false
-        this.resetTemp()
-        this.prompt = 'alert-success'
-        this.feedback = 'Changes have been saved'
-        UserStore.dispatch('setUserInformationOffline')
-        setTimeout(() => { this.prompt = 'invisible' }, 700)
-      }).catch(() => {
+      if(this.pinClass === 'is-valid'){
+        (new User()).update(query).then((response) => {
+          this.isEdit = false
+          this.resetTemp()
+          this.prompt = 'alert-success'
+          this.feedback = 'Changes have been saved'
+          UserStore.dispatch('setUserInformationOffline')
+          setTimeout(() => { this.prompt = 'invisible' }, 700)
+        })
+      } else{
         this.prompt = 'alert-warning'
         this.feedback = 'Please make sure to input valid details'
         setTimeout(() => { this.prompt = 'invisible' }, 700)
-      })
+      }
     },
     updateDetailOnline(){
       let query = {
@@ -249,10 +250,12 @@ export default {
           last_name: this.lName
         }
       }
-      if(this.password === ''){
+      if(this.password === '' || this.password.length === 0){
         delete param.password
-      } else if(this.pin === ''){
+      }
+      if(this.pin === '' || this.pin.length === 0){
         delete param.pin
+        delete query.pin
       }
       if(this.passwordClass === 'is-valid' && this.pinClass === 'is-valid'){
         this.apiRequest('user/update', param, (response) => {

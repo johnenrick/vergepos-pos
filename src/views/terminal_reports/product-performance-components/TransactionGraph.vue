@@ -31,14 +31,12 @@ export default {
   },
   watch: {
     dataProp: function (){
-      console.log('watcher triggered ', this.dataProp)
       if(this.dataProp.length > 0){
         if(this.passedData.length > 0){
           this.passedData = []
         }
         this.passedData = this.dataProp
       }
-      console.log('current passedData content ', this.passedData)
     }
   },
   methods: {

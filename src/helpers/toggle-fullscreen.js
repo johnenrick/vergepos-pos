@@ -1,20 +1,51 @@
-let isFullscreen = false
+// declare store
+import Vuex from 'vuex'
+let screenStateStore = new Vuex.Store({
+  state: {
+    isFullscreen: false
+  },
+  getters: {
+    isFullscreen: (state) => {
+      return state.isFullscreen
+    }
+  },
+  mutations: {
+    toggleFullscreen(state){
+      state.isFullscreen = !state.isFullscreen
+    },
+    setFullscreenToTrue(state){
+      state.isFullscreen = true
+    },
+    setFullscreenToFalse(state){
+      state.isFullscreen = false
+    }
+  }
+})
+window.addEventListener('resize', function(){
+  if(window.innerHeight < screen.height){
+    screenStateStore.commit('setFullscreenToFalse')
+  } else{
+    screenStateStore.commit('setFullscreenToTrue')
+  }
+})
 let elem = document.documentElement
 let toggle = (isFull = null) => {
   if(isFull === null){
-    isFullscreen = !isFullscreen
+    screenStateStore.commit('toggleFullscreen')
   }else if(isFull === true){
-    isFullscreen = true
+    screenStateStore.commit('setFullscreenToTrue')
   }else if(isFull === 'default'){
-    isFullscreen = false
+    screenStateStore.commit('setFullscreentoFalse')
   }
-  if (isFullscreen === true) {
+  if (screenStateStore.getters.isFullscreen === true) {
     elem.webkitRequestFullscreen()
-  } else{
+  } else if(screenStateStore.getters.isFullscreen === false){
     document.webkitExitFullscreen()
   }
-  return isFullscreen
+  return screenStateStore.getters.isFullscreen
 }
+
 export default {
-  toggle: toggle
+  toggle: toggle,
+  store: screenStateStore
 }
