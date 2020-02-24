@@ -2,6 +2,7 @@
   <div class="p-3">
     <div class="mb-3">
       <h2 class="font-weight-bold mb-4">Welcome to your VergePOS Dashboard!</h2>
+      <backup-database></backup-database>
       <p>You dashboard will give you quick reports about your business. From number of transactions to daily sales report!. You can also find other resources here such as <a href="">VergePOS Tutorials</a>, Business Tips, and many more...</p>
     </div>
     <terminal-toggler/>
@@ -15,6 +16,7 @@ import QuickReportCard from './QuickReportCards.vue'
 import WeeklySaleGraph from './WeeklySaleGraph.vue'
 import TerminalToggler from './TerminalToggler'
 import ActivityHour from './ActivityHour'
+import BackupDatabase from '@/components/BackupDatabase'
 
 // import User from '@/database/controller/user'
 export default {
@@ -22,7 +24,8 @@ export default {
     QuickReportCard,
     WeeklySaleGraph,
     TerminalToggler,
-    ActivityHour
+    ActivityHour,
+    BackupDatabase
   },
   mounted(){
     this.init()

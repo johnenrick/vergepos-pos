@@ -9,14 +9,16 @@ export default {
     name: 'POS',
     no_sidebar: true,
     offline_only: false
-  }, {
-    icon: null,
-    name: 'Register Now',
-    link: 'company-registration',
-    no_sidebar: true,
-    offline_only: true,
-    class: 'btn py-2 btn-success text-white'
-  }],
+  },
+  // {
+  //   icon: null,
+  //   name: 'Register Now',
+  //   link: 'company-registration',
+  //   no_sidebar: true,
+  //   offline_only: true,
+  //   class: 'btn py-2 btn-success text-white'
+  // }
+  ],
   side_menus: [{
     icon: 'box',
     name: 'Product'
