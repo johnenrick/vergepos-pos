@@ -112,7 +112,7 @@ export default {
             dataClass: 'text-center',
             callback: (value) => {
               // return (new Date(value * 1000)).toLocaleString("en-US");
-              return value
+              return new Date(value).toUTCString().split(' ').slice(0,4).join(' ');
             }
           },
           {
