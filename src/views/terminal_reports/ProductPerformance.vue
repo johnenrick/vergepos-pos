@@ -242,19 +242,7 @@ export default {
           }
         }else {
           if(response.length !== 0){
-            let prepareData = [];
-              for(let x = new Date(this.startDatetimeFilter).getDate() , i = 0; x < new Date(this.endDatetimeFilter).getDate(); x++ , i++){
-                let data = {
-                  x: '',
-                  y: 0
-                }
-                let modifiedDate = new Date();
-                
-                modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
-                data.x = modifiedDate
-
-                prepareData.push(data);
-            }
+            
             if(this.selectFilterValue.length !== 0){
               for(let x = 0; x < response.length; x++){
                 for(let y = 0; y < this.selectFilterValue.length; y++){
@@ -262,11 +250,23 @@ export default {
                     response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
                     this.transactionProducts.push(response[x])
 
+                    let prepareData = [];
                     if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
-                      for(let y = 0 ; y < prepareData.length; y++){
-                        if(prepareData[y].x == response[x]['created_at']){
-                          prepareData[y].y = response[x]['quantity']
+                      for(let ctr = new Date(this.startDatetimeFilter).getDate() , i = 0; ctr < new Date(this.endDatetimeFilter).getDate(); ctr++ , i++){
+                        let data = {
+                          x: '',
+                          y: 0
                         }
+                        if(new Date(this.startDatetimeFilter).getDate() + i == new Date(response[x]['created_at']).getDate()){
+                          data.y = response[x]['quantity']
+                        }
+                        let modifiedDate = new Date();
+                        
+                        modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
+                        data.x = modifiedDate
+
+                        prepareData.push(data);
+                      
                       }
 
                       this.dailyTransactionProducts[response[x]['product_id']] = {
@@ -289,15 +289,31 @@ export default {
               }
             }else{
               for(let x = 0; x < response.length; x++){
+                console.log("RESPONSE BITCH", response)
                 response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
                 this.transactionProducts.push(response[x])
 
+                let prepareData = [];
+
                 if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
-                  for(let y = 0 ; y < prepareData.length; y++){
-                    if(prepareData[y].x == response[x]['created_at']){
-                      prepareData[y].y = response[x]['quantity']
+                  for(let ctr = new Date(this.startDatetimeFilter).getDate() , i = 0; ctr < new Date(this.endDatetimeFilter).getDate(); ctr++ , i++){
+                    let data = {
+                      x: '',
+                      y: 0
                     }
+                    if(new Date(this.startDatetimeFilter).getDate() + i == new Date(response[x]['created_at']).getDate()){
+                      data.y = response[x]['quantity']
+                    }
+                    let modifiedDate = new Date();
+                    
+                    modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
+                    data.x = modifiedDate.toString()
+
+                    prepareData.push(data);
+                  
                   }
+                  console.log("PREPARED DATA", prepareData);
+
                   this.dailyTransactionProducts[response[x]['product_id']] = {
                     description: response[x]['description'],
                     data : prepareData
