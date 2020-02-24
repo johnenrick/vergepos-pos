@@ -52,9 +52,10 @@ export default {
         this.password = devConfig.default_pin + ''
       }
     }
-    this.clearOfflineAuthentication()
     this.checkIfOnline(() => {
-      this.redirect()
+      VueCoreStore.commit('isReady', () => {
+        this.redirect()
+      })
     })
   },
   updated(){
@@ -73,8 +74,6 @@ export default {
     }
   },
   methods: {
-    clearOfflineAuthentication(){
-    },
     checkIfOnline(callback){
       // return this.isOffline = true
       this.checkConnectivity().then((ping) => {
@@ -123,6 +122,9 @@ export default {
         params: { email: this.username, password: this.password },
         rememberMe: false,
         success: (response) => {
+          if(localStorage.getItem('company_id') !== response.data.user.company_id){
+            localStorage.removeItem('is_terminal')
+          }
           localStorage.setItem('company_id', response.data.user.company_id)
           localStorage.setItem('user_id', response.data.user.id)
           localStorage.setItem('roles', JSON.stringify(response.data.user.roles))
@@ -140,18 +142,19 @@ export default {
       })
     },
     redirect(){
+      console.log('got here?')
       if(VueCoreStore.getters.user){
-        if(typeof VueCoreStore.state.userRoles['100'] !== 'undefined'){
+        if(typeof VueCoreStore.getters.userRoles['100'] !== 'undefined'){
           this.$router.push({
             path: '/dashboard'
           }, () => {
           })
-        }else if(typeof VueCoreStore.state.userRoles['101'] !== 'undefined'){
+        }else if(typeof VueCoreStore.getters.userRoles['101'] !== 'undefined'){
           this.$router.push({
             path: '/pos'
           }, () => {})
         }else{
-          alert('cant seem to find your place')
+          console.log('Cant seem to find your place mortal', VueCoreStore.getters.user, VueCoreStore.getters.userRoles)
         }
       }else{
         console.info('not logged in')
@@ -177,11 +180,15 @@ export default {
   },
   watch: {
     userRoles(newData){
-      this.redirect()
+      VueCoreStore.commit('isReady', () => {
+        this.redirect()
+      })
     },
     authToken(newValue, oldValue){
       setTimeout(() => {
-        this.redirect()
+        VueCoreStore.commit('isReady', () => {
+          this.redirect()
+        })
       }, 500)
     }
   }

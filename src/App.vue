@@ -110,7 +110,7 @@ export default {
             await this.migrateDB()
           }
           store.commit('isReady', () => {
-            if(this.userID){
+            if(this.userID && localStorage.getItem('is_terminal')){
               this.checkConnectivity().then((ping) => {
                 this.syncAll.downSync((progress) => {
                   this.dataSynced = progress
@@ -140,7 +140,7 @@ export default {
       setTimeout(() => {
         this.$refs.modal._close()
       }, 400)
-      if(this.userID){
+      if(this.userID && localStorage.getItem('is_terminal')){
         setTimeout(() => {
           UpSync.silentSync()
         }, 100)

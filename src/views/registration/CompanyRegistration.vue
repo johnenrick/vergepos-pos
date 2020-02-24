@@ -168,10 +168,15 @@ export default {
         }
         this.isLoading = false
       }, (errorResponse, status) => {
+        console.log(errorResponse)
         this.isLoading = false
-        if (errorResponse.error.code === 1) {
-          let errorMessages = ResponseUtil.renderValidationError(errorResponse.error.message)
-          this.validationMessage = errorMessages
+        if(typeof errorResponse.error !== 'undefined'){
+          if (errorResponse.error.code === 1) {
+            let errorMessages = ResponseUtil.renderValidationError(errorResponse.error.message)
+            this.validationMessage = errorMessages
+          }
+        }else{
+          console.error('Register Company', errorResponse, status)
         }
         this.isLoading = false
       })
@@ -181,9 +186,11 @@ export default {
         params: this.credential,
         rememberMe: false,
         success: (response) => {
+          localStorage.removeItem('is_terminal')
           this.isLoading = false
-          window.location = '/'
-          this.$router.push('dashboard', () => {})
+          setTimeout(() => {
+            window.location = '/'
+          }, 1000)
         },
         error: (response) => {
           if (response.status === 401) {

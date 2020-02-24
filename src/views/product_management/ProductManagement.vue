@@ -18,15 +18,11 @@ let ModuleDefault = {
     ProductListOffline
   },
   mounted () {
-    console.log('nimal')
     this.checkConnectivity().then((ping) => {
-      console.log('yow')
       this.isOffline = false
     }).catch(() => {
-      console.log('hey')
       this.isOffline = true
     })
-    console.log('yawa')
   },
   data () {
     let tableSettingRetrieveParameter = {

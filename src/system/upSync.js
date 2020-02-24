@@ -6,11 +6,23 @@ let currentlySyncingDataUp = false
 class UpSync {
   lastTransactionId = null
   doneUploadCallBacks = []
+  silentSyncInterval = 20000
   silentSync(){
-    this.sync().finally(() => {
+    this.sync().catch(error => {
+      console.log('un', error)
+      switch(error){
+        case 'not_terminal':
+          console.log('not a terminal')
+          break
+        default:
+          setTimeout(() => {
+            this.silentSync()
+          }, this.silentSyncInterval)
+      }
+    }).finally(() => {
       setTimeout(() => {
         this.silentSync()
-      }, 20000)
+      }, this.silentSyncInterval)
     })
   }
   sync(){
@@ -18,10 +30,17 @@ class UpSync {
       return currentlySyncingDataUp
     }
     currentlySyncingDataUp = new Promise((resolve, reject) => {
-      this.uploadTransactions().finally(() => {
-        currentlySyncingDataUp = null
-        resolve(true)
-      })
+      if(localStorage.getItem('is_terminal')){
+        this.uploadTransactions().then(() => {
+          resolve(true)
+        }).catch((error) => {
+          reject(error.reason)
+        }).finally(() => {
+          currentlySyncingDataUp = null
+        })
+      }else{
+        reject('not_terminal')
+      }
     })
     return currentlySyncingDataUp
   }
@@ -76,7 +95,7 @@ class UpSync {
             resolve(result)
           }).catch(result => {
             reject({
-              reason: 'upload_failed'
+              reason: result
             })
           })
         }else{
@@ -108,8 +127,13 @@ class UpSync {
         }else{
           resolve(true)
         }
-      }, () => {
-        reject(true)
+      }, (result, status) => {
+        console.log('result, status', result, status)
+        if(status * 1 === 422){
+          reject(422)
+        }else{
+          reject('upload_failed')
+        }
       })
     })
   }

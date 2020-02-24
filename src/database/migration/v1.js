@@ -10,11 +10,11 @@ export default {
     }
   }, {
     name: 'users',
-    version: 1,
+    version: 2,
     columns: {
-      db_id: { notNull: true, dataType: 'number' },
+      db_id: { unique: true, notNull: true, dataType: 'number' },
       first_name: { notNull: false, dataType: 'string' },
-      email: { notNull: false, dataType: 'string' },
+      email: { unique: true, notNull: false, dataType: 'string' },
       last_name: { notNull: false, dataType: 'string' },
       pin: { notNull: false, dataType: 'string' },
       user_roles: { notNull: true, dataType: 'array' },
@@ -25,7 +25,7 @@ export default {
   }, {
     name: 'products',
     columns: {
-      db_id: { notNull: true, dataType: 'number' },
+      db_id: { unique: true, notNull: true, dataType: 'number' },
       description: { notNull: true, dataType: 'string' },
       barcode: { notNull: false, dataType: 'string' },
       category_id: { notNull: true, dataType: 'number' },
@@ -35,7 +35,7 @@ export default {
   }, {
     name: 'discounts',
     columns: {
-      db_id: { notNull: true, dataType: 'number' },
+      db_id: { unique: true, notNull: true, dataType: 'number' },
       description: { notNull: true, dataType: 'string' },
       type: { notNull: true, dataType: 'number' }, // 1 - percentage on receipt, 2 - percentage on items,  3 - exact value on receipt, 4 - exact value on  items1 - percentage on receipt, 2 - exact value on receipt, 3 percentage on items, 4 - exact value on  items
       value: { notNull: true, dataType: 'number' },

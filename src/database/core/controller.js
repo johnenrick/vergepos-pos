@@ -62,6 +62,8 @@ export default class Controller {
     let hasId = false
     if(typeof query !== 'object'){
       query = {}
+    }else{
+      query = JSON.parse(JSON.stringify(query))
     }
     if(typeof query['from'] === 'undefined'){
       query['from'] = this.tableName
@@ -73,6 +75,13 @@ export default class Controller {
       query['where']['id'] = query['id']
       hasId = true
       delete query['id']
+    }else if(typeof query['db_id'] !== 'undefined'){
+      if(typeof query['where'] === 'undefined'){
+        query['where'] = {}
+      }
+      query['where']['db_id'] = query['db_id']
+      hasId = true
+      delete query['db_id']
     }
     return new Promise((resolve, reject) => {
       connection.select(query).then(result => {

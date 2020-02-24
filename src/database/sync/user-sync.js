@@ -1,5 +1,6 @@
 import Sync from '../core/sync.js'
 import User from '@/database/controller/user.js'
+import Store from '@/vue-web-core/system/store'
 export default class UserSync extends Sync{
   downSync(){
     let latestDate = new Date(localStorage.getItem('latest_users_datetime'))
@@ -15,12 +16,18 @@ export default class UserSync extends Sync{
         },
         user_roles: {
           select: ['role_id']
+        },
+        company_user: {
+          select: ['user_id', 'company_id']
         }
       },
       condition: [{
         column: 'updated_at',
         clause: '>',
         value: latestDate
+      }, {
+        column: 'company_user.company_id',
+        value: Store.getters.companyInformation.id
       }],
       with_trashed: true
     }
@@ -33,7 +40,7 @@ export default class UserSync extends Sync{
           for (let x in response['data']) {
             let userRoles = response['data'][x]['user_roles']
             let userData = {
-              db_id: response['data'][x]['id'],
+              db_id: response['data'][x]['id'] * 1,
               email: response['data'][x]['email'],
               pin: response['data'][x]['pin'] ? response['data'][x]['pin'] : '',
               is_cashier: 0,
@@ -52,17 +59,22 @@ export default class UserSync extends Sync{
                 userData['is_admin'] = 1
               }
             }
-            user.getByIndex('db_id', response['data'][x]['id']).then((result) => {
-              if (response['data'][x]['deleted_at'] && result) {
+            let idbParam = {
+              where: {
+                db_id: response['data'][x]['id'] * 1
+              }
+            }
+            user.get(idbParam).then((result) => {
+              if (response['data'][x]['deleted_at'] && result.length) {
                 user.delete(result[0].id).then(result => {
                   counter++
                 })
-              } else if (result) {
+              } else if (result.length) {
                 userData['id'] = result[0]['id']
                 user.update(userData).then(result => {
                   counter++
                 })
-              } else if (!result && !response['data'][x]['deleted_at']) {
+              } else if (!result.length && !response['data'][x]['deleted_at']) {
                 user.add(userData).then(result => {
                   counter++
                 })
