@@ -1,16 +1,35 @@
+const manifestJSON = require('./public/manifest.json')
+
 module.exports = {
   publicPath: '',
 
+  // pwa: {
+  //   name: 'VergePOS by Verge Technologies',
+  //   short_name: 'VergePOS',
+  //   themeColor: '#000000',
+  //   workboxPluginMode: 'InjectManifest',
+  //   workboxOptions: {
+  //     swSrc: 'src/service-worker.js' // CHECK CORRECT PATH!
+  //   }
+  // },
   pwa: {
-    name: 'VergePOS by Verge Technologies',
-    short_name: 'VergePOS',
-    themeColor: '#000000',
-    workboxPluginMode: 'InjectManifest',
+    themeColor: manifestJSON.theme_color,
     workboxOptions: {
-      swSrc: 'src/service-worker.js' // CHECK CORRECT PATH!
+      runtimeCaching: [{
+        urlPattern: new RegExp('https://fonts.(?:googleapis|gstatic).com/(.*)'),
+        handler: 'cacheFirst',
+        options: {
+          cacheName: 'google-fonts',
+          expiration: {
+            maxEntries: 30
+          },
+          cacheableResponse: {
+            statuses: [0, 200]
+          }
+        }
+      }]
     }
   },
-
   devServer: {
     // host: 'localhost',
     // port: 8081,
