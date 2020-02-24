@@ -112,7 +112,7 @@ export default {
             dataClass: 'text-center',
             callback: (value) => {
               // return (new Date(value * 1000)).toLocaleString("en-US");
-              return new Date(value).toUTCString().split(' ').slice(0,4).join(' ');
+              return new Date(value).toUTCString().split(' ').slice(0,5).join(' ');
             }
           },
           {
@@ -121,7 +121,8 @@ export default {
             titleClass: 'text-center',
             dataClass: 'text-center',
             callback: (value) => {
-              return this.padNumber(value, 7)
+              // return this.padNumber(value, 7)
+              return value
             }
           },
           {
