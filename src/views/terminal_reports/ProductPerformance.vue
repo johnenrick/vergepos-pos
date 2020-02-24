@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Product Performance</h2>
+    <h2>Product Performance</h2> 
     <div class="row mb-4">
       <div class="col-12 pb-2">
         <vue-select v-model="selectFilterValue" :options="selectFilterOption" label="description" :multiple="true" placeholder="Category and Product Filter" />
@@ -111,6 +111,7 @@ export default {
             titleClass: 'text-center',
             dataClass: 'text-center',
             callback: (value) => {
+              // return (new Date(value * 1000)).toLocaleString("en-US");
               return value
             }
           },
@@ -247,7 +248,6 @@ export default {
                   if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
                     response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
                     this.transactionProducts.push(response[x])
-
                     if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
                       this.dailyTransactionProducts[response[x]['product_id']] = {
                         description: response[x]['description'],
@@ -277,24 +277,36 @@ export default {
               for(let x = 0; x < response.length; x++){
                 response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
                 this.transactionProducts.push(response[x])
+                
+                let prepareData = [];
+                for(let x = new Date(this.startDatetimeFilter).getDate() , i = 0; x < new Date(this.endDatetimeFilter).getDate(); x++ , i++){
+                  let data = {
+                    x: '',
+                    y: 0
+                  }
+                  let modifiedDate = new Date();
+                  
+                  modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
+                  data.x = modifiedDate
 
+                  prepareData.push(data);
+                }
                 if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
+                  for(let y = 0 ; y < prepareData.length; y++){
+                    if(prepareData[y].x == response[x]['created_at']){
+                      prepareData[y].y = response[x]['quantity']
+                    }
+                  }
                   this.dailyTransactionProducts[response[x]['product_id']] = {
                     description: response[x]['description'],
-                    data: [
-                      {
-                        x: response[x]['created_at'],
-                        // total_amount: response[x]['amount'],
-                        y: response[x]['quantity']
-                      }
-                    ]
+                    data : prepareData
                   }
                 }else{
                   for(let index in this.dailyTransactionProducts){
                     for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++){
                       // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
                       if(index == response[x]['product_id'] && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() == new Date(response[x]['created_at']).getDate()){
-                        // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
+                      // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']                        
                         this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
                       }
                     }
@@ -302,7 +314,7 @@ export default {
                 }
               }
             }
-            console.log('DAILY', this.dailyTransactionProducts)
+            console.log("DAILY" , this.dailyTransactionProducts)
           }
         }
         /* else { // else if(this.selectedReport == 'hourly'){
@@ -341,7 +353,7 @@ export default {
         // resolve(response)
         // this.generateReport()
       }).catch(error => {
-        reject(error)
+        console.log(error);
       })
     },
     reset(){
@@ -369,7 +381,7 @@ export default {
         case 2:
           return '<span class="badge badge-danger">Voided</span>'
       }
-    }
+    },
   },
   watch: {
     startDatetimeFilter(newDatetime){
