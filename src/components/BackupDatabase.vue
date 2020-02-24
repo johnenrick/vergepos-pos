@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-secondary text-white p-2 rounded">
+    <div class="bg-secondary text-white p-2 mb-3 rounded">
         <fa icon="info-circle" /> It is strongly recommend that you <strong><a href="#" @click="exportDatabase"><u>EXPORT</u></a></strong> your data to have a backup incase anything happens
     </div>
 </template>
