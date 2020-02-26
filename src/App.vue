@@ -51,7 +51,6 @@ export default {
   },
   beforeCreate() {
     window.addEventListener('beforeunload', event => {
-      console.log(localStorage.getItem('is_terminal'))
       if(!this.isMouseOnPage){
         if(localStorage.getItem('is_terminal') && localStorage.getItem('user_id')){
           event.returnValue = 'Are you sure you want to close Verge POS?'
