@@ -7,7 +7,7 @@
         <div class="row">
           <div class="col-12">
             <p v-if="isLoading === false" class="mb-0">Showing data on <strong>{{curDate | formatDate('M d, yyyy')}}</strong></p>
-            <p v-else class="mb-0"><fa icon="hourglass-half" />Loading...</p>
+            <p v-else class="mb-0"><fa icon="hourglass-half" /> Loading...</p>
           </div>
         </div>
       <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig"></line-chart>

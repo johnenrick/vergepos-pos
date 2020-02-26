@@ -32,7 +32,7 @@ export default {
     icon: 'file-contract',
     name: 'Terminal Reports',
     sub_item: [{
-      name: 'Transactions',
+      name: 'Transaction History',
       route: 'transaction-history'
     }, {
       name: 'Product Performance',

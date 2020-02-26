@@ -7,7 +7,8 @@ export default class CategorySync extends Sync{
       select: {
         0: 'description',
         1: 'updated_at',
-        2: 'deleted_at'
+        2: 'deleted_at',
+        3: 'created_at',
       },
       condition: [{
         column: 'updated_at',
@@ -23,25 +24,33 @@ export default class CategorySync extends Sync{
           let counter = 0
           let maxCount = response['data'].length
           for (let x in response['data']) {
-            category.getByIndex('db_id', response['data'][x]['id']).then((result) => {
-              if (response['data'][x]['deleted_at'] && result) {
-                category.delete(result[0].id).then(result => {
+            let idbParam = {
+              where: {
+                db_id: response['data'][x]['id'] * 1
+              }
+            }
+            let categoryData = {
+              db_id: response['data'][x]['id'] * 1,
+              description: response['data'][x]['description'],
+              created_at: response['data'][x]['created_at'],
+              deleted_at: response['data'][x]['deleted_at'],
+            }
+            category.get(idbParam).then((result) => {
+              if (response['data'][x]['deleted_at'] && result.length) {
+                category.delete(result[0]['id']).then(() => {
                   counter++
                 })
-              } else if (result && response['data'][x]['deleted_at']) {
-                category.delete(result[0].id).then(result => {
+              } else if (result.length && response['data'][x]['deleted_at']) {
+                category.delete(result[0]['id']).then(() => {
                   counter++
                 })
-              } else if (result) {
-                result[0].description = response['data'][x]['description']
-                category.update(result[0]).then(result => {
+              } else if (result.length) {
+                categoryData['id'] = result[0]['id']
+                category.update(categoryData).then(() => {
                   counter++
                 })
-              } else if (!result && !response['data'][x]['deleted_at']) {
-                category.add({
-                  db_id: response['data'][x]['id'],
-                  description: response['data'][x]['description']
-                }).then(result => {
+              } else if (!result.length && !response['data'][x]['deleted_at']) {
+                category.add(categoryData).then(() => {
                   counter++
                 })
               }

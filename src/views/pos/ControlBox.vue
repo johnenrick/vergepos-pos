@@ -1,7 +1,7 @@
 <template>
   <div class="row pb-3">
     <div class="col-12 col-md-9">
-      <button @click="toggleFullscreen" class="btn btn-lg btn-outline-dark mr-1" :title="isFullscreen ? 'Minimize Screen' : 'Full Screen'"><fa :icon="!isFullscreen ? 'window-maximize' : 'window-minimize'" /></button>
+      <button @click="toggleFullscreen" class="btn btn-lg btn-outline-dark mr-1" :title="isFullscreen ? 'Minimize Screen' : 'Full Screen'"><fa :icon="!isFullscreen2 ? 'window-maximize' : 'window-minimize'" /></button>
       <button @click="refreshApp" class="btn btn-lg btn-outline-dark mr-1" title="Refresh the app">
         <fa :icon="'redo'" />
       </button>
@@ -82,6 +82,11 @@ export default {
       this.apiRequest('test-connnection', { limit: 1 }, response => {
         this.connectionSpeed = (new Date()).getTime() - testStart
       })
+    }
+  },
+  computed: {
+    isFullscreen2(){
+      return ToggleFullscreen.store.getters.isFullscreen
     }
   }
 }
