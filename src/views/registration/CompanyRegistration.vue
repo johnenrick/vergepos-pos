@@ -138,7 +138,13 @@ export default {
                 }
               }
             }
-          }
+          },
+          'user.pin': {
+            name: 'PIN',
+            config: {
+              maxlength: 4
+            }
+          },
         }
 
       }
