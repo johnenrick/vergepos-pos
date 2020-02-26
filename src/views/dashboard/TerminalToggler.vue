@@ -6,8 +6,11 @@
         <small>Set this machine as a Terminal. By doing so, it will allow you to use the POS even if you dont have internet connection. </small>
         <terminal-selection ref="terminalSelection" />
       </div>
-      <div v-else class="bg-info text-white p-2 rounded">
-        <fa icon="info-circle" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and offline log in has been enabled. <a @click.stop="openRemoveTerminal" href="#" class="text-white font-weight-bold">Undo</a>
+      <div v-else>
+        <backup-database></backup-database>
+        <div class="bg-info text-white p-2 rounded">
+          <fa icon="info-circle" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and offline log in has been enabled. <a @click.stop="openRemoveTerminal" href="#" class="text-white font-weight-bold">Undo</a>
+        </div>
       </div>
     </div>
     <div v-else class="mb-4">
@@ -35,10 +38,13 @@ import UserStore from '@/vue-web-core/system/store'
 import TransactionNumber from '@/database/controller/transaction-number'
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
 import UpSync from '@/system/upSync'
+import BackupDatabase from '@/components/BackupDatabase'
+
 export default {
   components: {
     TerminalSelection,
-    Modal
+    Modal,
+    BackupDatabase
   },
   data(){
     return {
