@@ -1,9 +1,11 @@
 <template>
   <div class="section">
-    <basic-module v-if="!isOffline && isOffline !== null" :config="config" />
-    <template v-else>
+   <basic-module v-if="isOffline === false && isOffline !== null" :config="config" />
+    <template v-else-if="isOffline === true && isOffline !== null">
       <h2>Product List<small>(Offline)</small></h2>
       <product-list-offline  />
+    </template>
+    <template v-else><h2>Checking Connectivity. Please wait...</h2>
     </template>
   </div>
 </template>
