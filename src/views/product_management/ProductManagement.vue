@@ -5,7 +5,9 @@
       <h2>Product List<small>(Offline)</small></h2>
       <product-list-offline  />
     </template>
-    <template v-else><h2>Checking Connectivity. Please wait...</h2>
+    <template v-else>
+      <h2>Product Management</h2>
+      <p><fa icon="hourglass-half" /> Checking connectivity. Please wait...</p>
     </template>
   </div>
 </template>
