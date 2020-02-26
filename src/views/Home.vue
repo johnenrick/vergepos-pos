@@ -124,6 +124,7 @@ export default {
         success: (response) => {
           if(localStorage.getItem('company_id') * 1 !== response.data.user.company_id * 1){
             localStorage.removeItem('is_terminal')
+            this.removeTerminal()
           }
           localStorage.setItem('company_id', response.data.user.company_id)
           localStorage.setItem('user_id', response.data.user.id)
@@ -139,6 +140,12 @@ export default {
           this.isOffline = true
         }
         this.isLoading = false
+      })
+    },
+    async removeTerminal(){
+      const dbs = await window.indexedDB.databases()
+      dbs.forEach(db => {
+        window.indexedDB.deleteDatabase(db.name)
       })
     },
     redirect(){
