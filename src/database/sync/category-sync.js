@@ -37,11 +37,11 @@ export default class CategorySync extends Sync{
             }
             category.get(idbParam).then((result) => {
               if (response['data'][x]['deleted_at'] && result.length) {
-                category.delete(result[0]['id']).then(() => {
+                category.delete(result[0]['id'] * 1).then(() => {
                   counter++
                 })
               } else if (result.length && response['data'][x]['deleted_at']) {
-                category.delete(result[0]['id']).then(() => {
+                category.delete(result[0]['id'] * 1).then(() => {
                   counter++
                 })
               } else if (result.length) {
@@ -50,6 +50,7 @@ export default class CategorySync extends Sync{
                   counter++
                 })
               } else if (!result.length && !response['data'][x]['deleted_at']) {
+                console.log('Adding Product to iDB', result, response['data'][x]['id'])
                 category.add(categoryData).then(() => {
                   counter++
                 })

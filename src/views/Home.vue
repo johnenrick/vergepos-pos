@@ -122,7 +122,7 @@ export default {
         params: { email: this.username, password: this.password },
         rememberMe: false,
         success: (response) => {
-          if(localStorage.getItem('company_id') !== response.data.user.company_id){
+          if(localStorage.getItem('company_id') * 1 !== response.data.user.company_id * 1){
             localStorage.removeItem('is_terminal')
           }
           localStorage.setItem('company_id', response.data.user.company_id)
