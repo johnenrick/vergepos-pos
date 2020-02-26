@@ -94,7 +94,7 @@
     </div>
     <div v-if="toVoid">
       <div class="pt-2 mt-2">
-        <input v-model="remarks" type="text" placeholder="Remarks" class="form-control">
+        <input v-model="remarks" type="text" placeholder="Remarks" class="form-control" required>
       </div>
       <div class="input-group mt-2 pt-2">
         <select class="form-control" v-model="selected">
@@ -289,34 +289,42 @@ export default {
     },
     voidTransaction(){
       this.voidErrorMessage = ''
-      if(this.pin === this.selected.pin){
-        this.transactionDB.update({
-          id: this.transactionDetail.id,
-          status: 2
-        }).then((result) => {
-          let transactionNumberEntry = {
-            db_id: 0,
-            operation: 1,
-            store_terminal_id: localStorage.getItem('is_terminal') * 1,
-            user_id: localStorage.getItem('user_id') * 1
-          }
-
-          this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
-            let transactionvoidEntry = {
-              transaction_id: this.transactionNumber,
-              transaction_number_id: transactionNumberResult['id'] * 1,
-              db_id: 0,
-              remarks: this.remarks
-            }
-            this.transactionVoidDB.add(transactionvoidEntry).then((response) => {
-              this.transactionDetail.status = 2
-              this.voidErrorMessage = null
-              this.toVoid = false
-            })
-          })
-        })
+      if(this.remarks === ''){
+        this.voidErrorMessage = ' Remarks field is required'
       }else{
-        this.voidErrorMessage = 'PIN Is Incorrect'
+        if(this.selected === null){
+          this.voidErrorMessage = ' Please Select a Manager'
+        }else{
+          if(this.pin === this.selected.pin){
+            this.transactionDB.update({
+              id: this.transactionDetail.id,
+              status: 2
+            }).then((result) => {
+              let transactionNumberEntry = {
+                db_id: 0,
+                operation: 1,
+                store_terminal_id: localStorage.getItem('is_terminal') * 1,
+                user_id: localStorage.getItem('user_id') * 1
+              }
+
+              this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
+                let transactionvoidEntry = {
+                  transaction_id: this.transactionNumber,
+                  transaction_number_id: transactionNumberResult['id'] * 1,
+                  db_id: 0,
+                  remarks: this.remarks
+                }
+                this.transactionVoidDB.add(transactionvoidEntry).then((response) => {
+                  this.transactionDetail.status = 2
+                  this.voidErrorMessage = null
+                  this.toVoid = false
+                })
+              })
+            })
+          }else{
+            this.voidErrorMessage = ' PIN Is Incorrect'
+          }
+        }
       }
     },
     reset(){
