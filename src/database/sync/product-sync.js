@@ -12,7 +12,8 @@ export default class ProductSync extends Sync{
         4: 'price',
         5: 'short_description',
         6: 'category_id',
-        7: 'barcode'
+        7: 'barcode',
+        8: 'created_at'
       },
       condition: [{
         column: 'updated_at',
@@ -28,21 +29,35 @@ export default class ProductSync extends Sync{
           let counter = 0
           let maxCount = response['data'].length
           for (let x in response['data']) {
-            product.getByIndex('db_id', response['data'][x]['id']).then((result) => {
-              if (response['data'][x]['deleted_at'] && result) {
-                product.delete(result[0].id).then(result => {
+            let idbParam = {
+              where: {
+                db_id: response['data'][x]['id'] * 1
+              }
+            }
+            let productData = {
+              db_id: response['data'][x]['id'] * 1,
+              description: response['data'][x]['description'],
+              barcode: response['data'][x]['barcode'],
+              category_id: response['data'][x]['category_id'] * 1,
+              price: response['data'][x]['price'] * 1,
+              cost: response['data'][x]['cost'] * 1,
+            }
+            product.get(idbParam).then((result) => {
+              if (response['data'][x]['deleted_at'] && result.length) {
+                product.delete(result[0].id).then(() => {
                   counter++
                 })
-              } else if (result && response['data'][x]['deleted_at']) {
-                product.delete(result[0].id).then(result => {
+              } else if (result.length && response['data'][x]['deleted_at']) {
+                product.delete(result[0].id).then(() => {
                   counter++
                 })
-              } else if (result) {
-                product.update(this.newProductDetail(response['data'][x], result[0])).then(result => {
+              } else if (result.length) {
+                productData['id'] = result[0]['id']
+                product.update(productData).then(() => {
                   counter++
                 })
-              } else if (!result && !response['data'][x]['deleted_at']) {
-                product.add(this.newProductDetail(response['data'][x])).then(result => {
+              } else if (!result.length && !response['data'][x]['deleted_at']) {
+                product.add(productData).then(() => {
                   counter++
                 })
               }else{
@@ -64,15 +79,5 @@ export default class ProductSync extends Sync{
         return error
       })
     })
-  }
-  newProductDetail(dbProduct, idProduct = {}){
-    idProduct.db_id = dbProduct['id']
-    idProduct.description = dbProduct['description']
-    idProduct.barcode = dbProduct['barcode']
-    idProduct.cost = dbProduct['cost'] * 1
-    idProduct.price = dbProduct['price'] * 1
-    idProduct.short_description = dbProduct['short_description']
-    idProduct.category_id = dbProduct['category_id'] * 1
-    return idProduct
   }
 }

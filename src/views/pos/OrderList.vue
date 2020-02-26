@@ -242,7 +242,7 @@ export default {
 </script>
 <style scoped>
 #container{
-  min-height: 300px; overflow-y: scroll
+  min-height: 185px; overflow-y: scroll
 }
 /* width */
 #container::-webkit-scrollbar {

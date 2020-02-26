@@ -56,7 +56,7 @@
       ref="container"
       id="container"
       :style="{'max-height': containerHeight}"
-      style="min-height:300px; overflow-y:scroll"
+      style="min-height:235px; overflow-y:scroll"
       class="pb-2"
     >
       <div class="row align-items-center mx-0 px-2">
@@ -226,7 +226,7 @@ export default {
 @import "@/assets/style/custom-theme.scss";
 
 #container{
-  min-height: 300px; overflow-y: scroll
+  min-height: 100px; overflow-y: scroll
 }
 /* width */
 #container::-webkit-scrollbar {
@@ -268,5 +268,9 @@ export default {
 .itemContainer .border-primary:active:hover {
   background-color:$primary;
   color: white!important
+}
+
+.overlay {
+  z-index: -1
 }
 </style>

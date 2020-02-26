@@ -11,6 +11,7 @@ export default class UserSync extends Sync{
         2: 'status',
         3: 'updated_at',
         4: 'deleted_at',
+        5: 'created_at',
         user_basic_information: {
           select: ['first_name', 'last_name']
         },
@@ -48,7 +49,9 @@ export default class UserSync extends Sync{
               is_admin: 0,
               user_roles: userRoles,
               first_name: response['data'][x]['user_basic_information'] ? response['data'][x]['user_basic_information']['first_name'] : null,
-              last_name: response['data'][x]['user_basic_information'] ? response['data'][x]['user_basic_information']['last_name'] : null
+              last_name: response['data'][x]['user_basic_information'] ? response['data'][x]['user_basic_information']['last_name'] : null,
+              created_at: response['data'][x]['created_at'],
+              updated_at: response['data'][x]['updated_at']
             }
             for(let y = 0; y < userRoles.length; y++){
               if(userRoles[y]['role_id'] * 1 === 101){ // cashier
@@ -66,16 +69,27 @@ export default class UserSync extends Sync{
             }
             user.get(idbParam).then((result) => {
               if (response['data'][x]['deleted_at'] && result.length) {
-                user.delete(result[0].id).then(result => {
+                user.delete(result[0].id).then(() => {
                   counter++
                 })
               } else if (result.length) {
-                userData['id'] = result[0]['id']
-                user.update(userData).then(result => {
-                  counter++
-                })
+                if((new Date(userData['updated_at'])).getTime() < result[0]['updated_at']){
+                  userData['pin'] = result[0]['pin']
+                  this.updateUser(userData).then(response => {
+                    if(!response['data']){
+                      console.error('failed to sync new pin', response)
+                    }
+                  }).finally(() => {
+                    counter++
+                  })
+                }else{
+                  userData['id'] = result[0]['id']
+                  user.update(userData).then(() => {
+                    counter++
+                  })
+                }
               } else if (!result.length && !response['data'][x]['deleted_at']) {
-                user.add(userData).then(result => {
+                user.add(userData).then(() => {
                   counter++
                 })
               }
@@ -95,5 +109,12 @@ export default class UserSync extends Sync{
         reject(error)
       })
     })
+  }
+  updateUser(userData){
+    let param = {
+      id: userData['db_id'],
+      pin: userData['pin'],
+    }
+    return this.retrieveAPIData('user/update', param)
   }
 }
