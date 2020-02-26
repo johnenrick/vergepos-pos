@@ -1,6 +1,5 @@
 <template>
   <div >
-    <h4 class="text-center">X Reading</h4>
     <reading-template
       ref="ReadingTemplate"
       :date="startDatetime"

@@ -1,7 +1,15 @@
 <template>
   <div class="" style="">
     <div id="printMe">
-      <table class="table">
+      <div class="text-center" :style="isPrinting ? printingStyle : ''">
+        <p :style="isPrinting ? printingStyle : ''">
+          <strong style="text-transform: uppercase">{{companyInformation.name}}</strong>
+          <span v-if="companyInformation.address !== null || companyInformation.address === ''"><br>{{companyInformation.address}}</span>
+          <span v-if="companyInformation.contact_number !== null"><br>{{companyInformation.contact_number}}</span>
+        </p>
+      </div>
+      <h4 class="text-center" :style="isPrinting ? printingStyle : ''">X Reading</h4>
+      <table class="table" :style="isPrinting ? printingStyle : ''">
         <tbody>
           <tr>
             <td>Date</td>
@@ -62,11 +70,19 @@
           </tr>
         </tbody>
       </table>
+      <div class="text-center" :style="isPrinting ? printingStyle : ''">
+        <p :style="isPrinting ? printingStyle : ''">
+          VergePOS<br>
+          vergepos.com<br>
+          Cebu City, Cebu
+        </p>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import Vue from 'vue'
+import store from '@/vue-web-core/system/store'
 import VueHtmlToPaper from 'vue-html-to-paper'
 
 const options = {
@@ -104,13 +120,24 @@ export default {
   },
   data(){
     return {
+      printingStyle: {
+        'width': '250px!important',
+        'font-size': '5pt!important',
+        'font-family': 'monospace!important'
+      },
+      isPrinting: false
     }
   },
   methods: {
     init(){
     },
     printXReading(){
-      this.$htmlToPaper('printMe')
+      this.isPrinting = true
+      setTimeout(() => {
+        this.$htmlToPaper('printMe', () => {
+          this.isPrinting = false
+        })
+      }, 1000)
     }
   },
   computed: {
@@ -122,6 +149,9 @@ export default {
     },
     currentGrandTotal(){
       return this.previousGrandTotal + this.grossAmount
+    },
+    companyInformation(){
+      return store.state.companyInformation ? store.state.companyInformation : null
     }
   },
   filters: {
