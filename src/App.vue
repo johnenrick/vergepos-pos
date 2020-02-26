@@ -1,5 +1,5 @@
 <template>
-  <div id="app" style="padding-top:56px">
+  <div id="app" style="padding-top:56px" @mouseover="isMouseOnPage = true" @mouseleave="isMouseOnPage = false">
     <modal ref="modal" :closeable="false">
       <template v-slot:body >
         <div class="text-center">
@@ -49,6 +49,16 @@ export default {
     HeaderMenu,
     Modal
   },
+  beforeCreate() {
+    window.addEventListener('beforeunload', event => {
+      console.log(localStorage.getItem('is_terminal'))
+      if(!this.isMouseOnPage){
+        if(localStorage.getItem('is_terminal') && localStorage.getItem('user_id')){
+          event.returnValue = 'Are you sure you want to close Verge POS?'
+        }
+      }
+    })
+  },
   mounted(){
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
@@ -81,7 +91,8 @@ export default {
       dataSynced: 0,
       navConfig: navigationConfig,
       sidebarMenu: Menu.side_menus,
-      headerMenu: Menu.header_menus
+      headerMenu: Menu.header_menus,
+      isMouseOnPage: false
     }
   },
   methods: {
