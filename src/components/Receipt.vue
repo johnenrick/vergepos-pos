@@ -2,16 +2,16 @@
   <div>
     <div v-if="errorMessage" class="text-danger text-center font-weight-bold border border-danger rounded py-2">{{errorMessage}}</div>
     <div :id="randomId" class="shadow p-2 mb-2" >
-      <div>
+      <div :style="isPrinting ? printingStyle : ''">
         <div class="text-center">
-        <p :style="isPrinting ? printingStyle : ''">
+        <p class="mb-0">
           <strong style="text-transform: uppercase">{{companyInformation.name}}</strong>
           <span v-if="companyInformation.address !== null || companyInformation.address === ''"><br>{{companyInformation.address}}</span>
           <span v-if="companyInformation.contact_number !== null"><br>{{companyInformation.contact_number}}</span>
         </p>
         </div>
         <br>
-        <table class="table table-sm" :style="isPrinting ? printingStyle : 'width:100%'">
+        <table class="table table-sm" style="width:100%">
           <tbody>
             <tr class="">
               <td class="text-uppercase" colspan="2">{{transactionDetail.datetime | toReadableDateTime}}</td>
@@ -19,7 +19,7 @@
             </tr>
           </tbody>
         </table>
-        <table class="table table-sm mb-1" :style="isPrinting ? printingStyle : 'width:100%'">
+        <table class="table table-sm mb-1" style="width:100%">
           <thead>
             <tr class="text-center">
               <th>Description</th>
@@ -37,7 +37,7 @@
             </template>
           </tbody>
         </table>
-        <table class="table table-sm topDivider mb-0 w-100" :style="isPrinting ? printingStyle : 'width:100%'">
+        <table class="table table-sm topDivider mb-0 w-100" style="width:100%">
           <tbody>
             <tr class="font-weight-bold" >
               <td>Subt Total</td>
@@ -78,7 +78,7 @@
           </tbody>
         </table>
         <br>
-        <div class="text-center"  :style="isPrinting ? printingStyle : ''">
+        <div class="text-center">
           <p>
             VergePOS<br>
             vergepos.com<br>
@@ -94,7 +94,7 @@
     </div>
     <div v-if="toVoid">
       <div class="pt-2 mt-2">
-        <input v-model="remarks" type="text" placeholder="Remarks" class="form-control">
+        <input v-model="remarks" type="text" placeholder="Remarks" class="form-control" required>
       </div>
       <div class="input-group mt-2 pt-2">
         <select class="form-control" v-model="selected">
@@ -163,9 +163,9 @@ export default {
       remarks: '',
       voidErrorMessage: null,
       printingStyle: {
-        'width': '250px!important',
-        'font-size': '5pt!important',
-        'font-family': 'monospace!important'
+        'width': '250px',
+        'font-size': '5pt',
+        'font-family': 'monospace'
       },
       transactionDetail: {
         id: null,
@@ -289,34 +289,42 @@ export default {
     },
     voidTransaction(){
       this.voidErrorMessage = ''
-      if(this.pin === this.selected.pin){
-        this.transactionDB.update({
-          id: this.transactionDetail.id,
-          status: 2
-        }).then((result) => {
-          let transactionNumberEntry = {
-            db_id: 0,
-            operation: 1,
-            store_terminal_id: localStorage.getItem('is_terminal') * 1,
-            user_id: localStorage.getItem('user_id') * 1
-          }
-
-          this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
-            let transactionvoidEntry = {
-              transaction_id: this.transactionNumber,
-              transaction_number_id: transactionNumberResult['id'] * 1,
-              db_id: 0,
-              remarks: this.remarks
-            }
-            this.transactionVoidDB.add(transactionvoidEntry).then((response) => {
-              this.transactionDetail.status = 2
-              this.voidErrorMessage = null
-              this.toVoid = false
-            })
-          })
-        })
+      if(this.remarks === ''){
+        this.voidErrorMessage = ' Remarks field is required'
       }else{
-        this.voidErrorMessage = 'PIN Is Incorrect'
+        if(this.selected === null){
+          this.voidErrorMessage = ' Please Select a Manager'
+        }else{
+          if(this.pin === this.selected.pin){
+            this.transactionDB.update({
+              id: this.transactionDetail.id,
+              status: 2
+            }).then((result) => {
+              let transactionNumberEntry = {
+                db_id: 0,
+                operation: 1,
+                store_terminal_id: localStorage.getItem('is_terminal') * 1,
+                user_id: localStorage.getItem('user_id') * 1
+              }
+
+              this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
+                let transactionvoidEntry = {
+                  transaction_id: this.transactionNumber,
+                  transaction_number_id: transactionNumberResult['id'] * 1,
+                  db_id: 0,
+                  remarks: this.remarks
+                }
+                this.transactionVoidDB.add(transactionvoidEntry).then((response) => {
+                  this.transactionDetail.status = 2
+                  this.voidErrorMessage = null
+                  this.toVoid = false
+                })
+              })
+            })
+          }else{
+            this.voidErrorMessage = ' PIN Is Incorrect'
+          }
+        }
       }
     },
     reset(){
