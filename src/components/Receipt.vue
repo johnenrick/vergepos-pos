@@ -109,7 +109,7 @@
           <button @click="toVoid = false" class="btn btn-outline-primary"><fa :icon="'times'" /> </button>
         </div>
       </div>
-      <span v-if="voidErrorMessage">{{voidErrorMessage}}</span>
+      <span class="text-danger" v-if="voidErrorMessage">&nbsp;<fa icon="exclamation-triangle"/>{{voidErrorMessage}}</span>
     </div>
   </div>
 </template>
@@ -279,6 +279,10 @@ export default {
     },
     triggerVoid(){
       this.toVoid = true
+      this.remarks = ''
+      this.selected = null
+      this.pin = ''
+      this.voidErrorMessage = ''
       this.userDB.get({
         where: {
           is_manager: 1
