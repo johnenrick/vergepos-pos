@@ -1,7 +1,7 @@
 <template>
     <div>
-      <div class="bg-secondary text-white p-2 mb-3 rounded">
-          <fa icon="info-circle" /> It is strongly recommend that you <strong><a href="#" @click="exportDatabase"><u>EXPORT</u></a></strong> your data to have a backup incase anything happens
+      <div class="bg-warning text-white p-2 mb-3 rounded">
+          <fa icon="info-circle" /> It is strongly recommend that you export your data to have a backup incase anything happens .You can either click the <strong><a href="#" @click="exportDatabase"><u>EXPORT</u></a></strong> text or click the <button class="btn btn-sm btn-primary">EXPORT</button> button
       </div>
       <div>
         <modal ref="exportOfflineData" :closeable="false">
