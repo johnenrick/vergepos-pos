@@ -48,6 +48,20 @@
       ref='graph'
       :dataProp="transactionProducts"
       />
+      <!-- <line-graph
+        v-show="selectedReport === 'daily'"
+        :ref="lineGraph"
+        :dataProp="dailyTransactionProduct"
+        :newStartProp="startDateTimeFilter"
+        :newEndProp="endDateTimeFilter"
+      />
+      <monthly-line-graph
+        v-show="selectedReport === 'monthly'"
+        :ref="MonthlyLineGraph"
+        :dataProp="monthlyTransactionProduct"
+        :newStartProp="startDateTimeFilter"
+        :newEndProp="endDateTimeFilter"
+      /> -->
     </div>
     <div class="row">
       <div class="col-12">
@@ -79,6 +93,8 @@ import Vuetable from 'vuetable-2/src/components/Vuetable' // https://ratiw.githu
 import VueSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import Product from '@/database/controller/product.js'
+// import LineGraph from '@/views/terminal_reports/product-performance-components/LineGraph'
+// import MonthlyLineGraph from '@/views/terminal_reports/product-performance-components/MonthlyLineGraph'
 
 export default {
   components: {
@@ -101,6 +117,7 @@ export default {
       transactions: [],
       transactionProducts: [],
       dailyTransactionProducts: {},
+      monthlyTransactionProduct: {},
       weeklyTransactionProducts: [],
       sumTransaction: [],
       totalDiscount: 0,
@@ -115,7 +132,7 @@ export default {
             dataClass: 'text-center',
             callback: (value) => {
               // return (new Date(value * 1000)).toLocaleString("en-US");
-              return value !== 'N/A' ? new Date(value).toUTCString().split(' ').slice(0, 5).join(' ') : ' '
+              return value !== 'N/A' ? new Date(value).toUTCString().split(' ').slice(0, 5).join(' ') : value
             }
           },
           {
@@ -243,7 +260,7 @@ export default {
             }
             console.log('ALLTIME', this.transactionProducts)
           }
-        }else {
+        }else if(this.selectedReport === 'daily'){
           if(response.length !== 0){
             if(this.selectFilterValue.length !== 0){
               for(let x = 0; x < response.length; x++){
@@ -297,7 +314,7 @@ export default {
                 let prepareData = []
 
                 if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
-                  for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr < new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
+                  for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr <= new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
                     let data = {
                       x: '',
                       y: 0
@@ -312,7 +329,6 @@ export default {
 
                     prepareData.push(data)
                   }
-                  console.log('PREPARED DATA', prepareData)
 
                   this.dailyTransactionProducts[response[x]['product_id']] = {
                     description: response[x]['description'],
@@ -333,7 +349,57 @@ export default {
             }
             console.log('DAILY', this.dailyTransactionProducts)
           }
+        }else if(this.selectedReport === 'monthly') {
+          let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
+          let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
+          let month = ['Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
+          let prepareData = []
+          let filteredData = response
+
+          if(this.selectFilterValue.length !== 0){
+            filteredData = []
+            for(let x = 0; x < response.length; x++){
+              for(let y = 0; y < this.selectFilterValue.length; y++){
+                if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
+                  filteredData.push(response[x])
+                }
+              }
+            }
+          }
+
+          for(let ctr = new Date(startDatetimeFilter).getMonth(); ctr <= new Date(endDatetimeFilter).getMonth(); ctr++){
+            let sampleData = []
+            this.monthlyTransactionProduct = {}
+            for(let responseCtr = 0; responseCtr < filteredData.length; responseCtr++){
+              let tempDate = new Date(filteredData[responseCtr]['created_at']).toString().split(' ').slice(0, 5).join(' ')
+              if(new Date(tempDate).getMonth() === ctr){
+                sampleData.push(filteredData[responseCtr])
+              }
+            }
+            for(let x = 0; x < sampleData.length; x++){
+              if(typeof this.monthlyTransactionProduct[sampleData[x]['product_id']] === 'undefined'){
+                let tempDate = new Date(sampleData[x]['created_at']).toString().split(' ').slice(0, 5).join(' ')
+                this.monthlyTransactionProduct[sampleData[x]['product_id']] = {
+                  product_id: sampleData[x]['product_id'],
+                  description: sampleData[x]['description'],
+                  data: {
+                    x: month[new Date(tempDate).getMonth()],
+                    y: sampleData[x]['quantity']
+                  }
+                }
+              }else{
+                for(let index in this.monthlyTransactionProduct){
+                  if(index * 1 === sampleData[x]['product_id'] * 1) {
+                    this.monthlyTransactionProduct[index]['data'].y += sampleData[x]['quantity']
+                  }
+                }
+              }
+            }
+            prepareData.push(this.monthlyTransactionProduct)
+          }
+          console.log('MONTH DATA', prepareData)
         }
+
         /* else { // else if(this.selectedReport == 'hourly'){
           if(this.selectFilterValue.length !== 0){
             for(let x = 0; x < response.length; x++){
