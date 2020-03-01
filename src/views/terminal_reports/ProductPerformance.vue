@@ -48,7 +48,7 @@
       ref='graph'
       :dataProp="transactionProducts"
       />
-      <!-- <line-graph
+      <line-graph
         v-show="selectedReport === 'daily'"
         :ref="lineGraph"
         :dataProp="dailyTransactionProduct"
@@ -61,7 +61,7 @@
         :dataProp="monthlyTransactionProduct"
         :newStartProp="startDateTimeFilter"
         :newEndProp="endDateTimeFilter"
-      /> -->
+      />
     </div>
     <div class="row">
       <div class="col-12">
@@ -93,15 +93,17 @@ import Vuetable from 'vuetable-2/src/components/Vuetable' // https://ratiw.githu
 import VueSelect from 'vue-select'
 import 'vue-select/dist/vue-select.css'
 import Product from '@/database/controller/product.js'
-// import LineGraph from '@/views/terminal_reports/product-performance-components/LineGraph'
-// import MonthlyLineGraph from '@/views/terminal_reports/product-performance-components/MonthlyLineGraph'
+import LineGraph from '@/views/terminal_reports/product-performance-components/LineGraph'
+import MonthlyLineGraph from '@/views/terminal_reports/product-performance-components/MonthlyLineGraph'
 
 export default {
   components: {
     Vuetable,
     Datetime,
     VueSelect,
-    TransactionGraph
+    TransactionGraph,
+    LineGraph,
+    MonthlyLineGraph
   },
   mounted(){
     this.init()
