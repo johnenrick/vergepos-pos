@@ -371,37 +371,68 @@ export default {
             }
           }
 
-          for(let ctr = new Date(startDatetimeFilter).getMonth(); ctr <= new Date(endDatetimeFilter).getMonth(); ctr++){
-            let sampleData = []
-            this.monthlyTransactionProduct = {}
-            for(let responseCtr = 0; responseCtr < filteredData.length; responseCtr++){
-              let tempDate = new Date(filteredData[responseCtr]['created_at']).toString().split(' ').slice(0, 5).join(' ')
-              if(new Date(tempDate).getMonth() === ctr){
-                sampleData.push(filteredData[responseCtr])
+          // for(let ctr = new Date(startDatetimeFilter).getMonth(); ctr <= new Date(endDatetimeFilter).getMonth(); ctr++){
+          //   let sampleData = []
+          //   this.monthlyTransactionProduct = {}
+          //   for(let responseCtr = 0; responseCtr < filteredData.length; responseCtr++){
+          //     let tempDate = new Date(filteredData[responseCtr]['created_at']).toString().split(' ').slice(0, 5).join(' ')
+          //     if(new Date(tempDate).getMonth() === ctr){
+          //       sampleData.push(filteredData[responseCtr])
+          //     }
+          //   }
+          //   for(let x = 0; x < sampleData.length; x++){
+          //     if(typeof this.monthlyTransactionProduct[sampleData[x]['product_id']] === 'undefined'){
+          //       let tempDate = new Date(sampleData[x]['created_at']).toString().split(' ').slice(0, 5).join(' ')
+          //       this.monthlyTransactionProduct[sampleData[x]['product_id']] = {
+          //         product_id: sampleData[x]['product_id'],
+          //         description: sampleData[x]['description'],
+          //         data: {
+          //           x: month[new Date(tempDate).getMonth()],
+          //           y: sampleData[x]['quantity']
+          //         }
+          //       }
+          //     }else{
+          //       for(let index in this.monthlyTransactionProduct){
+          //         if(index * 1 === sampleData[x]['product_id'] * 1) {
+          //           this.monthlyTransactionProduct[index]['data'].y += sampleData[x]['quantity']
+          //         }
+          //       }
+          //     }
+          //   }
+          //   prepareData.push(this.monthlyTransactionProduct)
+          // }
+          for(let x = 0; x < filteredData.length; x++){
+            prepareData = []
+            if(typeof this.monthlyTransactionProduct[filteredData[x]['product_id']] === 'undefined'){
+              for(let ctr = new Date(startDatetimeFilter).getMonth(), i = 0; ctr <= new Date(endDatetimeFilter).getMonth(); ctr++, i++){
+                console.log(new Date(startDatetimeFilter).getMonth())
+                console.log(new Date(endDatetimeFilter).getMonth())
+                let data = {
+                  x: '',
+                  y: 0
+                }
+                if(new Date(startDatetimeFilter).getMonth() + i === new Date(filteredData[x]['created_at']).getMonth()){
+                  Vue.set(data, 'y', filteredData[x]['quantity'])
+                }
+                Vue.set(data, 'x', month[new Date(startDatetimeFilter).getMonth() + i])
+                prepareData.push(data)
               }
-            }
-            for(let x = 0; x < sampleData.length; x++){
-              if(typeof this.monthlyTransactionProduct[sampleData[x]['product_id']] === 'undefined'){
-                let tempDate = new Date(sampleData[x]['created_at']).toString().split(' ').slice(0, 5).join(' ')
-                this.monthlyTransactionProduct[sampleData[x]['product_id']] = {
-                  product_id: sampleData[x]['product_id'],
-                  description: sampleData[x]['description'],
-                  data: {
-                    x: month[new Date(tempDate).getMonth()],
-                    y: sampleData[x]['quantity']
+
+              this.monthlyTransactionProduct[filteredData[x]['product_id']] = {
+                description: filteredData[x]['description'],
+                data: prepareData
+              }
+            }else {
+              for(let index in this.monthlyTransactionProduct){
+                for(let i = 0; i < this.monthlyTransactionProduct[index]['data'].length; i++) {
+                  if(index * 1 === filteredData[x]['product_id'] * 1 && new Date(this.monthlyTransactionProduct[index]['data'][i].x).getMonth() === new Date(filteredData[x]['created_at']).getMonth()) {
+                    this.monthlyTransactionProduct[index]['data'][i].y += filteredData[x]['quantity']
                   }
                 }
-              }else{
-                for(let index in this.monthlyTransactionProduct){
-                  if(index * 1 === sampleData[x]['product_id'] * 1) {
-                    this.monthlyTransactionProduct[index]['data'].y += sampleData[x]['quantity']
-                  }
-                }
               }
             }
-            prepareData.push(this.monthlyTransactionProduct)
           }
-          console.log('MONTH DATA', prepareData)
+          console.log('MONTH DATA', this.monthlyTransactionProduct)
         }else if(this.selectedReport === 'yearly') {
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -418,37 +449,67 @@ export default {
               }
             }
           }
-          for(let ctr = new Date(startDatetimeFilter).getFullYear(); ctr <= new Date(endDatetimeFilter).getFullYear(); ctr++){
-            let sampleData = []
-            this.yearlyTransactionProducts = {}
-            for(let responseCtr = 0; responseCtr < filteredData.length; responseCtr++){
-              let tempDate = new Date(filteredData[responseCtr]['created_at']).toString().split(' ').slice(0, 5).join(' ')
-              if(new Date(tempDate).getFullYear() === ctr){
-                sampleData.push(filteredData[responseCtr])
+          // for(let ctr = new Date(startDatetimeFilter).getFullYear(); ctr <= new Date(endDatetimeFilter).getFullYear(); ctr++){
+          //   let sampleData = []
+          //   this.yearlyTransactionProducts = {}
+          //   for(let responseCtr = 0; responseCtr < filteredData.length; responseCtr++){
+          //     let tempDate = new Date(filteredData[responseCtr]['created_at']).toString().split(' ').slice(0, 5).join(' ')
+          //     if(new Date(tempDate).getFullYear() === ctr){
+          //       sampleData.push(filteredData[responseCtr])
+          //     }
+          //   }
+          //   for(let x = 0; x < sampleData.length; x++){
+          //     if(typeof this.yearlyTransactionProducts[sampleData[x]['product_id']] === 'undefined'){
+          //       let tempDate = new Date(sampleData[x]['created_at']).toString().split(' ').slice(0, 5).join(' ')
+          //       this.yearlyTransactionProducts[sampleData[x]['product_id']] = {
+          //         product_id: sampleData[x]['product_id'],
+          //         description: sampleData[x]['description'],
+          //         data: {
+          //           x: new Date(tempDate).getFullYear(),
+          //           y: sampleData[x]['quantity']
+          //         }
+          //       }
+          //     }else{
+          //       for(let index in this.yearlyTransactionProducts){
+          //         if(index * 1 === sampleData[x]['product_id'] * 1) {
+          //           this.yearlyTransactionProducts[index]['data'].y += sampleData[x]['quantity']
+          //         }
+          //       }
+          //     }
+          //   }
+          //   prepareData.push(this.yearlyTransactionProducts)
+          // }
+
+          for(let x = 0; x < filteredData.length; x++){
+            prepareData = []
+            if(typeof this.yearlyTransactionProducts[filteredData[x]['product_id']] === 'undefined'){
+              for(let ctr = new Date(startDatetimeFilter).getFullYear(), i = 0; ctr <= new Date(endDatetimeFilter).getFullYear(); ctr++, i++){
+                let data = {
+                  x: '',
+                  y: 0
+                }
+                if(new Date(startDatetimeFilter).getFullYear() + i === new Date(filteredData[x]['created_at']).getFullYear()){
+                  Vue.set(data, 'y', filteredData[x]['quantity'])
+                }
+                Vue.set(data, 'x', new Date(startDatetimeFilter).getFullYear() + i)
+                prepareData.push(data)
               }
-            }
-            for(let x = 0; x < sampleData.length; x++){
-              if(typeof this.yearlyTransactionProducts[sampleData[x]['product_id']] === 'undefined'){
-                let tempDate = new Date(sampleData[x]['created_at']).toString().split(' ').slice(0, 5).join(' ')
-                this.yearlyTransactionProducts[sampleData[x]['product_id']] = {
-                  product_id: sampleData[x]['product_id'],
-                  description: sampleData[x]['description'],
-                  data: {
-                    x: new Date(tempDate).getFullYear(),
-                    y: sampleData[x]['quantity']
+
+              this.yearlyTransactionProducts[filteredData[x]['product_id']] = {
+                description: filteredData[x]['description'],
+                data: prepareData
+              }
+            }else {
+              for(let index in this.yearlyTransactionProducts){
+                for(let i = 0; i < this.yearlyTransactionProducts[index]['data'].length; i++) {
+                  if(index * 1 === filteredData[x]['product_id'] * 1 && new Date(this.yearlyTransactionProducts[index]['data'][i].x).getFullYear() === new Date(filteredData[x]['created_at']).getFullYear()) {
+                    this.yearlyTransactionProducts[index]['data'][i].y += filteredData[x]['quantity']
                   }
                 }
-              }else{
-                for(let index in this.yearlyTransactionProducts){
-                  if(index * 1 === sampleData[x]['product_id'] * 1) {
-                    this.yearlyTransactionProducts[index]['data'].y += sampleData[x]['quantity']
-                  }
-                }
               }
             }
-            prepareData.push(this.yearlyTransactionProducts)
           }
-          console.log('YEAR DATA', prepareData)
+          console.log('YEAR DATA', this.yearlyTransactionProducts)
         } else if(this.selectedReport === 'hourly'){
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
