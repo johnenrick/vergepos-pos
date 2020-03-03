@@ -59,8 +59,8 @@
         v-show="selectedReport === 'monthly'"
         :ref="MonthlyLineGraph"
         :dataProp="monthlyTransactionProduct"
-        :newStartProp="startDateTimeFilter"
-        :newEndProp="endDateTimeFilter"
+        :newStartProp="startDatetimeFilter"
+        :newEndProp="endDatetimeFilter"
       />
     </div>
     <div class="row">
@@ -121,6 +121,7 @@ export default {
       dailyTransactionProducts: {},
       monthlyTransactionProduct: {},
       weeklyTransactionProducts: [],
+      yearlyTransactionProducts: {},
       sumTransaction: [],
       totalDiscount: 0,
       totalAmount: 0,
@@ -400,6 +401,53 @@ export default {
             prepareData.push(this.monthlyTransactionProduct)
           }
           console.log('MONTH DATA', prepareData)
+        }else if(this.selectedReport === 'yearly') {
+          let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
+          let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
+          let prepareData = []
+          let filteredData = response
+
+          if(this.selectFilterValue.length !== 0){
+            filteredData = []
+            for(let x = 0; x < response.length; x++){
+              for(let y = 0; y < this.selectFilterValue.length; y++){
+                if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
+                  filteredData.push(response[x])
+                }
+              }
+            }
+          }
+          for(let ctr = new Date(startDatetimeFilter).getFullYear(); ctr <= new Date(endDatetimeFilter).getFullYear(); ctr++){
+            let sampleData = []
+            this.yearlyTransactionProducts = {}
+            for(let responseCtr = 0; responseCtr < filteredData.length; responseCtr++){
+              let tempDate = new Date(filteredData[responseCtr]['created_at']).toString().split(' ').slice(0, 5).join(' ')
+              if(new Date(tempDate).getFullYear() === ctr){
+                sampleData.push(filteredData[responseCtr])
+              }
+            }
+            for(let x = 0; x < sampleData.length; x++){
+              if(typeof this.yearlyTransactionProducts[sampleData[x]['product_id']] === 'undefined'){
+                let tempDate = new Date(sampleData[x]['created_at']).toString().split(' ').slice(0, 5).join(' ')
+                this.yearlyTransactionProducts[sampleData[x]['product_id']] = {
+                  product_id: sampleData[x]['product_id'],
+                  description: sampleData[x]['description'],
+                  data: {
+                    x: new Date(tempDate).getFullYear(),
+                    y: sampleData[x]['quantity']
+                  }
+                }
+              }else{
+                for(let index in this.yearlyTransactionProducts){
+                  if(index * 1 === sampleData[x]['product_id'] * 1) {
+                    this.yearlyTransactionProducts[index]['data'].y += sampleData[x]['quantity']
+                  }
+                }
+              }
+            }
+            prepareData.push(this.yearlyTransactionProducts)
+          }
+          console.log('YEAR DATA', prepareData)
         }
 
         /* else { // else if(this.selectedReport == 'hourly'){
