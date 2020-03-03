@@ -30,6 +30,7 @@
 import 'bootstrap'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/assets/style/custom-theme.scss'
+import '@/vue-web-core/assets/style/util.scss'
 import store from '@/vue-web-core/system/store'
 import navigationConfig from '@/vue-web-core/components/common/navigation/config.js'
 import HeaderMenu from '@/vue-web-core/components/common/navigation/HeaderMenu.vue'
@@ -68,16 +69,13 @@ export default {
           // TODO Diri ang problema kay dili siya ready
           console.log('online login ready')
           store.dispatch('setUserInformation')
-          this.sync()
         }else{ // Online but not logged in
           console.log('online - log out 2')
           store.dispatch('setUserInformation')
-          this.sync()
         }
       }).catch((status) => { // Offline
         console.log('offline', status)
         store.dispatch('setUserInformationOffline')
-        this.sync()
       }).finally(() => {
       })
     })
@@ -159,7 +157,9 @@ export default {
   },
   watch: {
     userID(newData){
-      this.sync()
+      if(newData){
+        this.sync()
+      }
     }
   },
   computed: {

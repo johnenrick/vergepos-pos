@@ -1,6 +1,6 @@
 <template>
   <div class="">
-    <div v-if="isTerminal" class="row no-gutters">
+    <div v-show="isTerminal" class="row no-gutters">
       <div class="col-12 col-sm-12 col-md-5">
         <order-list ref="orderList" />
       </div>
@@ -9,7 +9,7 @@
         <product-list ref="productList"/>
       </div>
     </div>
-    <div v-else class="text-center pt-4">
+    <div v-show="!isTerminal" class="text-center pt-4">
       <big class="border rounded p-3 border-warning">
         <fa class="text-warning" icon="exclamation-triangle" /> This device is not a terminal. Just go back to the <router-link to="/" class="font-weight-bold" >Dashboard</router-link> and click <strong class="badge badge-secondary badge-lg p-2"><big > <fa icon="cash-register" /> Set As Terminal</big></strong> button
       </big>
@@ -28,7 +28,9 @@ export default {
     ControlBox
   },
   mounted () {
-    // this.postSync()
+    if(this.isSynching === false){
+      this.postSync()
+    }
   },
   beforeDestroy () {
   },
@@ -39,20 +41,17 @@ export default {
     }
   },
   computed: {
-    isSynching: {
-      get: function(){
-        if(SyncStore.state.isSynching === false){
-          this.postSync()
-        }
-        return SyncStore.state.isSynching
-      }
+    isSynching(){
+      return SyncStore.state.isSynching
     }
   },
   watch: {
-    // isSynching(newData){
-    //   console.log('watching', newData)
-    //   this.postSync()
-    // }
+    isSynching(newData){
+      console.log('watching', newData)
+      if(newData === false){
+        this.postSync()
+      }
+    }
   },
   methods: {
     postSync(){

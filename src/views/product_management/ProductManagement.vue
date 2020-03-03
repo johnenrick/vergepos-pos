@@ -1,6 +1,11 @@
 <template>
   <div class="section">
-   <basic-module v-if="isOffline === false && isOffline !== null" :config="config" />
+    <div v-if="isTerminal" class="text-center mt-3">
+      <span class="alert border-warning text-warning">
+        <fa icon="exclamation-triangle"/> Changes on the data only applies to <strong>Terminal</strong> after refreshing it <a class="c-pointer" onclick="window.location.reload(true)"><fa icon="undo" /></a>
+      </span>
+    </div>
+    <basic-module v-if="isOffline === false && isOffline !== null" :config="config" />
     <template v-else-if="isOffline === true && isOffline !== null">
       <h2>Product List<small>(Offline)</small></h2>
       <product-list-offline  />
@@ -22,6 +27,7 @@ let ModuleDefault = {
     ProductListOffline
   },
   mounted () {
+    this.isTerminal = localStorage.getItem('is_terminal')
     this.checkConnectivity().then((ping) => {
       this.isOffline = false
     }).catch(() => {
@@ -67,6 +73,7 @@ let ModuleDefault = {
     let formRetrieveParameter = {
     }
     return {
+      isTerminal: false,
       isOffline: null,
       config: {
         // module_name: 'Variable Management',

@@ -23,7 +23,7 @@
                   <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required autocomplete="current-password">
                 </div>
                 <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" class="btn btn-lg btn-primary btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Signing In' : 'Sign In'}} <small v-if="isOffline">(Offline)</small></button>
-                <p class="text-center">Don't have an account?<router-link :hidden="isOffline === false ? false : true" to="/company-registration"><b> Sign Up</b></router-link></p>
+                <p :hidden="isOffline === false ? false : true" class="text-center">Don't have an account?<router-link :hidden="isOffline === false ? false : true" to="/company-registration"><b> Sign Up</b></router-link></p>
               </form>
             </template>
           </div>
@@ -78,8 +78,10 @@ export default {
       // return this.isOffline = true
       this.checkConnectivity().then((ping) => {
         this.isOffline = false
+        VueCoreStore.dispatch('setUserInformationOffline')
       }).catch((status) => {
         this.isOffline = true
+        VueCoreStore.dispatch('setUserInformation')
       }).finally(() => {
         if(typeof callback === 'function'){
           callback()
@@ -149,7 +151,6 @@ export default {
       })
     },
     redirect(){
-      console.log('got here?')
       if(VueCoreStore.getters.user){
         if(typeof VueCoreStore.getters.userRoles['100'] !== 'undefined'){
           this.$router.push({
