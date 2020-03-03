@@ -118,6 +118,7 @@ export default {
       selectFilterOption: [],
       transactions: [],
       transactionProducts: [],
+      hourlyTransactionProducts: {},
       dailyTransactionProducts: {},
       monthlyTransactionProduct: {},
       weeklyTransactionProducts: [],
@@ -264,94 +265,94 @@ export default {
             console.log('ALLTIME', this.transactionProducts)
           }
         }else if(this.selectedReport === 'daily'){
-          if(response.length !== 0){
-            if(this.selectFilterValue.length !== 0){
-              for(let x = 0; x < response.length; x++){
-                for(let y = 0; y < this.selectFilterValue.length; y++){
-                  if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
-                    response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
-                    this.transactionProducts.push(response[x])
+          // if(response.length !== 0){
+          if(this.selectFilterValue.length !== 0){
+            for(let x = 0; x < response.length; x++){
+              for(let y = 0; y < this.selectFilterValue.length; y++){
+                if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
+                  response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
+                  this.transactionProducts.push(response[x])
 
-                    let prepareData = []
-                    if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
-                      for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr < new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
-                        let data = {
-                          x: '',
-                          y: 0
-                        }
-                        if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
-                          Vue.set(data, 'y', response[x]['quantity'])
-                        }
-
-                        let modifiedDate = new Date()
-
-                        modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
-                        Vue.set(data, 'x', modifiedDate.toString())
-
-                        prepareData.push(data)
+                  let prepareData = []
+                  if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
+                    for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr < new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
+                      let data = {
+                        x: '',
+                        y: 0
+                      }
+                      if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
+                        Vue.set(data, 'y', response[x]['quantity'])
                       }
 
-                      this.dailyTransactionProducts[response[x]['product_id']] = {
-                        description: response[x]['description'],
-                        data: prepareData
-                      }
-                    }else{
-                      for(let index in this.dailyTransactionProducts){
-                        for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++){
-                          // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
-                          if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()){
-                            // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
-                            this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
-                          }
+                      let modifiedDate = new Date()
+
+                      modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
+                      Vue.set(data, 'x', modifiedDate.toString())
+
+                      prepareData.push(data)
+                    }
+
+                    this.dailyTransactionProducts[response[x]['product_id']] = {
+                      description: response[x]['description'],
+                      data: prepareData
+                    }
+                  }else{
+                    for(let index in this.dailyTransactionProducts){
+                      for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++){
+                        // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
+                        if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()){
+                          // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
+                          this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
                         }
-                      }
-                    }
-                  }
-                }
-              }
-            }else{
-              for(let x = 0; x < response.length; x++){
-                response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
-                this.transactionProducts.push(response[x])
-
-                let prepareData = []
-
-                if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
-                  for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr <= new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
-                    let data = {
-                      x: '',
-                      y: 0
-                    }
-                    if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
-                      Vue.set(data, 'y', response[x]['quantity'])
-                    }
-                    let modifiedDate = new Date()
-
-                    modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
-                    Vue.set(data, 'x', modifiedDate.toString())
-
-                    prepareData.push(data)
-                  }
-
-                  this.dailyTransactionProducts[response[x]['product_id']] = {
-                    description: response[x]['description'],
-                    data: prepareData
-                  }
-                }else{
-                  for(let index in this.dailyTransactionProducts){
-                    for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++) {
-                      // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
-                      if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()) {
-                      // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
-                        this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
                       }
                     }
                   }
                 }
               }
             }
-            console.log('DAILY', this.dailyTransactionProducts)
+          }else{
+            for(let x = 0; x < response.length; x++){
+              response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
+              this.transactionProducts.push(response[x])
+
+              let prepareData = []
+
+              if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
+                for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr <= new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
+                  let data = {
+                    x: '',
+                    y: 0
+                  }
+                  if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
+                    Vue.set(data, 'y', response[x]['quantity'])
+                  }
+                  let modifiedDate = new Date()
+
+                  modifiedDate.setDate(new Date(this.startDatetimeFilter).getDate() + i)
+                  Vue.set(data, 'x', modifiedDate.toString())
+
+                  prepareData.push(data)
+                }
+
+                this.dailyTransactionProducts[response[x]['product_id']] = {
+                  description: response[x]['description'],
+                  data: prepareData
+                }
+              }else{
+                for(let index in this.dailyTransactionProducts){
+                  for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++) {
+                    // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
+                    if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()) {
+                    // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
+                      this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
+                    }
+                  }
+                }
+              }
+            }
           }
+          console.log('DAILY', this.dailyTransactionProducts)
+          // }
         }else if(this.selectedReport === 'monthly') {
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -448,6 +449,51 @@ export default {
             prepareData.push(this.yearlyTransactionProducts)
           }
           console.log('YEAR DATA', prepareData)
+        } else if(this.selectedReport === 'hourly'){
+          let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
+          let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
+          let prepareData = []
+          let filteredData = response
+          if(this.selectFilterValue.length !== 0){
+            filteredData = []
+            for(let x = 0; x < response.length; x++){
+              for(let y = 0; y < this.selectFilterValue.length; y++){
+                if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
+                  filteredData.push(response[x])
+                }
+              }
+            }
+          }
+          for(let x = 0; x < filteredData.length; x++){
+            prepareData = []
+            if(typeof this.hourlyTransactionProducts[filteredData[x]['product_id']] === 'undefined'){
+              for(let ctr = new Date(startDatetimeFilter).getHours(), i = 0; ctr <= new Date(endDatetimeFilter).getHours(); ctr++, i++){
+                let data = {
+                  x: '',
+                  y: 0
+                }
+                if(new Date(startDatetimeFilter).getHours() + i === new Date(filteredData[x]['created_at']).getHours()){
+                  Vue.set(data, 'y', filteredData[x]['quantity'])
+                }
+                Vue.set(data, 'x', new Date(startDatetimeFilter).getHours() + i + ':00')
+                prepareData.push(data)
+              }
+
+              this.hourlyTransactionProducts[filteredData[x]['product_id']] = {
+                description: filteredData[x]['description'],
+                data: prepareData
+              }
+            }else {
+              for(let index in this.hourlyTransactionProducts){
+                for(let i = 0; i < this.hourlyTransactionProducts[index]['data'].length; i++) {
+                  if(index * 1 === filteredData[x]['product_id'] * 1 && new Date(this.hourlyTransactionProducts[index]['data'][i].x).getHours() === new Date(filteredData[x]['created_at']).getHours()) {
+                    this.hourlyTransactionProducts[index]['data'][i].y += filteredData[x]['quantity']
+                  }
+                }
+              }
+            }
+          }
+          console.log('HOURLY DATA', this.hourlyTransactionProducts)
         }
 
         /* else { // else if(this.selectedReport == 'hourly'){
