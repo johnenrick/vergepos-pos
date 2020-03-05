@@ -132,7 +132,11 @@ export default class Controller {
         this.get(withQuery).then(response => {
           let groupedResult = us.groupBy(response, mainTable + '_id')
           for(let parentId in groupedResult){
-            result[idLookUp[parentId]][withTable] = groupedResult[parentId]
+            if(typeof result[idLookUp[parentId]] !== 'undefined'){
+              result[idLookUp[parentId]][withTable] = groupedResult[parentId]
+            }else{
+              console.error('The aliasing of joined table might be overidding the main table column')
+            }
           }
         }).finally(() => {
           completedQuery++
