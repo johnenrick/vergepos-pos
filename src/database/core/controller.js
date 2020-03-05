@@ -119,15 +119,17 @@ export default class Controller {
     return new Promise((resolve, reject) => {
       for(let withTable in query['with']){
         let mainTable = pluralize.singular(query['from'])
-        let withQuery = {
-          from: withTable,
-          where: {}
+        let withQuery = query['with'][withTable]
+        withQuery['from'] = withTable
+        if(typeof withQuery['where'] === 'undefined'){
+          withQuery['where'] = {}
         }
         if(typeof query['with'][withTable]['is_parent'] === 'undefined' || !query['with'][withTable]['is_parent']){
           withQuery['where'][mainTable + '_id'] = {
             in: rootTableIdList
           }
         }
+        console.log('withQuery', withQuery)
         this.get(withQuery).then(response => {
           let groupedResult = us.groupBy(response, mainTable + '_id')
           for(let parentId in groupedResult){
