@@ -22,25 +22,25 @@ export default {
       tableSetting: {
         columns: [
           {
-            name: 'created_at',
+            name: 'dateAndTime',
             title: 'Date And Time',
             callback: (value) => {
               return this.formatDate(value, 'mm/dd/yy hh:mm')
             }
           },
           {
-            name: 'transaction_id',
+            name: 'number',
             title: 'Transaction Number',
             callback: (value) => {
               return this.padNumber(value, 7)
             }
           },
           {
-            name: 'description',
+            name: 'transactionProd.description',
             title: 'Description'
           },
           {
-            name: 'price',
+            name: 'transactionProd.price',
             title: 'Price'
           },
           {
@@ -53,7 +53,16 @@ export default {
   },
   methods: {
     getData(data){
-      console.log(data)
+      data.forEach(elem => {
+        elem['transaction_products'].forEach(element => {
+          this.transactions.push({
+            transactionProd: element,
+            number: elem['number'],
+            dateAndTime: elem['transaction_number_created_at'],
+            profit: (element['price'] * 1) - (element['cost'] * 1)
+          })
+        })
+      })
     }
   }
 }

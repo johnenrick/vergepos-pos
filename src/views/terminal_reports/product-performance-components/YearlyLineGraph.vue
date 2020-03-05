@@ -11,7 +11,7 @@ export default {
   },
   data(){
     return {
-      passedData: [],
+      passedData: {},
       newStart: '',
       newEnd: '',
       datacollection: null,
@@ -42,11 +42,11 @@ export default {
     plotData(){
       let dateLabel = this.createDateLabels()
       let products = []
-      this.passedData.forEach(element => {
-        if(!products.includes(element['description'])){
-          products.push(element['description'])
+      for(let element in this.passedData){
+        if(!products.includes(this.passedData[element]['description'])){
+          products.push(this.passedData[element]['description'])
         }
-      })
+      }
       this.datacollection = {
         labels: dateLabel,
         bezierCurve: false,
@@ -78,8 +78,8 @@ export default {
     },
     createDateLabels(){
       let labels = []
-      for(let ctr = this.newStart.getDate(); ctr <= this.newEnd.getDate(); ctr++){
-        labels.push(this.newStart.getFullYear() + '-' + (this.newStart.getMonth() + 1) + '-' + ctr)
+      for(let ctr = this.newStart.getFullYear(); ctr <= this.newEnd.getFullYear(); ctr++){
+        labels.push(ctr)
       }
       return labels
     }
