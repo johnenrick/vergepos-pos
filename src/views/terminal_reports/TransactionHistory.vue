@@ -65,7 +65,7 @@
     </div>
     <div class="row">
       <div class="col-12">
-        <button class="btn btn-primary mb-4" @click="toggleButtonState = !toggleButtonState">{{toggleButtonState === true ? 'Switch to Product History Table' : 'Switch to Transaction History History Table' }}</button>
+        <button class="btn btn-primary mb-4" @click="toggleButtonState = !toggleButtonState">{{toggleButtonState === true ? 'Switch to Product History Table' : 'Switch to Transaction History Table' }}</button>
         <vuetable
           v-show="toggleButtonState === false"
           ref="vuetable"
@@ -211,11 +211,11 @@ export default {
               on: 'products.db_id=transaction_products.product_id',
               type: 'inner',
               as: {
-                'id': 'transaction_id',
-                'db_id': 'transaction_db_id',
-                'created_at': 'transaction_created_at',
-                'updated_at': 'transaction_updated_at',
-                'deleted_at': 'transaction_deleted_at',
+                'id': 'product_id',
+                'db_id': 'product_db_id',
+                'created_at': 'product_created_at',
+                'updated_at': 'product_updated_at',
+                'deleted_at': 'product_deleted_at',
               }
             }
           }
@@ -247,7 +247,6 @@ export default {
           }else{
           }
           let transactionNumberIds = this.getTransactionNumberId(transactionNumbers)
-          console.log(transactionNumbers)
           query.where['transaction_number_id'] = {
             in: transactionNumberIds
           }
