@@ -65,7 +65,10 @@
     </div>
     <div class="row">
       <div class="col-12">
-        <vuetable ref="vuetable"
+        <button class="btn btn-primary mb-4" @click="toggleButtonState = !toggleButtonState">{{toggleButtonState === true ? 'Switch to Product History Table' : 'Switch to Transaction History History Table' }}</button>
+        <vuetable
+          v-show="toggleButtonState === false"
+          ref="vuetable"
           :track-by="'id'"
           :data="transactions"
           :api-mode="false"
@@ -76,6 +79,10 @@
             <button @click="openTransaction(props.rowData['id'])" class="btn btn-sm btn-info"><fa icon="search" /></button>
           </template>
         </vuetable>
+        <product-history
+          ref="productHistory"
+          v-show="toggleButtonState === true"
+        />
       </div>
     </div>
     <transaction-viewer ref="TransactionViewer" />
@@ -91,6 +98,7 @@ import Vuetable from 'vuetable-2/src/components/Vuetable' // https://ratiw.githu
 import TimeInDay from './transaction-history-components/TimeInDayPerformance'
 import DayInWeek from './transaction-history-components/DayInWeekPerformance'
 import SalesPerDay from './transaction-history-components/SalesPerDay'
+import ProductHistory from './transaction-history-components/ProductHistory'
 export default {
   components: {
     Vuetable,
@@ -98,13 +106,15 @@ export default {
     TransactionViewer,
     TimeInDay,
     DayInWeek,
-    SalesPerDay
+    SalesPerDay,
+    ProductHistory
   },
   mounted(){
     this.init()
   },
   data(){
     return {
+      toggleButtonState: false,
       graphType: 'null',
       startDatetimeFilter: null,
       endDatetimeFilter: null,
@@ -196,6 +206,18 @@ export default {
         groupBy: 'id',
         with: {
           transaction_products: {
+            join: {
+              with: 'products',
+              on: 'products.db_id=transaction_products.product_id',
+              type: 'inner',
+              as: {
+                'id': 'transaction_id',
+                'db_id': 'transaction_db_id',
+                'created_at': 'transaction_created_at',
+                'updated_at': 'transaction_updated_at',
+                'deleted_at': 'transaction_deleted_at',
+              }
+            }
           }
         },
         join: {
@@ -225,17 +247,11 @@ export default {
           }else{
           }
           let transactionNumberIds = this.getTransactionNumberId(transactionNumbers)
-          query.where['transaction_numbers_id'] = {
+          console.log(transactionNumbers)
+          query.where['transaction_number_id'] = {
             in: transactionNumberIds
           }
-          let transactionQuery = {
-            where: {
-              transaction_number_id: {
-                in: transactionNumberIds
-              }
-            }
-          }
-          this.getTransactions(transactionQuery).then(response => {
+          this.getTransactions(query).then(response => {
             resolve(response)
             this.generateReport()
           }).catch(error => {
@@ -275,7 +291,9 @@ export default {
       let transactionDB = new Transaction()
       return new Promise((resolve, reject) => {
         transactionDB.get(query).then((response) => {
+          console.log(response)
           this.transactions = response
+          this.$refs.productHistory.getData(this.transactions)
           // this.salesTransactionCount = response.length
           for(let x = 0; x < response.length; x++){
             // this.vatSales += response[x]['total_vat_sales'] * 1

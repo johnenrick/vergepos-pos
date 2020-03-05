@@ -1,9 +1,6 @@
 <template>
   <div class="w-100">
     <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></line-chart>
-    {{dataProp}}
-    {{newStartProp}}
-    {{newEndProp}}
   </div>
 </template>
 <script>
@@ -39,10 +36,7 @@ export default {
   watch: {
     dataProp(newData){
       this.passedData = newData
-      console.log(this.passedData)
-      setTimeout(() => {
-        this.prepData()
-      }, 1000)
+      this.prepData()
     }
   },
   methods: {
