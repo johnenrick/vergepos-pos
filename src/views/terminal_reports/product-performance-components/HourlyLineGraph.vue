@@ -11,7 +11,7 @@ export default {
   },
   data(){
     return {
-      passedData: [],
+      passedData: {},
       newStart: '',
       newEnd: '',
       datacollection: null,
@@ -29,24 +29,15 @@ export default {
     }
   },
   methods: {
-    prepData(data, start, end){
+    plotData(data){
       this.passedData = data
-      this.newStart = start.slice(0, 10)
-      let temp = this.newStart.split('-')
-      this.newStart = new Date(temp[0], (temp[1] * 1 - 1), temp[2], 0, 0, 0, 0)
-      this.newEnd = end.slice(0, 10)
-      temp = this.newEnd.split('-')
-      this.newEnd = new Date(temp[0], (temp[1] * 1 - 1), temp[2], 23, 59, 59, 99)
-      this.plotData()
-    },
-    plotData(){
-      let dateLabel = this.createDateLabels()
+      let dateLabel = [ '0:00', '0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '21:00', '22:00', '23:00', ]
       let products = []
-      this.passedData.forEach(element => {
-        if(!products.includes(element['description'])){
-          products.push(element['description'])
+      for(let element in this.passedData){
+        if(!products.includes(this.passedData[element]['description'])){
+          products.push(this.passedData[element]['description'])
         }
-      })
+      }
       this.datacollection = {
         labels: dateLabel,
         bezierCurve: false,
@@ -68,20 +59,6 @@ export default {
           this.passedData[date]['data']
       }
       console.log('hello', this.datacollection)
-    },
-    formatDate(date){
-      let temp = {}
-      temp['year'] = new Date(date).getFullYear()
-      temp['month'] = new Date(date).getMonth()
-      temp['day'] = new Date(date).getDate()
-      return temp['year'] + '-' + temp['month'] + '-' + temp['day']
-    },
-    createDateLabels(){
-      let labels = []
-      for(let ctr = this.newStart.getDate(); ctr <= this.newEnd.getDate(); ctr++){
-        labels.push(this.newStart.getFullYear() + '-' + (this.newStart.getMonth() + 1) + '-' + ctr)
-      }
-      return labels
     }
   }
 }
