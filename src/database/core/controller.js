@@ -129,7 +129,6 @@ export default class Controller {
             in: rootTableIdList
           }
         }
-        console.log('withQuery', withQuery)
         this.get(withQuery).then(response => {
           let groupedResult = us.groupBy(response, mainTable + '_id')
           for(let parentId in groupedResult){
