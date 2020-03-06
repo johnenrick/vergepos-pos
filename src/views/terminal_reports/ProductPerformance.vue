@@ -503,7 +503,7 @@ export default {
             }else {
               for(let index in this.yearlyTransactionProducts){
                 for(let i = 0; i < this.yearlyTransactionProducts[index]['data'].length; i++) {
-                  if(index * 1 === filteredData[x]['product_id'] * 1 && new Date(this.yearlyTransactionProducts[index]['data'][i].x).getFullYear() === new Date(filteredData[x]['created_at']).getFullYear()) {
+                  if(index * 1 === filteredData[x]['product_id'] * 1 && this.yearlyTransactionProducts[index]['data'][i].x === new Date(filteredData[x]['created_at']).getFullYear()) {
                     this.yearlyTransactionProducts[index]['data'][i].y += filteredData[x]['quantity']
                   }
                 }
