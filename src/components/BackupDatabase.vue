@@ -1,8 +1,12 @@
 <template>
     <div>
-      <div class="bg-warning text-white p-2 mb-3 rounded">
+      <!-- <div class="bg-warning text-white p-2 mb-3 rounded">
           <fa icon="info-circle" /> It is strongly recommend that you export your data to have a backup incase anything happens .You can either click the <strong><a href="#" @click="exportDatabase"><u>EXPORT</u></a></strong> text or click the <button class="btn btn-sm btn-primary">EXPORT</button> button
-      </div>
+      </div> -->
+      <div class="pt-2">
+        <button @click="exportDatabase" class="btn btn-warning"><fa icon="file-zip-o" /> Backup Data</button><br>
+        <small>It is strongly recommended that you <strong><a href="#" @click="exportDatabase"><u>BACK UP</u></a></strong> your data from time to time whenever you're in offline mode incase anything happens. </small>
+        </div>
       <div>
         <modal ref="exportOfflineData" :closeable="false">
           <template v-slot:body>

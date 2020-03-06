@@ -45,25 +45,22 @@
         <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right"><fa icon="chart-line" /> Hide Graph</button>
       </div>
       <transaction-graph
-      v-show="selectedReport === 'transaction'"
       ref='graph'
       :dataProp="transactionProducts"
       />
       <line-graph
         v-show="selectedReport === 'daily'"
-        ref="lineGraph"
+        :ref="lineGraph"
+        :dataProp="dailyTransactionProduct"
+        :newStartProp="startDateTimeFilter"
+        :newEndProp="endDateTimeFilter"
       />
       <monthly-line-graph
         v-show="selectedReport === 'monthly'"
-        ref="monthlyLineGraph"
-      />
-      <yearly-line-graph
-        v-show="selectedReport === 'yearly'"
-        ref="yearlyLineGraph"
-      />
-      <hourly-line-graph
-        v-show="selectedReport === 'hourly'"
-        ref="hourlyLineGraph"
+        :ref="MonthlyLineGraph"
+        :dataProp="monthlyTransactionProduct"
+        :newStartProp="startDatetimeFilter"
+        :newEndProp="endDatetimeFilter"
       />
     </div>
     <div class="row">
@@ -98,8 +95,6 @@ import 'vue-select/dist/vue-select.css'
 import Product from '@/database/controller/product.js'
 import LineGraph from '@/views/terminal_reports/product-performance-components/LineGraph'
 import MonthlyLineGraph from '@/views/terminal_reports/product-performance-components/MonthlyLineGraph'
-import YearlyLineGraph from '@/views/terminal_reports/product-performance-components/YearlyLineGraph'
-import HourlyLineGraph from '@/views/terminal_reports/product-performance-components/HourlyLineGraph'
 
 export default {
   components: {
@@ -108,9 +103,7 @@ export default {
     VueSelect,
     TransactionGraph,
     LineGraph,
-    MonthlyLineGraph,
-    YearlyLineGraph,
-    HourlyLineGraph
+    MonthlyLineGraph
   },
   mounted(){
     this.init()
@@ -282,7 +275,7 @@ export default {
 
                   let prepareData = []
                   if(typeof this.dailyTransactionProducts[response[x]['product_id']] === 'undefined'){
-                    for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr < new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
+                    for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr <= new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
                       let data = {
                         x: '',
                         y: 0
@@ -359,7 +352,6 @@ export default {
             }
           }
           console.log('DAILY', this.dailyTransactionProducts)
-          this.$refs.lineGraph.prepData(this.dailyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
           // }
         }else if(this.selectedReport === 'monthly') {
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -431,7 +423,10 @@ export default {
             }else {
               for(let index in this.monthlyTransactionProduct){
                 for(let i = 0; i < this.monthlyTransactionProduct[index]['data'].length; i++) {
-                  if(index * 1 === filteredData[x]['product_id'] * 1 && new Date(this.monthlyTransactionProduct[index]['data'][i].x).getMonth() === new Date(filteredData[x]['created_at']).getMonth()) {
+                  console.log(this.monthlyTransactionProduct[index]['data'][i].x)
+                  console.log('JANDY' + new Date(this.monthlyTransactionProduct[index]['data'][i]['x']) + 'PUNAY' + new Date(filteredData[x]['created_at']).getMonth())
+                  if(index * 1 === filteredData[x]['product_id'] * 1 && this.monthlyTransactionProduct[index]['data'][i].x === month[new Date(filteredData[x]['created_at']).getMonth()]) {
+                    console.log('KAPILA KO NI SUD')
                     this.monthlyTransactionProduct[index]['data'][i].y += filteredData[x]['quantity']
                   }
                 }
@@ -439,7 +434,6 @@ export default {
             }
           }
           console.log('MONTH DATA', this.monthlyTransactionProduct)
-          this.$refs.monthlyLineGraph.prepData(this.monthlyTransactionProduct, this.startDatetimeFilter, this.endDatetimeFilter)
         }else if(this.selectedReport === 'yearly') {
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -517,7 +511,6 @@ export default {
             }
           }
           console.log('YEAR DATA', this.yearlyTransactionProducts)
-          this.$refs.yearlyLineGraph.prepData(this.yearlyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
         } else if(this.selectedReport === 'hourly'){
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -563,7 +556,6 @@ export default {
             }
           }
           console.log('HOURLY DATA', this.hourlyTransactionProducts)
-          this.$refs.hourlyLineGraph.plotData(this.hourlyTransactionProducts)
         }
 
         /* else { // else if(this.selectedReport == 'hourly'){
