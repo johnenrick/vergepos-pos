@@ -46,6 +46,7 @@ export default class Transact {
         transaction_id: transactionID,
         db_id: 0,
         product_id: transactionProducts[index]['product_id'] * 1,
+        cost: transactionProducts[index]['cost'] * transactionProducts[index]['quantity'],
         quantity: transactionProducts[index]['quantity'] * 1,
         vat_sales: transactionProducts[index]['vat_sales'] * 1,
         vat_exempt_sales: transactionProducts[index]['vat_exempt_sales'] * 1,

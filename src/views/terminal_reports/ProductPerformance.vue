@@ -548,7 +548,7 @@ export default {
             }else {
               for(let index in this.hourlyTransactionProducts){
                 for(let i = 0; i < this.hourlyTransactionProducts[index]['data'].length; i++) {
-                  if(index * 1 === filteredData[x]['product_id'] * 1 && new Date(this.hourlyTransactionProducts[index]['data'][i].x).getHours() === new Date(filteredData[x]['created_at']).getHours()) {
+                  if(index * 1 === filteredData[x]['product_id'] * 1 && this.hourlyTransactionProducts[index]['data'][i].x === new Date(filteredData[x]['created_at']).getHours() + ':00') {
                     this.hourlyTransactionProducts[index]['data'][i].y += filteredData[x]['quantity']
                   }
                 }
