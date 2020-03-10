@@ -96,6 +96,8 @@ import UserStore from '@/vue-web-core/system/store'
 import User from '@/database/controller/user'
 export default {
   mounted(){
+    this.feedback = 'Loading... Please wait'
+    this.prompt = 'alert-primary'
     if(UserStore.getters.sessionConnection === 'online'){
       this.isConnected = true
       this.retrieveDetailOnline()
@@ -197,6 +199,8 @@ export default {
             this.setDetails(this.responseTempOffline)
           }
         })
+        this.feedback = ''
+        this.prompt = 'invisible'
       })
     },
     retrieveDetailOffline(){
@@ -208,6 +212,8 @@ export default {
       (new User()).get(query).then((response) => {
         this.responseTempOffline = response[0]
         this.setDetails(this.responseTempOffline)
+        this.feedback = ''
+        this.prompt = 'invisible'
       })
     },
     updateDetailOffline(){
