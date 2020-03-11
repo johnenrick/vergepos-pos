@@ -54,11 +54,12 @@ export default {
         ]
       }
       products.forEach(element => {
+        let color = '#' + Math.floor(Math.random() * 16777215).toString(16)
         this.datacollection.datasets.push({
           label: element,
           fill: false,
-          borderColor: '#007bff',
-          backgroundColor: '#007bff',
+          borderColor: color,
+          backgroundColor: color,
           data: []
         })
       })
@@ -74,12 +75,13 @@ export default {
       temp['year'] = new Date(date).getFullYear()
       temp['month'] = new Date(date).getMonth()
       temp['day'] = new Date(date).getDate()
-      return temp['year'] + '-' + temp['month'] + '-' + temp['day']
+      return (temp['month'] + 1) + '-' + temp['day'] + '-' + temp['year']
     },
     createDateLabels(){
       let labels = []
-      for(let ctr = this.newStart.getDate(); ctr <= this.newEnd.getDate(); ctr++){
-        labels.push(this.newStart.getFullYear() + '-' + (this.newStart.getMonth() + 1) + '-' + ctr)
+      for(let ctr = this.newStart; this.newStart <= this.newEnd;){
+        labels.push(this.formatDate(ctr))
+        ctr.setDate(ctr.getDate() + 1)
       }
       return labels
     }

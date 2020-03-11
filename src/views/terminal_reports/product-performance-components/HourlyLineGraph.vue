@@ -45,11 +45,12 @@ export default {
         ]
       }
       products.forEach(element => {
+        let color = '#' + Math.floor(Math.random() * 16777215).toString(16)
         this.datacollection.datasets.push({
           label: element,
           fill: false,
-          borderColor: '#007bff',
-          backgroundColor: '#007bff',
+          borderColor: color,
+          backgroundColor: color,
           data: []
         })
       })
