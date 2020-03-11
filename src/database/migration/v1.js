@@ -87,6 +87,7 @@ export default {
       transaction_id: { notNull: true, dataType: 'number' },
       product_id: { notNull: true, dataType: 'number' },
       quantity: { notNull: true, dataType: 'number' },
+      cost: { notNull: true, dataType: 'number' },
       vat_sales: { notNull: true, dataType: 'number' },
       vat_exempt_sales: { notNull: true, dataType: 'number' },
       vat_zero_rated_sales: { notNull: true, dataType: 'number' },

@@ -155,6 +155,7 @@ let store = new Vuex.Store({
           category_id: productDetail.category_id,
           quantity: 1,
           price: productDetail.price,
+          cost: productDetail.cost,
           vat_sales: 0,
           vat_exempt_quatity: 0,
           vat_exempt_sales: 0,

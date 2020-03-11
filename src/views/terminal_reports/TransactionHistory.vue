@@ -216,6 +216,7 @@ export default {
                 'created_at': 'product_created_at',
                 'updated_at': 'product_updated_at',
                 'deleted_at': 'product_deleted_at',
+                'cost': 'cost'
               }
             }
           }
