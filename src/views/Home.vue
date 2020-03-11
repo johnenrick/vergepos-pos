@@ -125,7 +125,7 @@ export default {
         rememberMe: false,
         success: (response) => {
           if(localStorage.getItem('company_id') * 1 !== response.data.user.company_id * 1){
-            if(confirm('Loggin in different company. Clear data from previous company. Continue?') === true){
+            if(confirm('You are trying to log in a different company. This will clear the data of the previous company from this machine. Do you still want to continue?') === true){
               localStorage.removeItem('is_terminal')
               this.removeTerminal()
               localStorage.setItem('company_id', response.data.user.company_id)
