@@ -136,7 +136,7 @@ export default {
             dataClass: 'text-center',
             callback: (value) => {
               // return (new Date(value * 1000)).toLocaleString("en-US");
-              return value !== 'N/A' ? new Date(value).toUTCString().split(' ').slice(0, 5).join(' ') : value
+              return value
             }
           },
           {
@@ -313,6 +313,7 @@ export default {
           }else{
             for(let x = 0; x < response.length; x++){
               response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
+              response[x]['created_at'] = new Date(response[x]['created_at']).toUTCString().split(' ').slice(0, 5).join(' ')
               this.transactionProducts.push(response[x])
 
               let prepareData = []
@@ -354,6 +355,7 @@ export default {
           console.log('DAILY', this.dailyTransactionProducts)
           // }
         }else if(this.selectedReport === 'monthly') {
+          this.monthlyTransactionProduct = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let month = ['Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
@@ -407,10 +409,12 @@ export default {
               for(let ctr = new Date(startDatetimeFilter).getMonth(), i = 0; ctr <= new Date(endDatetimeFilter).getMonth(); ctr++, i++){
                 let data = {
                   x: '',
-                  y: 0
+                  y: 0,
+                  amt: 0
                 }
                 if(new Date(startDatetimeFilter).getMonth() + i === new Date(filteredData[x]['created_at']).getMonth()){
                   Vue.set(data, 'y', filteredData[x]['quantity'])
+                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
                 }
                 Vue.set(data, 'x', month[new Date(startDatetimeFilter).getMonth() + i])
                 prepareData.push(data)
@@ -423,18 +427,33 @@ export default {
             }else {
               for(let index in this.monthlyTransactionProduct){
                 for(let i = 0; i < this.monthlyTransactionProduct[index]['data'].length; i++) {
-                  console.log(this.monthlyTransactionProduct[index]['data'][i].x)
-                  console.log('JANDY' + new Date(this.monthlyTransactionProduct[index]['data'][i]['x']) + 'PUNAY' + new Date(filteredData[x]['created_at']).getMonth())
                   if(index * 1 === filteredData[x]['product_id'] * 1 && this.monthlyTransactionProduct[index]['data'][i].x === month[new Date(filteredData[x]['created_at']).getMonth()]) {
-                    console.log('KAPILA KO NI SUD')
                     this.monthlyTransactionProduct[index]['data'][i].y += filteredData[x]['quantity']
+                    this.monthlyTransactionProduct[index]['data'][i].amt += (filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
                   }
                 }
               }
             }
           }
+          let forTableData = []
+          for(let i in this.monthlyTransactionProduct){
+            for(let x in this.monthlyTransactionProduct[i]['data']){
+              if(this.monthlyTransactionProduct[i]['data'][x].y !== 0){
+                let data = {
+                  description: this.monthlyTransactionProduct[i]['description'],
+                  created_at: this.monthlyTransactionProduct[i]['data'][x].x,
+                  quantity: this.monthlyTransactionProduct[i]['data'][x].y,
+                  amount: this.monthlyTransactionProduct[i]['data'][x].amt
+                }
+                forTableData.push(data)
+                delete this.monthlyTransactionProduct[i]['data'][x].amt
+              }
+            }
+          }
+          this.transactionProducts = forTableData
           console.log('MONTH DATA', this.monthlyTransactionProduct)
         }else if(this.selectedReport === 'yearly') {
+          this.yearlyTransactionProducts = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let prepareData = []
@@ -450,36 +469,6 @@ export default {
               }
             }
           }
-          // for(let ctr = new Date(startDatetimeFilter).getFullYear(); ctr <= new Date(endDatetimeFilter).getFullYear(); ctr++){
-          //   let sampleData = []
-          //   this.yearlyTransactionProducts = {}
-          //   for(let responseCtr = 0; responseCtr < filteredData.length; responseCtr++){
-          //     let tempDate = new Date(filteredData[responseCtr]['created_at']).toString().split(' ').slice(0, 5).join(' ')
-          //     if(new Date(tempDate).getFullYear() === ctr){
-          //       sampleData.push(filteredData[responseCtr])
-          //     }
-          //   }
-          //   for(let x = 0; x < sampleData.length; x++){
-          //     if(typeof this.yearlyTransactionProducts[sampleData[x]['product_id']] === 'undefined'){
-          //       let tempDate = new Date(sampleData[x]['created_at']).toString().split(' ').slice(0, 5).join(' ')
-          //       this.yearlyTransactionProducts[sampleData[x]['product_id']] = {
-          //         product_id: sampleData[x]['product_id'],
-          //         description: sampleData[x]['description'],
-          //         data: {
-          //           x: new Date(tempDate).getFullYear(),
-          //           y: sampleData[x]['quantity']
-          //         }
-          //       }
-          //     }else{
-          //       for(let index in this.yearlyTransactionProducts){
-          //         if(index * 1 === sampleData[x]['product_id'] * 1) {
-          //           this.yearlyTransactionProducts[index]['data'].y += sampleData[x]['quantity']
-          //         }
-          //       }
-          //     }
-          //   }
-          //   prepareData.push(this.yearlyTransactionProducts)
-          // }
 
           for(let x = 0; x < filteredData.length; x++){
             prepareData = []
@@ -487,10 +476,12 @@ export default {
               for(let ctr = new Date(startDatetimeFilter).getFullYear(), i = 0; ctr <= new Date(endDatetimeFilter).getFullYear(); ctr++, i++){
                 let data = {
                   x: '',
-                  y: 0
+                  y: 0,
+                  amt: 0
                 }
                 if(new Date(startDatetimeFilter).getFullYear() + i === new Date(filteredData[x]['created_at']).getFullYear()){
                   Vue.set(data, 'y', filteredData[x]['quantity'])
+                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
                 }
                 Vue.set(data, 'x', new Date(startDatetimeFilter).getFullYear() + i)
                 prepareData.push(data)
@@ -505,13 +496,31 @@ export default {
                 for(let i = 0; i < this.yearlyTransactionProducts[index]['data'].length; i++) {
                   if(index * 1 === filteredData[x]['product_id'] * 1 && this.yearlyTransactionProducts[index]['data'][i].x === new Date(filteredData[x]['created_at']).getFullYear()) {
                     this.yearlyTransactionProducts[index]['data'][i].y += filteredData[x]['quantity']
+                    this.monthlyTransactionProduct[index]['data'][i].amt += (filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
                   }
                 }
               }
             }
           }
+          let forTableData = []
+          for(let i in this.yearlyTransactionProducts){
+            for(let x in this.yearlyTransactionProducts[i]['data']){
+              if(this.yearlyTransactionProducts[i]['data'][x].y !== 0){
+                let data = {
+                  description: this.yearlyTransactionProducts[i]['description'],
+                  created_at: this.yearlyTransactionProducts[i]['data'][x].x,
+                  quantity: this.yearlyTransactionProducts[i]['data'][x].y,
+                  amount: this.yearlyTransactionProducts[i]['data'][x].amt
+                }
+                forTableData.push(data)
+                delete this.yearlyTransactionProducts[i]['data'][x].amt
+              }
+            }
+          }
+          this.transactionProducts = forTableData
           console.log('YEAR DATA', this.yearlyTransactionProducts)
         } else if(this.selectedReport === 'hourly'){
+          this.hourlyTransactionProducts = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
           let prepareData = []
@@ -536,6 +545,7 @@ export default {
                 }
                 if(new Date(startDatetimeFilter).getHours() + i === new Date(filteredData[x]['created_at']).getHours()){
                   Vue.set(data, 'y', filteredData[x]['quantity'])
+                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
                 }
                 Vue.set(data, 'x', new Date(startDatetimeFilter).getHours() + i + ':00')
                 prepareData.push(data)
@@ -550,11 +560,28 @@ export default {
                 for(let i = 0; i < this.hourlyTransactionProducts[index]['data'].length; i++) {
                   if(index * 1 === filteredData[x]['product_id'] * 1 && this.hourlyTransactionProducts[index]['data'][i].x === new Date(filteredData[x]['created_at']).getHours() + ':00') {
                     this.hourlyTransactionProducts[index]['data'][i].y += filteredData[x]['quantity']
+                    this.monthlyTransactionProduct[index]['data'][i].amt += (filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
                   }
                 }
               }
             }
           }
+          let forTableData = []
+          for(let i in this.hourlyTransactionProducts){
+            for(let x in this.hourlyTransactionProducts[i]['data']){
+              if(this.hourlyTransactionProducts[i]['data'][x].y !== 0){
+                let data = {
+                  description: this.hourlyTransactionProducts[i]['description'],
+                  created_at: this.hourlyTransactionProducts[i]['data'][x].x,
+                  quantity: this.hourlyTransactionProducts[i]['data'][x].y,
+                  amount: this.hourlyTransactionProducts[i]['data'][x].amt
+                }
+                forTableData.push(data)
+                delete this.hourlyTransactionProducts[i]['data'][x].amt
+              }
+            }
+          }
+          this.transactionProducts = forTableData
           console.log('HOURLY DATA', this.hourlyTransactionProducts)
         }
 
