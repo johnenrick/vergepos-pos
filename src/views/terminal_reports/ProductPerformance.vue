@@ -446,8 +446,8 @@ export default {
                   amount: this.monthlyTransactionProduct[i]['data'][x].amt
                 }
                 forTableData.push(data)
-                delete this.monthlyTransactionProduct[i]['data'][x].amt
               }
+              delete this.monthlyTransactionProduct[i]['data'][x].amt
             }
           }
           this.transactionProducts = forTableData
@@ -496,7 +496,7 @@ export default {
                 for(let i = 0; i < this.yearlyTransactionProducts[index]['data'].length; i++) {
                   if(index * 1 === filteredData[x]['product_id'] * 1 && this.yearlyTransactionProducts[index]['data'][i].x === new Date(filteredData[x]['created_at']).getFullYear()) {
                     this.yearlyTransactionProducts[index]['data'][i].y += filteredData[x]['quantity']
-                    this.monthlyTransactionProduct[index]['data'][i].amt += (filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
+                    this.yearlyTransactionProducts[index]['data'][i].amt += (filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
                   }
                 }
               }
@@ -513,8 +513,8 @@ export default {
                   amount: this.yearlyTransactionProducts[i]['data'][x].amt
                 }
                 forTableData.push(data)
-                delete this.yearlyTransactionProducts[i]['data'][x].amt
               }
+              delete this.yearlyTransactionProducts[i]['data'][x].amt
             }
           }
           this.transactionProducts = forTableData
@@ -541,7 +541,8 @@ export default {
               for(let ctr = new Date(startDatetimeFilter).getHours(), i = 0; ctr <= new Date(endDatetimeFilter).getHours(); ctr++, i++){
                 let data = {
                   x: '',
-                  y: 0
+                  y: 0,
+                  amt: 0
                 }
                 if(new Date(startDatetimeFilter).getHours() + i === new Date(filteredData[x]['created_at']).getHours()){
                   Vue.set(data, 'y', filteredData[x]['quantity'])
@@ -560,7 +561,7 @@ export default {
                 for(let i = 0; i < this.hourlyTransactionProducts[index]['data'].length; i++) {
                   if(index * 1 === filteredData[x]['product_id'] * 1 && this.hourlyTransactionProducts[index]['data'][i].x === new Date(filteredData[x]['created_at']).getHours() + ':00') {
                     this.hourlyTransactionProducts[index]['data'][i].y += filteredData[x]['quantity']
-                    this.monthlyTransactionProduct[index]['data'][i].amt += (filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
+                    this.hourlyTransactionProducts[index]['data'][i].amt += (filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
                   }
                 }
               }
@@ -577,8 +578,8 @@ export default {
                   amount: this.hourlyTransactionProducts[i]['data'][x].amt
                 }
                 forTableData.push(data)
-                delete this.hourlyTransactionProducts[i]['data'][x].amt
               }
+              delete this.hourlyTransactionProducts[i]['data'][x].amt
             }
           }
           this.transactionProducts = forTableData
