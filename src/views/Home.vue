@@ -125,15 +125,26 @@ export default {
         rememberMe: false,
         success: (response) => {
           if(localStorage.getItem('company_id') * 1 !== response.data.user.company_id * 1){
-            localStorage.removeItem('is_terminal')
-            this.removeTerminal()
+            if(confirm('Loggin in different company. Clear data from previous company. Continue?') === true){
+              localStorage.removeItem('is_terminal')
+              this.removeTerminal()
+              localStorage.setItem('company_id', response.data.user.company_id)
+              localStorage.setItem('user_id', response.data.user.id)
+              localStorage.setItem('roles', JSON.stringify(response.data.user.roles))
+              // store.commit('setAuthToken', response.data.access_token)
+              VueCoreStore.dispatch('setUserInformation')
+              this.isLoading = false
+            } else{
+              this.isLoading = false
+            }
+          } else{
+            localStorage.setItem('company_id', response.data.user.company_id)
+            localStorage.setItem('user_id', response.data.user.id)
+            localStorage.setItem('roles', JSON.stringify(response.data.user.roles))
+            // store.commit('setAuthToken', response.data.access_token)
+            VueCoreStore.dispatch('setUserInformation')
+            this.isLoading = false
           }
-          localStorage.setItem('company_id', response.data.user.company_id)
-          localStorage.setItem('user_id', response.data.user.id)
-          localStorage.setItem('roles', JSON.stringify(response.data.user.roles))
-          // store.commit('setAuthToken', response.data.access_token)
-          VueCoreStore.dispatch('setUserInformation')
-          this.isLoading = false
         }
       }).catch((error, status) => {
         if(error.response && error.response.status === 401){
