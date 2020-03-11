@@ -160,12 +160,21 @@ export default {
             name: 'quantity',
             title: 'Qty',
             titleClass: 'text-center',
-            dataClass: 'text-right'
+            dataClass: 'text-center'
           }, {
             name: 'amount',
             title: 'Amount',
             titleClass: 'text-center',
-            dataClass: 'text-right',
+            dataClass: 'text-center',
+            callback: (value) => {
+              return ('P' + this.numberToMoney(value))
+            }
+          },
+          {
+            name: 'profit',
+            title: 'Profit',
+            titleClass: 'text-center',
+            dataClass: 'text-center',
             callback: (value) => {
               return ('P' + this.numberToMoney(value))
             }
@@ -242,7 +251,8 @@ export default {
                     if(typeof productArr[response[x]['product_id']] === 'undefined'){
                       productArr[response[x]['product_id']] = {
                         quantity: 0,
-                        amount: 0
+                        amount: 0,
+                        profit: 0
                       }
                     }
                     productArr[response[x]['product_id']]['product_id'] = response[x]['product_id']
@@ -250,6 +260,7 @@ export default {
                     productArr[response[x]['product_id']]['description'] = response[x]['description']
                     productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
                     productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
+                    productArr[response[x]['product_id']]['profit'] += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1) - ((response[x]['quantity'] * 1) * (response[x]['cost'] * 1))
                   }
                 }
               }
@@ -258,13 +269,15 @@ export default {
                 if(typeof productArr[response[x]['product_id']] === 'undefined'){
                   productArr[response[x]['product_id']] = {
                     quantity: 0,
-                    amount: 0
+                    amount: 0,
+                    profit: 0
                   }
                 }
                 productArr[response[x]['product_id']]['created_at'] = 'N/A'
                 productArr[response[x]['product_id']]['description'] = response[x]['description']
                 productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
                 productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
+                productArr[response[x]['product_id']]['profit'] += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1) - ((response[x]['quantity'] * 1) * (response[x]['cost'] * 1))
               }
             }
             for(let x in productArr){
@@ -322,6 +335,7 @@ export default {
             for(let x = 0; x < response.length; x++){
               response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
               response[x]['created_at'] = new Date(response[x]['created_at']).toUTCString().split(' ').slice(0, 5).join(' ')
+              response[x]['profit'] = response[x]['amount'] - (response[x]['quantity'] * response[x]['cost'])
               this.transactionProducts.push(response[x])
 
               let prepareData = []
@@ -431,6 +445,8 @@ export default {
 
               this.monthlyTransactionProduct[filteredData[x]['product_id']] = {
                 description: filteredData[x]['description'],
+                cost: filteredData[x]['cost'],
+                amount: filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'],
                 data: prepareData
               }
             }else {
@@ -452,7 +468,8 @@ export default {
                   description: this.monthlyTransactionProduct[i]['description'],
                   created_at: this.monthlyTransactionProduct[i]['data'][x].x,
                   quantity: this.monthlyTransactionProduct[i]['data'][x].y,
-                  amount: this.monthlyTransactionProduct[i]['data'][x].amt
+                  amount: this.monthlyTransactionProduct[i]['data'][x].amt,
+                  profit: this.monthlyTransactionProduct[i]['data'][x].amt - (this.monthlyTransactionProduct[i]['data'][x].y * this.monthlyTransactionProduct[i].cost)
                 }
                 forTableData.push(data)
               }
@@ -499,6 +516,8 @@ export default {
 
               this.yearlyTransactionProducts[filteredData[x]['product_id']] = {
                 description: filteredData[x]['description'],
+                cost: filteredData[x]['cost'],
+                amount: filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'],
                 data: prepareData
               }
             }else {
@@ -520,7 +539,8 @@ export default {
                   description: this.yearlyTransactionProducts[i]['description'],
                   created_at: this.yearlyTransactionProducts[i]['data'][x].x,
                   quantity: this.yearlyTransactionProducts[i]['data'][x].y,
-                  amount: this.yearlyTransactionProducts[i]['data'][x].amt
+                  amount: this.yearlyTransactionProducts[i]['data'][x].amt,
+                  profit: this.yearlyTransactionProducts[i]['data'][x].amt - (this.yearlyTransactionProducts[i]['data'][x].y * this.yearlyTransactionProducts[i].cost)
                 }
                 forTableData.push(data)
               }
@@ -565,6 +585,8 @@ export default {
 
               this.hourlyTransactionProducts[filteredData[x]['product_id']] = {
                 description: filteredData[x]['description'],
+                cost: filteredData[x]['cost'],
+                amount: filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'],
                 data: prepareData
               }
             }else {
@@ -586,7 +608,8 @@ export default {
                   description: this.hourlyTransactionProducts[i]['description'],
                   created_at: this.hourlyTransactionProducts[i]['data'][x].x,
                   quantity: this.hourlyTransactionProducts[i]['data'][x].y,
-                  amount: this.hourlyTransactionProducts[i]['data'][x].amt
+                  amount: this.hourlyTransactionProducts[i]['data'][x].amt,
+                  profit: this.hourlyTransactionProducts[i]['data'][x].amt - (this.hourlyTransactionProducts[i]['data'][x].y * this.hourlyTransactionProducts[i].cost)
                 }
                 forTableData.push(data)
               }
