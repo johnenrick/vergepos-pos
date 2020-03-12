@@ -10,7 +10,9 @@ let routes = [
     name: 'home',
     component: require('./views/Home.vue').default,
     meta: {
-      no_sidebar: true
+      no_sidebar: true,
+      auth_offline: false,
+      auth: false
     }
   }, {
     path: '/dashboard',
@@ -53,7 +55,6 @@ let routes = [
     name: 'POS',
     component: require('@/views/pos/POS.vue').default,
     meta: {
-      // auth: true
       auth_offline: true,
       no_sidebar: true
     }
