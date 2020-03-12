@@ -98,12 +98,17 @@ export default {
   mounted(){
     this.feedback = 'Loading... Please wait'
     this.prompt = 'alert-primary'
-    if(UserStore.getters.sessionConnection === 'online'){
-      this.isConnected = true
-      this.retrieveDetailOnline()
+    if(localStorage.getItem('is_terminal') * 1 === 2){
+      if(UserStore.getters.sessionConnection === 'online'){
+        this.isConnected = true
+        this.retrieveDetailOnline()
+      } else{
+        this.isConnected = false
+        this.retrieveDetailOffline()
+      }
     } else{
-      this.isConnected = false
-      this.retrieveDetailOffline()
+      this.feedback = 'This device is not a terminal. Details are unavailable'
+      this.prompt = 'alert-danger'
     }
   },
   data() {
