@@ -239,6 +239,7 @@ export default {
                 as: {
                   'id': 'product_id',
                   'db_id': 'product_db_id',
+                  'cost': 'product_cost',
                   'created_at': 'product_created_at',
                   'updated_at': 'product_updated_at',
                   'deleted_at': 'product_deleted_at'
