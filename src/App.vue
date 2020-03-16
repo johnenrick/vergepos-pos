@@ -11,7 +11,7 @@
         </div >
       </template>
     </modal>
-    <header-menu :menu="headerMenu"  :default-company-name="'VergePOS'"/>
+    <header-menu :menu="headerMenu"  :default-company-name="'VergePOS Terminal'"/>
     <div id="wrapper" v-bind:class="(noSidebar) ? 'toggled' : ''">
       <side-bar :menu="sidebarMenu" />
       <div id="page-content-wrapper" style="overflow-wrap: break-word;">

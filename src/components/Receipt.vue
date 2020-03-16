@@ -40,7 +40,7 @@
         <table class="table table-sm topDivider mb-0 w-100" style="width:100%">
           <tbody>
             <tr class="font-weight-bold" >
-              <td>Subt Total</td>
+              <td>Sub Total</td>
               <td style="text-align: right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
             </tr>
             <tr>
@@ -196,6 +196,9 @@ export default {
       }
       return new Promise((resolve, reject) => {
         this.transactionDB.get({
+          // with: {
+          //   transaction_products: {}
+          // },
           join: {
             with: 'transaction_numbers',
             on: 'transactions.transaction_number_id=transaction_numbers.id',
@@ -208,7 +211,7 @@ export default {
               deleted_at: 'transaction_number_deleted_at',
             },
             where: {
-              number: this.transactionNumber
+              number: this.transactionNumber * 1
             }
           }
         }).then((result) => {

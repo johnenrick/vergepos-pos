@@ -46,6 +46,7 @@ export default {
     }
     if(!localStorage.getItem('dev-config')){
       localStorage.setItem('dev-config', JSON.stringify(defaultConfig))
+      location.reload()
     }else{
       defaultConfig = JSON.parse(localStorage.getItem('dev-config'))
     }

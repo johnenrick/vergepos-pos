@@ -11,8 +11,8 @@ let routes = [
     component: require('./views/Home.vue').default,
     meta: {
       no_sidebar: true,
-      auth_offline: false,
-      auth: false
+      // auth_offline: false,
+      // auth: false
     }
   }, {
     path: '/dashboard',

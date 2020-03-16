@@ -35,7 +35,6 @@
             </div>
           </div>
         </div>
-        {{isTesting}}
         <div v-show="!isTesting" class="text-center">
           <button @click="benchmark" class="btn btn-primary mr-1">Start Benchmark</button>
           <button @click="close" class="btn btn-outline-secondary ">Close</button>
@@ -65,9 +64,9 @@ export default {
     return {
       openTime: 27000000, // 7:30am open time
       closeTime: 79200000, // 10:00pm close time
-      maxTransactionPerDay: 3,
+      maxTransactionPerDay: 1,
       minTransactionPerDay: 1,
-      totalDays: 2, // number of days to create
+      totalDays: 1, // number of days to create
       productList: [],
       transaction: new Transaction(),
       totalTransactionToCreate: 0,
@@ -94,9 +93,9 @@ export default {
     },
     populateTransaction(){
       this.isTesting = true
-      let maxTransactionPerDay = this.maxTransactionPerDay
-      let minTransactionPerDay = this.minTransactionPerDay
-      let totalDays = this.totalDays + 1
+      let maxTransactionPerDay = this.maxTransactionPerDay * 1
+      let minTransactionPerDay = this.minTransactionPerDay * 1
+      let totalDays = (this.totalDays * 1)
       let currentDate = new Date()
       this.totalTransactionToCreate = 0
       this.totalTransactionCreated = 0
