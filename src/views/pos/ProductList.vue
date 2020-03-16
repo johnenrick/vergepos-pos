@@ -55,7 +55,7 @@
     <div
       ref="container"
       id="container"
-      :style="{'max-height': containerHeight}"
+      :style="{'min-height': containerHeight}"
       style="min-height:235px; overflow-y:scroll"
       class="pb-2"
     >
@@ -106,6 +106,8 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
+      window.addEventListener('resize', this.draw)
+
       this.draw()
     })
   },
@@ -131,7 +133,7 @@ export default {
     },
     draw () {
       let totalHeight = $(window).height()
-      let offset = 35 + 60
+      let offset = 35 + 150
       // totalheight - the space from the windows top until container top - the height of the footer
       this.containerHeight = (totalHeight - $(this.$refs.container).position().top - offset) + 'px'
     },
@@ -226,7 +228,7 @@ export default {
 @import "@/assets/style/custom-theme.scss";
 
 #container{
-  min-height: 100px; overflow-y: scroll
+  min-height: 235px; overflow-y: scroll
 }
 /* width */
 #container::-webkit-scrollbar {
