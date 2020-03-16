@@ -1,7 +1,7 @@
 <template>
   <div class="section">
-    <div v-if="isTerminal" class="text-center mt-3">
-      <span class="alert border-warning text-warning">
+    <div v-if="isTerminal" class="text-center mt-3 alert border-warning">
+      <span class="  text-warning">
         <fa icon="exclamation-triangle"/> Changes on the data only applies to <strong>Terminal</strong> after refreshing it <a class="c-pointer" onclick="window.location.reload(true)"><fa icon="undo" /></a>
       </span>
     </div>
