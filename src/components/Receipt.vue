@@ -333,6 +333,7 @@ export default {
     },
     reset(){
       this.errorMessage = null
+      this.toVoid = false
       this.transactionProduct = []
       for(let x in this.transactionDetail){
         this.transactionDetail[x] = 0
