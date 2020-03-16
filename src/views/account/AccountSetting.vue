@@ -98,12 +98,17 @@ export default {
   mounted(){
     this.feedback = 'Loading... Please wait'
     this.prompt = 'alert-primary'
-    if(UserStore.getters.sessionConnection === 'online'){
-      this.isConnected = true
-      this.retrieveDetailOnline()
+    if(localStorage.getItem('is_terminal') * 1 === 2){
+      if(UserStore.getters.sessionConnection === 'online'){
+        this.isConnected = true
+        this.retrieveDetailOnline()
+      } else{
+        this.isConnected = false
+        this.retrieveDetailOffline()
+      }
     } else{
-      this.isConnected = false
-      this.retrieveDetailOffline()
+      this.feedback = 'This device is not a terminal. Details are unavailable'
+      this.prompt = 'alert-danger'
     }
   },
   data() {
@@ -159,15 +164,15 @@ export default {
     }
   },
   methods: {
-    setDetails(data){
-      if(!data.hasOwnProperty('user_basic_information')){
-        this.fName = data['first_name']
-        this.lName = data['last_name']
-        this.email = data['email']
-      } else{
-        this.fName = data['user_basic_information']['first_name']
-        this.lName = data['user_basic_information']['last_name']
-        this.email = data['email']
+    setDetails(num){
+      if(num === 2){
+        this.fName = this.responseTempOffline['first_name']
+        this.lName = this.responseTempOffline['last_name']
+        this.email = this.responseTempOffline['email']
+      } else if(num === 1){
+        this.fName = this.responseTempOnline['user_basic_information']['first_name']
+        this.lName = this.responseTempOnline['user_basic_information']['last_name']
+        this.email = this.responseTempOnline['email']
       }
     },
     retrieveDetailOnline(){
@@ -190,13 +195,29 @@ export default {
         }
       };
       (new User()).get(query).then((response) => {
-        this.responseTempOffline = response[0]
+        if(response){
+          this.responseTempOffline = response[0]
+        }
         this.apiRequest('user/retrieve', param, (response2) => {
-          this.responseTempOnline = response2['data']
-          if(new Date(this.responseTempOnline['user_basic_information']['updated_at']) > new Date(this.responseTempOffline['updated_at'])){
-            this.setDetails(this.retrieveDetailOnline)
+          if(response2){
+            this.responseTempOnline = response2['data']
+            if(this.responseTempOffline === response[0]){
+              let onlineDate = this.responseTempOnline['user_basic_information']['updated_at'].replace(/-/g, ' ').replace(/:/g, ' ').split(' ')
+              if(new Date(onlineDate[0], onlineDate[1], onlineDate[2], onlineDate[3], onlineDate[4], onlineDate[5]) > new Date(this.responseTempOffline['updated_at'])){
+                this.setDetails(1)
+              } else{
+                this.setDetails(2)
+              }
+            } else{
+              this.setDetails(1)
+            }
           } else{
-            this.setDetails(this.responseTempOffline)
+            if(this.responseTempOffline === response[0]){
+              this.setDetails(2)
+            } else{
+              this.feedback = 'An unexpected error occured. No details available'
+              this.prompt = 'alert-danger'
+            }
           }
         })
         this.feedback = ''
@@ -211,7 +232,7 @@ export default {
       };
       (new User()).get(query).then((response) => {
         this.responseTempOffline = response[0]
-        this.setDetails(this.responseTempOffline)
+        this.setDetails(2)
         this.feedback = ''
         this.prompt = 'invisible'
       })

@@ -1,6 +1,6 @@
 <template>
   <div class="" style="">
-    <div id="printMe">
+    <div :id="randomId">
       <div class="text-center" :style="isPrinting ? printingStyle : ''">
         <p :style="isPrinting ? printingStyle : ''">
           <strong style="text-transform: uppercase">{{companyInformation.name}}</strong>
@@ -9,7 +9,7 @@
         </p>
       </div>
       <h4 class="text-center" :style="isPrinting ? printingStyle : ''">X Reading</h4>
-      <table class="table" :style="isPrinting ? printingStyle : ''">
+      <table class="table table-sm" :style="isPrinting ? printingStyle : ''">
         <tbody>
           <tr>
             <td>Date</td>
@@ -120,13 +120,17 @@ export default {
   },
   data(){
     return {
+      randomId: '',
       printingStyle: {
         'width': '250px!important',
-        'font-size': '5pt!important',
+        'font-size': '8!important',
         'font-family': 'monospace!important'
       },
       isPrinting: false
     }
+  },
+  mounted(){
+    this.randomId = 'printMe' + this.generateRandomNumber(1, 10000)
   },
   methods: {
     init(){
@@ -134,11 +138,11 @@ export default {
     printXReading(){
       this.isPrinting = true
       setTimeout(() => {
-        this.$htmlToPaper('printMe', () => {
+        this.$htmlToPaper(this.randomId, () => {
           this.isPrinting = false
         })
       }, 1000)
-    }
+    },
   },
   computed: {
     totalSales(){
