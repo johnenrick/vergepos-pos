@@ -76,7 +76,7 @@
           :fields="tableSetting.columns"
         >
           <template slot="actions" slot-scope="props">
-            <button @click="openTransaction(props.rowData['id'])" class="btn btn-sm btn-info"><fa icon="search" /></button>
+            <button @click="openTransaction(props.rowData['number'])" class="btn btn-sm btn-info"><fa icon="search" /></button>
           </template>
         </vuetable>
         <product-history
@@ -125,7 +125,7 @@ export default {
       isGenerating: false,
       tableSetting: {
         columns: [{
-          name: 'transaction_number_id',
+          name: 'number',
           title: 'Transaction Number',
           titleClass: 'text-center',
           dataClass: 'text-center',
@@ -164,7 +164,6 @@ export default {
           titleClass: 'text-center',
           dataClass: 'text-center',
           callback: (test, fmt, yawa) => {
-            console.log('test', test, fmt, yawa)
           }
         }]
       }
@@ -291,7 +290,6 @@ export default {
       let transactionDB = new Transaction()
       return new Promise((resolve, reject) => {
         transactionDB.get(query).then((response) => {
-          console.log(response)
           this.transactions = response
           this.$refs.productHistory.getData(this.transactions)
           // this.salesTransactionCount = response.length
@@ -327,7 +325,6 @@ export default {
       this.generateReport()
     },
     generateReport(){
-      console.log('generating', this.graphType, this.transactions.length)
       let reportType = this.graphType
       if(reportType === 'time_in_day'){
         this.$refs.timeInDay._generate()
