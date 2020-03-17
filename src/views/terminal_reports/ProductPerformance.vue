@@ -315,6 +315,8 @@ export default {
 
                     this.dailyTransactionProducts[response[x]['product_id']] = {
                       description: response[x]['description'],
+                      cost: response[x]['cost'],
+                      price: response[x]['price'],
                       data: prepareData
                     }
                   }else{
@@ -356,9 +358,10 @@ export default {
 
                   prepareData.push(data)
                 }
-
                 this.dailyTransactionProducts[response[x]['product_id']] = {
                   description: response[x]['description'],
+                  cost: response[x]['cost'],
+                  price: response[x]['price'],
                   data: prepareData
                 }
               }else{
@@ -446,7 +449,7 @@ export default {
               this.monthlyTransactionProduct[filteredData[x]['product_id']] = {
                 description: filteredData[x]['description'],
                 cost: filteredData[x]['cost'],
-                amount: filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'],
+                price: filteredData[x]['price'],
                 data: prepareData
               }
             }else {
@@ -517,7 +520,7 @@ export default {
               this.yearlyTransactionProducts[filteredData[x]['product_id']] = {
                 description: filteredData[x]['description'],
                 cost: filteredData[x]['cost'],
-                amount: filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'],
+                price: filteredData[x]['price'],
                 data: prepareData
               }
             }else {
@@ -586,7 +589,7 @@ export default {
               this.hourlyTransactionProducts[filteredData[x]['product_id']] = {
                 description: filteredData[x]['description'],
                 cost: filteredData[x]['cost'],
-                amount: filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'],
+                price: filteredData[x]['price'],
                 data: prepareData
               }
             }else {
