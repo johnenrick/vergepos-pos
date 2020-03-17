@@ -61,7 +61,7 @@
             </tr>
             <tr>
               <td>Discount</td>
-              <td style="text-align: right">{{transactionDetail.total_discount_amount | numberFormat}}</td>
+              <td style="text-align: right">{{transactionDetail.discountAmount | numberFormat}}</td>
             </tr>
             <tr class="font-weight-bold text-uppercase">
               <td>Total</td>

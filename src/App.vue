@@ -21,7 +21,6 @@
         <div v-else class="text-center">
           <img src="/img/loading.gif" width="100px">
           <br>Loading components...
-          {{isLoadingModule + ''}} {{dataSynced + ''}}
         </div>
       </div>
     </div>

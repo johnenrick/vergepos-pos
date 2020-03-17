@@ -16,7 +16,7 @@
               <form class="form-signin">
                 <div class="form-group">
                   <label >Email address</label>
-                  <input @keyup="isTypingUsername" v-model="username" type="text" id="inputEmail" class="form-control" placeholder="Email address" required autofocus autocomplete="username">
+                  <input @keyup="isTypingUsername" v-model="username" type="email" class="form-control" placeholder="Email address" required autofocus autocomplete="username">
                 </div>
                 <div class="form-group">
                   <label>{{isOffline === false ? 'Password' : 'PIN'}}</label>
