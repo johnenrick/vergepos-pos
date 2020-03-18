@@ -105,6 +105,7 @@ export default class UserSync extends Sync{
           resolve(5)
         }
       }).catch((error, status) => {
+        resolve(5)
         console.log('failed to sync', error, status)
         reject(error)
       })

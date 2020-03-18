@@ -21,7 +21,8 @@ export default {
   ],
   side_menus: [{
     icon: 'box',
-    name: 'Product'
+    name: 'Product',
+    has_offline: true
   }, {
     icon: 'boxes',
     name: 'Category'
@@ -33,12 +34,15 @@ export default {
     name: 'Terminal Reports',
     sub_item: [{
       name: 'Transaction History',
-      route: 'transaction-history'
+      route: 'transaction-history',
+      has_offline: true
     }, {
       name: 'Product Performance',
-      route: 'product-performance'
+      route: 'product-performance',
+      has_offline: true
     }, {
-      name: 'X Reading'
+      name: 'X Reading',
+      has_offline: true
     }]
   }, {
   //   icon: 'file-contract',

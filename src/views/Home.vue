@@ -78,10 +78,8 @@ export default {
       // return this.isOffline = true
       this.checkConnectivity().then((ping) => {
         this.isOffline = false
-        VueCoreStore.dispatch('setUserInformationOffline')
       }).catch((status) => {
         this.isOffline = true
-        VueCoreStore.dispatch('setUserInformation')
       }).finally(() => {
         if(typeof callback === 'function'){
           callback()

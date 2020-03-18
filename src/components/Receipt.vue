@@ -253,7 +253,6 @@ export default {
               if(transactionProductResult.length){
                 this.transactionProduct = transactionProductResult
                 this.isLoading = false
-                // console.log(this.transactionProduct)
               }else{
                 this.isLoading = false
                 console.warn('No Product Retrieved')
