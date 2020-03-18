@@ -1,7 +1,7 @@
 <template>
   <div class="" style="">
     <div :id="randomId">
-      <div class="text-center" :style="isPrinting ? printingStyle : ''">
+      <div class="text-center">
         <p :style="isPrinting ? printingStyle : ''">
           <strong style="text-transform: uppercase">{{companyInformation.name}}</strong>
           <span v-if="companyInformation.address !== null || companyInformation.address === ''"><br>{{companyInformation.address}}</span>
@@ -123,7 +123,7 @@ export default {
       randomId: '',
       printingStyle: {
         'width': '250px!important',
-        'font-size': '8!important',
+        'font-size': '8px!important',
         'font-family': 'monospace!important'
       },
       isPrinting: false
