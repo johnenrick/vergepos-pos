@@ -75,6 +75,7 @@ export default class ProductSync extends Sync{
           resolve(4)
         }
       }).catch((error, status) => {
+        resolve(4)
         console.log('failed to sync', error, status)
         return error
       })

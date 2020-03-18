@@ -64,6 +64,7 @@ export default class CustomerSync extends Sync{
         }
       }).catch((error, status) => {
         console.log('failed to sync', error, status)
+        resolve(2)
         reject(error)
       })
     })

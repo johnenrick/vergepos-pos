@@ -9,10 +9,8 @@ class UpSync {
   silentSyncInterval = 20000
   silentSync(){
     this.sync().catch(error => {
-      console.log('un', error)
       switch(error){
         case 'not_terminal':
-          console.log('not a terminal')
           break
         default:
           setTimeout(() => {
@@ -127,8 +125,11 @@ class UpSync {
         }else{
           resolve(true)
         }
+        this.silentSyncInterval = 20000
       }, (result, status) => {
         console.log('result, status', result, status)
+        this.silentSyncInterval = this.silentSyncInterval * 1.5
+        console.log('this.silentSyncInterval', this.silentSyncInterval)
         if(status * 1 === 422){
           reject(422)
         }else{

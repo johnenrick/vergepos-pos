@@ -56,6 +56,7 @@ export default {
   methods: {
     save(){
       localStorage.setItem('dev-config', JSON.stringify(this.config))
+      window.location = '/'
     }
   }
 }

@@ -69,6 +69,7 @@ export default class CategorySync extends Sync{
         }
       }).catch((error, status) => {
         console.log('failed to sync', error, status)
+        resolve(1)
         reject(error)
       })
     })

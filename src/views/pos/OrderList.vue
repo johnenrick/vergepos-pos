@@ -18,7 +18,7 @@
       ref="container"
       id="container"
 
-      :style="{'max-height': containerHeight}"
+      :style="{'min-height': containerHeight}"
     >
       <div
         v-for="(order, index) in orderList"
@@ -158,6 +158,8 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
+      window.addEventListener('resize', this.draw)
+
       this.draw()
       Cart.commit('restoreCached')
     })
@@ -199,7 +201,7 @@ export default {
     },
     draw () {
       let totalHeight = $(window).height()
-      let offset = 35
+      let offset = 35 + 32
       // totalheight - the space from the windows top until container top - the height of the footer
       this.containerHeight = (totalHeight - $(this.$refs.container).position().top - $(this.$refs.footer).height() * 2 - offset) + 'px'
     },

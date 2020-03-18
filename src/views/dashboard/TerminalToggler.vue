@@ -70,6 +70,11 @@ export default {
         id: UserStore.getters.companyInformation.id,
         select: {
           0: 'id',
+          1: 'name',
+          2: 'code',
+          company_detail: {
+            select: ['address', 'contact_number']
+          },
           stores: {
             select: {
               0: 'id',
@@ -85,7 +90,15 @@ export default {
       this.apiRequest('company/retrieve', param, (response) => {
         if(response['data'] && typeof response['data']['stores'] !== 'undefined' && response['data']['stores'].length && response['data']['stores'][0]['store_terminals'].length){
           localStorage.setItem('is_terminal', response['data']['stores'][0]['store_terminals'][0]['id'])
-          console.log(response['data']['stores'])
+          console.log(response['data'])
+          let companyInformation = {
+            id: response['data']['id'],
+            name: response['data']['name'],
+            code: response['data']['code'],
+            address: response['data']['company_detail']['address'],
+            contact_number: response['data']['company_detail']['contact_number']
+          }
+          localStorage.setItem('company_detail', JSON.stringify(companyInformation))
           window.location = '/'
         }else{
           console.error('Cannot set Terminal', response['data'])

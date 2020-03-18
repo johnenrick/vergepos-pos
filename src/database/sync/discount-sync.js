@@ -77,6 +77,7 @@ export default class DiscountSync extends Sync{
           resolve(3)
         }
       }).catch((error, status) => {
+        resolve(3)
         console.log('failed to sync', error, status)
         return error
       })

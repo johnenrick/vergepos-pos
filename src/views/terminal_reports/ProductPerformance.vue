@@ -299,7 +299,8 @@ export default {
                     for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr <= new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
                       let data = {
                         x: '',
-                        y: 0
+                        y: 0,
+                        amt: 0
                       }
                       if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
                         Vue.set(data, 'y', response[x]['quantity'])
@@ -315,6 +316,8 @@ export default {
 
                     this.dailyTransactionProducts[response[x]['product_id']] = {
                       description: response[x]['description'],
+                      cost: response[x]['cost'],
+                      price: response[x]['price'],
                       data: prepareData
                     }
                   }else{
@@ -324,6 +327,7 @@ export default {
                         if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()){
                           // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
                           this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
+                          this.dailyTransactionProducts[index]['data'][i].amt += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'])
                         }
                       }
                     }
@@ -344,7 +348,8 @@ export default {
                 for(let ctr = new Date(this.startDatetimeFilter).getDate(), i = 0; ctr <= new Date(this.endDatetimeFilter).getDate(); ctr++, i++){
                   let data = {
                     x: '',
-                    y: 0
+                    y: 0,
+                    amt: 0
                   }
                   if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
                     Vue.set(data, 'y', response[x]['quantity'])
@@ -356,9 +361,10 @@ export default {
 
                   prepareData.push(data)
                 }
-
                 this.dailyTransactionProducts[response[x]['product_id']] = {
                   description: response[x]['description'],
+                  cost: response[x]['cost'],
+                  price: response[x]['price'],
                   data: prepareData
                 }
               }else{
@@ -368,12 +374,30 @@ export default {
                     if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()) {
                     // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
                       this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
+                      this.dailyTransactionProducts[index]['data'][i].amt += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'])
                     }
                   }
                 }
               }
             }
           }
+          let forTableData = []
+          for(let i in this.dailyTransactionProducts){
+            for(let x in this.dailyTransactionProducts[i]['data']){
+              if(this.dailyTransactionProducts[i]['data'][x].y !== 0){
+                let data = {
+                  description: this.dailyTransactionProducts[i]['description'],
+                  created_at: this.dailyTransactionProducts[i]['data'][x].x.toString().split(' ').slice(0, 5).join(' '),
+                  quantity: this.dailyTransactionProducts[i]['data'][x].y,
+                  amount: this.dailyTransactionProducts[i]['data'][x].amt,
+                  profit: this.dailyTransactionProducts[i]['data'][x].amt - (this.dailyTransactionProducts[i]['data'][x].y * this.dailyTransactionProducts[i].cost)
+                }
+                forTableData.push(data)
+              }
+              delete this.dailyTransactionProducts[i]['data'][x].amt
+            }
+          }
+          this.transactionProducts = forTableData
           console.log('DAILY', this.dailyTransactionProducts)
           this.$refs.lineGraph.prepData(this.dailyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
           // }
@@ -446,7 +470,7 @@ export default {
               this.monthlyTransactionProduct[filteredData[x]['product_id']] = {
                 description: filteredData[x]['description'],
                 cost: filteredData[x]['cost'],
-                amount: filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'],
+                price: filteredData[x]['price'],
                 data: prepareData
               }
             }else {
@@ -517,7 +541,7 @@ export default {
               this.yearlyTransactionProducts[filteredData[x]['product_id']] = {
                 description: filteredData[x]['description'],
                 cost: filteredData[x]['cost'],
-                amount: filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'],
+                price: filteredData[x]['price'],
                 data: prepareData
               }
             }else {
@@ -586,7 +610,7 @@ export default {
               this.hourlyTransactionProducts[filteredData[x]['product_id']] = {
                 description: filteredData[x]['description'],
                 cost: filteredData[x]['cost'],
-                amount: filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'],
+                price: filteredData[x]['price'],
                 data: prepareData
               }
             }else {

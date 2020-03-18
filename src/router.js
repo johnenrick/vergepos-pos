@@ -11,8 +11,8 @@ let routes = [
     component: require('./views/Home.vue').default,
     meta: {
       no_sidebar: true,
-      auth_offline: false,
-      auth: false
+      // auth_offline: false,
+      // auth: false
     }
   }, {
     path: '/dashboard',
@@ -47,7 +47,7 @@ let routes = [
       }
     },
     meta: {
-      auth_offline: true
+      auth_offline: false
     }
   },
   {
@@ -165,6 +165,27 @@ let routes = [
     meta: {
       no_sidebar: true
     }
+  },
+  {
+    path: '/error/online-only',
+    name: 'OnlineOnlyPage',
+    component: require('@/views/error/OnlineOnly.vue').default,
+    meta: {
+    }
+  },
+  {
+    path: '/error/not-found',
+    name: 'NotFoundPage',
+    component: require('@/views/error/NotFound.vue').default,
+    meta: {
+    }
+  },
+  {
+    path: '/error/cannot-access',
+    name: 'CannotAccess',
+    component: require('@/views/error/CannotAccess.vue').default,
+    meta: {
+    }
   }
 ]
 let router = new Router({
@@ -180,13 +201,15 @@ router.beforeResolve((to, from, next) => {
       store.commit('isReady', () => {
         if(to.meta.auth_offline && store.getters.user){
           next()
+          store.commit('setModuleLoading', false)
         }else{
-          next({ path: '/' })
+          next({ path: '/error/online-only' })
           store.commit('setModuleLoading', false)
         }
       })
     }else{
       next()
+      store.commit('setModuleLoading', false)
     }
   }else{
     next()
@@ -197,11 +220,6 @@ router.beforeResolve((to, from, next) => {
   }else{
     navConfig.noSideBar = false
   }
-})
-router.afterEach((to, from) => {
-  // console.log('after', from.path, to.path)
-  // Complete the animation of the route progress bar.
-  store.commit('setModuleLoading', false)
 })
 
 export default router
