@@ -47,7 +47,6 @@
       <transaction-graph
       v-show="selectedReport === 'transaction'"
       ref='graph'
-      :dataProp="transactionProducts"
       />
       <line-graph
         v-show="selectedReport === 'daily'"
@@ -284,6 +283,7 @@ export default {
               this.transactionProducts.push(productArr[x])
             }
             console.log('ALLTIME', this.transactionProducts)
+            this.$refs.graph.plotData(this.transactionProducts)
           }
         }else if(this.selectedReport === 'daily'){
           // if(response.length !== 0){
