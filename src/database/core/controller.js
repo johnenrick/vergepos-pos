@@ -32,12 +32,16 @@ export default class Controller {
     })
   }
   update(data){
-    data['updated_at'] = (new Date()).getTime()
     if(isNaN(data['created_at'] * 1)){
       // data['created_at'] = (new Date(data['created_at'])).getTime()
     }
     if(data['created_at']){
       data['created_at'] = (new Date(data['created_at'])).getTime()
+    }
+    if(typeof data['updated_at'] !== 'undefined' || data['updated_at']){
+      data['updated_at'] = (new Date(data['updated_at'])).getTime()
+    }else{
+      data['updated_at'] = (new Date()).getTime()
     }
     return new Promise((resolve, reject) => {
       let where = {}
@@ -157,6 +161,30 @@ export default class Controller {
       }).then(result => {
         resolve(result.length ? result : null)
       })
+    })
+  }
+  delete(query){
+    let where = {}
+    if(typeof query === 'object'){
+      where = query['where']
+    }else{
+      where['id'] = query * 1
+    }
+    return new Promise((resolve, reject) => {
+      if(typeof query === 'undefined' || !query){
+        console.log(this.tableName, 'Removing item with no condition', where)
+        reject(false)
+      }else{
+        connection.remove({
+          from: this.tableName,
+          where: where
+        }).then(response => {
+          resolve(response)
+        }).catch(error => {
+          console.log(this.tableName, error)
+          reject(error)
+        })
+      }
     })
   }
   getAll(){

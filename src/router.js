@@ -27,7 +27,6 @@ let routes = [
     path: '/company-registration',
     name: 'CompanyRegistration',
     component: () => {
-      store.commit('setModuleLoading', true)
       return {
         component: import('@/views/registration/CompanyRegistration.vue')
       }
@@ -40,14 +39,9 @@ let routes = [
   {
     path: '/user-management',
     name: 'UserManagement',
-    component: () => {
-      store.commit('setModuleLoading', true)
-      return {
-        component: import('@/views/user_management/UserManagement.vue')
-      }
-    },
+    component: () => import('@/views/user_management/UserManagement.vue'),
     meta: {
-      auth_offline: false
+      auth_offline: true
     }
   },
   {
@@ -203,7 +197,7 @@ router.beforeResolve((to, from, next) => {
           next()
           store.commit('setModuleLoading', false)
         }else{
-          next({ path: '/error/online-only' })
+          next({ path: '/' })
           store.commit('setModuleLoading', false)
         }
       })

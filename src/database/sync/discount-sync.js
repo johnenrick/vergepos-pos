@@ -1,8 +1,29 @@
 import Sync from '../core/sync.js'
 import Discount from '@/database/controller/discount.js'
+import datetimeHelper from '@/vue-web-core/helper/mixin/datetime'
 export default class DiscountSync extends Sync{
-  downSync(){
-    let latestDate = new Date(localStorage.getItem('latest_discounts_datetime'))
+  async downSync(){
+    let idb = new Discount()
+    let query = {
+      limit: 1,
+      order: {
+        by: 'updated_at',
+        type: 'desc'
+      }
+    }
+    return new Promise((resolve, reject) => {
+      idb.get(query).then(response => {
+        let latestDate = null
+        if(response.length){
+          latestDate = datetimeHelper.serverDatetimeFormat(response[0]['updated_at'])
+        }
+        this.download(latestDate).then(result => {
+          resolve(result)
+        })
+      })
+    })
+  }
+  async download(latestDate){
     let param = {
       select: [
         'description',
@@ -14,12 +35,15 @@ export default class DiscountSync extends Sync{
         'created_at',
         'deleted_at'
       ],
-      condition: [{
+      condition: [],
+      with_trash: true
+    }
+    if(latestDate){
+      param['condition'].push({
         column: 'updated_at',
         clause: '>',
         value: latestDate
-      }],
-      with_trashed: true
+      })
     }
     return new Promise((resolve, reject) => {
       this.retrieveAPIData('discount/retrieve', param).then(response => {
@@ -45,27 +69,24 @@ export default class DiscountSync extends Sync{
             }
             discount.get(idbParam).then((result) => {
               if (response['data'][x]['deleted_at'] && result.length) {
-                discount.delete(result[0].id).then(() => {
-                  counter++
-                })
-              } else if (result.length && response['data'][x]['deleted_at']) {
-                discount.delete(result[0].id).then(() => {
+                discount.delete(result[0].id).finally(() => {
                   counter++
                 })
               } else if (result.length) {
                 discountData['id'] = result[0]['id']
-                discount.update(discountData).then(() => {
+                discount.update(discountData).finally(() => {
                   counter++
                 })
               } else if (!result.length && !response['data'][x]['deleted_at']) {
                 response['data'][x]['db_id'] = response['data'][x]['id']
                 delete response['data'][x]['id']
-                discount.add(discountData).then(() => {
+                discount.add(discountData).finally(() => {
                   counter++
                 })
+              }else{
+                counter++
               }
             })
-            // localStorage.setItem('latest_discounts_datetime', new Date(response['data'][x]['updated_at']))
           }
           let interval = setInterval(() => {
             if(counter === maxCount){

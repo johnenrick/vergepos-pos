@@ -1,8 +1,29 @@
 import Sync from '../core/sync.js'
 import Product from '@/database/controller/product.js'
+import datetimeHelper from '@/vue-web-core/helper/mixin/datetime'
 export default class ProductSync extends Sync{
-  downSync(){
-    let latestDate = new Date(localStorage.getItem('latest_products_datetime'))
+  async downSync(){
+    let idb = new Product()
+    let query = {
+      limit: 1,
+      order: {
+        by: 'updated_at',
+        type: 'desc'
+      }
+    }
+    return new Promise((resolve, reject) => {
+      idb.get(query).then(response => {
+        let latestDate = null
+        if(response.length){
+          latestDate = datetimeHelper.serverDatetimeFormat(response[0]['updated_at'])
+        }
+        this.download(latestDate).then(result => {
+          resolve(result)
+        })
+      })
+    })
+  }
+  async download(latestDate){
     let param = {
       select: {
         0: 'description',
@@ -15,12 +36,15 @@ export default class ProductSync extends Sync{
         7: 'barcode',
         8: 'created_at'
       },
-      condition: [{
+      condition: [],
+      with_trash: true
+    }
+    if(latestDate){
+      param['condition'].push({
         column: 'updated_at',
         clause: '>',
         value: latestDate
-      }],
-      with_trashed: true
+      })
     }
     return new Promise((resolve, reject) => {
       this.retrieveAPIData('product/retrieve', param).then(response => {
@@ -41,13 +65,11 @@ export default class ProductSync extends Sync{
               category_id: response['data'][x]['category_id'] * 1,
               price: response['data'][x]['price'] * 1,
               cost: response['data'][x]['cost'] * 1,
+              created_at: response['data'][x]['created_at'],
+              updated_at: response['data'][x]['updated_at']
             }
             product.get(idbParam).then((result) => {
               if (response['data'][x]['deleted_at'] && result.length) {
-                product.delete(result[0].id).then(() => {
-                  counter++
-                })
-              } else if (result.length && response['data'][x]['deleted_at']) {
                 product.delete(result[0].id).then(() => {
                   counter++
                 })
@@ -61,9 +83,9 @@ export default class ProductSync extends Sync{
                   counter++
                 })
               }else{
+                counter++
               }
             })
-            // localStorage.setItem('latest_product_datetime', new Date(response['data'][x]['updated_at']))
           }
           let interval = setInterval(() => {
             if(counter === maxCount){
