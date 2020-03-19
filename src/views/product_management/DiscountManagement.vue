@@ -100,6 +100,7 @@ let ModuleDefault = {
       config: {
         // module_name: 'Variable Management',
         api: 'discount',
+        has_create_more: true,
         table_setting: {
           retrieve_parameter: tableSettingRetrieveParameter,
           table_column_setting: tableColumnSetting

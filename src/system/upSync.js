@@ -2,11 +2,12 @@ import Transaction from '@/database/controller/transaction'
 import TransactionNumber from '@/database/controller/transaction-number'
 import TransactionProduct from '@/database/controller/transaction-product'
 import APIRequest from '@/vue-web-core/system/http-request-handling/apiRequest'
+import DatetimeHelper from '@/vue-web-core/helper/mixin/datetime'
 let currentlySyncingDataUp = false
 class UpSync {
   lastTransactionId = null
   doneUploadCallBacks = []
-  silentSyncInterval = 20000
+  silentSyncInterval = 5000
   silentSync(){
     this.sync().catch(error => {
       switch(error){
@@ -17,7 +18,7 @@ class UpSync {
             this.silentSync()
           }, this.silentSyncInterval)
       }
-    }).finally(() => {
+    }).then((result) => {
       setTimeout(() => {
         this.silentSync()
       }, this.silentSyncInterval)
@@ -65,6 +66,9 @@ class UpSync {
           updated_at: 'transaction_number_updated_at',
           deleted_at: 'transaction_number_deleted_at',
         },
+        where: {
+          db_id: 0
+        },
         order: {
           by: 'created_at',
           type: 'asc'
@@ -108,18 +112,33 @@ class UpSync {
       store_terminal_id: localStorage.getItem('is_terminal') * 1,
       transactions: transactions
     }
+    let transactionNumberDB = new TransactionNumber()
     return new Promise((resolve, reject) => {
       APIRequest.request('transaction/sync', param, response => {
+        console.log('uploading')
         if(!response['error'] && transactions.length === response['data'].length){
           let doneCounter = 0
           for(let x = 0; x < transactions.length; x++){
+            // console.log(response['data'][x]['error'], response['data'][x], x, response['data'][x]['error'] === 'transaction_number_already_exists')
             if(!response['data'][x]['error']){
-              this.updateTransactionDBId(transactions[x], response['data'][x]).then((result) => {
+              this.updateTransactionDBId(transactions[x], response['data'][x]).finally((result) => {
                 ++doneCounter
                 if(doneCounter === transactions.length){
                   resolve(true)
                 }
               })
+            } else if(response['data'][x]['error'] === 'transaction_number_already_exists'){
+              transactionNumberDB.update({ id: transactions[x]['transaction_number_id'], db_id: response['data'][x]['transaction_number']['id'] }).finally(() => {
+                ++doneCounter
+                if(doneCounter === transactions.length){
+                  resolve(true)
+                }
+              })
+            } else{
+              ++doneCounter
+              if(doneCounter === transactions.length){
+                resolve(true)
+              }
             }
           }
         }else{
@@ -127,9 +146,7 @@ class UpSync {
         }
         this.silentSyncInterval = 20000
       }, (result, status) => {
-        console.log('result, status', result, status)
         this.silentSyncInterval = this.silentSyncInterval * 1.5
-        console.log('this.silentSyncInterval', this.silentSyncInterval)
         if(status * 1 === 422){
           reject(422)
         }else{
@@ -162,20 +179,18 @@ class UpSync {
     })
   }
   prepareTransactionNumber(transaction){
-    // console.log('transaction', transaction['id'], transaction['transaction_number_user_id'], typeof transaction['transaction_number_user_id'], transaction['transaction_number_user_id'] * 1)
     transaction['transaction_number'] = {
       user_id: transaction['transaction_number_user_id'],
       number: transaction['transaction_number_number'],
       operation: transaction['transaction_number_operation'],
+      created_at: DatetimeHelper.serverDatetimeFormat(transaction['transaction_number_created_at'], true),
     }
-    // delete transaction['transaction_number_db_id']
     // delete transaction['transaction_number_user_id']
     // delete transaction['transaction_number_number']
     // delete transaction['transaction_number_operation']
     // delete transaction['transaction_number_created_at']
     // delete transaction['transaction_number_updated_at']
     // delete transaction['transaction_number_deleted_at']
-    // console.log('transaction 2', transaction)
   }
 }
 let upSync = new UpSync()
