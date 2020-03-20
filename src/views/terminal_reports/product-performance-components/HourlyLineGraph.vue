@@ -1,6 +1,6 @@
 <template>
   <div class="w-100">
-    <button @click="switchDisplay()" class="btn btn-outline-primary mt-4 ml-3">{{viewDisplay}}</button>
+        <button @click="switchDisplay()" class="btn btn-outline-primary mt-4 ml-3">View {{viewDisplay}}</button>
     <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></line-chart>
   </div>
 </template>
@@ -13,7 +13,7 @@ export default {
   data(){
     return {
       view: false,
-      viewDisplay: 'Switch to Profit',
+      viewDisplay: 'Profit',
       passedData: {},
       newStart: '',
       newEnd: '',
@@ -35,9 +35,9 @@ export default {
     switchDisplay(){
       this.view = !this.view
       if(this.view){
-        this.viewDisplay = 'Switch to Profit'
+        this.viewDisplay = 'Profit'
       } else{
-        this.viewDisplay = 'Switch to  Quantity'
+        this.viewDisplay = 'Quantity'
       }
     },
     plotData(data){
