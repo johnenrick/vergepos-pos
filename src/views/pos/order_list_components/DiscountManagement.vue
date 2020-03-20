@@ -141,7 +141,6 @@ export default {
     NumberInput
   },
   mounted () {
-    this.listDiscount()
   },
   props: {
   },
@@ -160,6 +159,9 @@ export default {
     }
   },
   methods: {
+    _initialize(){
+      this.listDiscount()
+    },
     save () {
       // TODO saving happens here
       for(let x = 0; x < this.orderedItemList.length; x++){
@@ -184,7 +186,7 @@ export default {
       // }
     },
     listDiscount () {
-      (new Discount()).getAll().then((response) => {
+      (new Discount()).get().then((response) => {
         this.discountList = response || []
         for(let x = 0; x < this.discountList.length; x++){
           Vue.set(this.discountListLookup, this.discountList[x]['db_id'], x)
@@ -251,7 +253,6 @@ export default {
       this.discountRemarks = ''
     },
     _open () { // open the modal
-      console.log(Cart.state)
       this.selectedDiscountIndex = Cart.state.discountId ? this.discountListLookup[Cart.state.discountId] : null
       this.discountRemarks = Cart.state.discountRemarks
       let orderedItemList = this.cloneObject(Cart.state.items)

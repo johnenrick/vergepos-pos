@@ -65,6 +65,7 @@ export default {
         })
       }else{
         this.$refs.productList._initialize()
+        this.$refs.orderList._initialize()
       }
     }
   }

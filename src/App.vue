@@ -1,5 +1,5 @@
 <template>
-  <div id="app" style="padding-top:56px" @mouseover="isMouseOnPage = true" @mouseleave="isMouseOnPage = false">
+  <div id="app" style="padding-top:67px" @mouseover="isMouseOnPage = true" @mouseleave="isMouseOnPage = false">
 
     <modal ref="modal" :closeable="false">
       <template v-slot:body >

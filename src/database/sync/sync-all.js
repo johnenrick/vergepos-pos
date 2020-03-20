@@ -1,11 +1,13 @@
 // import Migrate from '@/database/migrate'
 import CategorySync from './category-sync'
+import TransactionSync from './transaction-sync'
 import ProductSync from './product-sync'
 import DiscountSync from './discount-sync'
 import CustomerSync from './customer-sync'
 import UserSync from './user-sync'
 import SyncStore from './sync-store'
 export default class SyncAll {
+  transactionSync
   categorySync
   productSync
   discountSync
@@ -15,6 +17,7 @@ export default class SyncAll {
   syncFailCount
   progressListener
   constructor(){
+    this.transactionSync = new TransactionSync()
     this.categorySync = new CategorySync()
     this.productSync = new ProductSync()
     this.discountSync = new DiscountSync()
@@ -28,7 +31,7 @@ export default class SyncAll {
     }
     this.syncSuccess = 0
     this.syncFail = 0
-    this.syncItems = [this.categorySync, this.productSync, this.discountSync, this.customerSync]
+    this.syncItems = [this.categorySync, this.productSync, this.discountSync, this.customerSync, this.transactionSync]
     if(localStorage.getItem('is_terminal') * 1){
       this.syncItems.push(this.userSync)
     }

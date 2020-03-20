@@ -7,16 +7,20 @@ export default class TransactionNumber extends Controller {
   add(entry){
     let controller = new Controller()
     controller.tableName = this.tableName
-    return new Promise((resolve, reject) => {
-      this.getLastNumber().then(latestNumber => {
-        entry['number'] = latestNumber + 1
-        controller.add(entry).then(result => {
-          resolve(result)
-        }).catch(errorResult => {
-          reject(errorResult)
+    if(typeof entry['number'] === 'undefined' || !entry['number']){
+      return new Promise((resolve, reject) => {
+        this.getLastNumber().then(latestNumber => {
+          entry['number'] = latestNumber + 1
+          controller.add(entry).then(result => {
+            resolve(result)
+          }).catch(errorResult => {
+            reject(errorResult)
+          })
         })
       })
-    })
+    }else{
+      return controller.add(entry)
+    }
   }
   getLastNumber(){
     let query = {

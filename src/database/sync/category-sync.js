@@ -1,8 +1,29 @@
 import Sync from '../core/sync.js'
 import Category from '@/database/controller/category.js'
+import datetimeHelper from '@/vue-web-core/helper/mixin/datetime'
 export default class CategorySync extends Sync{
   async downSync(){
-    let latestDate = new Date(localStorage.getItem('latest_categories_datetime'))
+    let categoryDB = new Category()
+    let query = {
+      limit: 1,
+      order: {
+        by: 'updated_at',
+        type: 'desc'
+      }
+    }
+    return new Promise((resolve, reject) => {
+      categoryDB.get(query).then(response => {
+        let latestDate = null
+        if(response.length){
+          latestDate = datetimeHelper.serverDatetimeFormat(response[0]['updated_at'])
+        }
+        this.download(latestDate).then(result => {
+          resolve(result)
+        })
+      })
+    })
+  }
+  async download(latestDate){
     let param = {
       select: {
         0: 'description',
@@ -10,16 +31,19 @@ export default class CategorySync extends Sync{
         2: 'deleted_at',
         3: 'created_at',
       },
-      condition: [{
+      condition: [],
+      with_trash: true
+    }
+    if(latestDate){
+      param['condition'].push({
         column: 'updated_at',
         clause: '>',
         value: latestDate
-      }],
-      with_trashed: true
+      })
     }
     return new Promise((resolve, reject) => {
       this.retrieveAPIData('category/retrieve', param).then(response => {
-        if (response['data']) {
+        if (response['data'].length) {
           let category = new Category()
           let counter = 0
           let maxCount = response['data'].length
@@ -34,29 +58,27 @@ export default class CategorySync extends Sync{
               description: response['data'][x]['description'],
               created_at: response['data'][x]['created_at'],
               deleted_at: response['data'][x]['deleted_at'],
+              updated_at: response['data'][x]['updated_at']
             }
             category.get(idbParam).then((result) => {
-              if (response['data'][x]['deleted_at'] && result.length) {
-                category.delete(result[0]['id'] * 1).then(() => {
-                  counter++
-                })
-              } else if (result.length && response['data'][x]['deleted_at']) {
-                category.delete(result[0]['id'] * 1).then(() => {
+              // console.log(result, response['data'][x])
+              if (result.length && response['data'][x]['deleted_at']) {
+                category.delete(result[0]['id']).finally(() => {
                   counter++
                 })
               } else if (result.length) {
                 categoryData['id'] = result[0]['id']
-                category.update(categoryData).then(() => {
+                category.update(categoryData).finally(() => {
                   counter++
                 })
               } else if (!result.length && !response['data'][x]['deleted_at']) {
-                console.log('Adding Product to iDB', result, response['data'][x]['id'])
-                category.add(categoryData).then(() => {
+                category.add(categoryData).finally(() => {
                   counter++
                 })
+              }else{
+                counter++
               }
             })
-            // localStorage.setItem('latest_categories_datetime', new Date(response['data'][x]['updated_at']))
           }
           let interval = setInterval(() => {
             if(counter === maxCount){
@@ -70,7 +92,6 @@ export default class CategorySync extends Sync{
       }).catch((error, status) => {
         console.log('failed to sync', error, status)
         resolve(1)
-        reject(error)
       })
     })
   }
