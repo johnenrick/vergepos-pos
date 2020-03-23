@@ -39,9 +39,9 @@ let ModuleDefault = {
   },
   mounted () {
     this.isTerminal = localStorage.getItem('is_terminal')
+    this.checkForCategories()
     this.checkConnectivity().then((ping) => {
       this.isOffline = false
-      this.checkForCategories()
     }).catch(() => {
       this.isOffline = true
     })
