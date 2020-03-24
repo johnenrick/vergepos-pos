@@ -61,7 +61,7 @@
             </tr>
             <tr>
               <td>Discount</td>
-              <td style="text-align: right">{{transactionDetail.total_discount_amount | numberFormat}}</td>
+              <td style="text-align: right">{{transactionDetail.discountAmount | numberFormat}}</td>
             </tr>
             <tr class="font-weight-bold text-uppercase">
               <td>Total</td>
@@ -218,6 +218,8 @@ export default {
           if(result.length){
             result = result[0]
             this.transactionDetail.id = result['id']
+            this.transactionDetail.transaction_number_id = result['transaction_number_id']
+            this.transactionDetail.transaction_number = result['number']
             this.transactionDetail.vatSales = result['total_vat_sales']
             this.transactionDetail.vatExemptSales = result['total_vat_exempt_sales']
             this.transactionDetail.vatZeroRatedSales = result['total_vat_zero_rated_sales']
@@ -253,7 +255,6 @@ export default {
               if(transactionProductResult.length){
                 this.transactionProduct = transactionProductResult
                 this.isLoading = false
-                // console.log(this.transactionProduct)
               }else{
                 this.isLoading = false
                 console.warn('No Product Retrieved')
@@ -310,7 +311,7 @@ export default {
             }).then((result) => {
               let transactionNumberEntry = {
                 db_id: 0,
-                operation: 1,
+                operation: 2,
                 store_terminal_id: localStorage.getItem('is_terminal') * 1,
                 user_id: localStorage.getItem('user_id') * 1
               }
@@ -319,6 +320,7 @@ export default {
                 let transactionvoidEntry = {
                   transaction_id: this.transactionNumber,
                   transaction_number_id: transactionNumberResult['id'] * 1,
+                  voided_transaction_number: this.transactionDetail.transaction_number,
                   db_id: 0,
                   remarks: this.remarks
                 }

@@ -43,7 +43,7 @@
         </div>
       </div>
     </div>
-    <div class="row mb-2 mx-0">
+    <div class="row mb-2 mx-0" v-show="isProductsAvailable === true">
       <div class="col-12">
         <a
           href="#"
@@ -52,6 +52,14 @@
         >ALL &nbsp;</a> >
       </div>
     </div>
+    <div v-show="isProductsAvailable === false" class="alert text-center border-warning m-4">
+          <span v-if="isOnline === 'online'">
+            <fa icon="exclamation-triangle" class="text-warning"/> There are currently no product created. Go to <fa icon="list"/> <strong> Product</strong> to create products.
+          </span>
+          <span v-else-if="isOnline === 'offline'">
+            <fa icon="exclamation-triangle" class="text-warning"/> There are currently no products. Try to connect to the internet, and refresh this page. <strong class="c-pointer" onclick="window.location.reload(true)"><fa icon="undo" /> Refresh Now</strong>.
+          </span>
+        </div>
     <div
       ref="container"
       id="container"
@@ -100,11 +108,13 @@ import Vue from 'vue'
 import Product from '@/database/controller/product.js'
 import Category from '@/database/controller/category.js'
 import Cart from './cart-store'
+import UserStore from '@/vue-web-core/system/store'
 // import SyncStore from '@/database/sync/sync-store'
 export default {
   components: {
   },
   mounted () {
+    this.checkforProducts()
     this.$nextTick(() => {
       window.addEventListener('resize', this.draw)
 
@@ -113,6 +123,8 @@ export default {
   },
   data () {
     return {
+      isProductsAvailable: Boolean,
+      isOnline: '',
       defaultItemToShow: 'all',
       containerHeight: '0px',
       searchFilterValue: '',
@@ -128,6 +140,16 @@ export default {
     }
   },
   methods: {
+    checkforProducts(){
+      this.isOnline = UserStore.getters.sessionConnection;
+      (new Product()).getAll().then((response) => {
+        if(response.length > 0){
+          this.isProductsAvailable = true
+        } else{
+          this.isProductsAvailable = false
+        }
+      })
+    },
     _initialize(){
       this.listItems()
     },

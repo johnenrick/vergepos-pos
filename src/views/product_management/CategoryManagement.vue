@@ -42,6 +42,7 @@ let ModuleDefault = {
           retrieve_parameter: tableSettingRetrieveParameter,
           table_column_setting: tableColumnSetting
         },
+        has_create_more: true,
         form_setting: {
           retrieve_parameter: formRetrieveParameter,
           form_field_setting: formFieldSetting

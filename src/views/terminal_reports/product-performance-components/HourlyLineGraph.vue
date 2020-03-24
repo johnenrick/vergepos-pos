@@ -1,5 +1,6 @@
 <template>
   <div class="w-100">
+        <button @click="switchDisplay()" class="btn btn-outline-primary mt-4 ml-3">View {{viewDisplay}}</button>
     <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></line-chart>
   </div>
 </template>
@@ -11,6 +12,8 @@ export default {
   },
   data(){
     return {
+      view: false,
+      viewDisplay: 'Profit',
       passedData: {},
       newStart: '',
       newEnd: '',
@@ -29,6 +32,14 @@ export default {
     }
   },
   methods: {
+    switchDisplay(){
+      this.view = !this.view
+      if(this.view){
+        this.viewDisplay = 'Profit'
+      } else{
+        this.viewDisplay = 'Quantity'
+      }
+    },
     plotData(data){
       this.passedData = data
       let dateLabel = [ '0:00', '0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '21:00', '22:00', '23:00', ]
@@ -54,12 +65,15 @@ export default {
           data: []
         })
       })
-      console.log('walala', this.datacollection)
       for(let date in this.passedData){
         this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
           this.passedData[date]['data']
+        if(this.view){
+          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'].forEach(elem => {
+            elem['y'] = (elem['y'] * this.passedData[date]['price']) - (elem['y'] * this.passedData[date]['cost'])
+          })
+        }
       }
-      console.log('hello', this.datacollection)
     }
   }
 }

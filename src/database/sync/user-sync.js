@@ -1,9 +1,30 @@
 import Sync from '../core/sync.js'
 import User from '@/database/controller/user.js'
 import Store from '@/vue-web-core/system/store'
+import datetimeHelper from '@/vue-web-core/helper/mixin/datetime'
 export default class UserSync extends Sync{
-  downSync(){
-    let latestDate = new Date(localStorage.getItem('latest_users_datetime'))
+  async downSync(){
+    let idb = new User()
+    let query = {
+      limit: 1,
+      order: {
+        by: 'updated_at',
+        type: 'desc'
+      }
+    }
+    return new Promise((resolve, reject) => {
+      idb.get(query).then(response => {
+        let latestDate = null
+        if(response.length){
+          latestDate = datetimeHelper.serverDatetimeFormat(response[0]['updated_at'])
+        }
+        this.download(latestDate).then(result => {
+          resolve(result)
+        })
+      })
+    })
+  }
+  async download(latestDate){
     let param = {
       select: {
         0: 'email',
@@ -23,14 +44,17 @@ export default class UserSync extends Sync{
         }
       },
       condition: [{
-        column: 'updated_at',
-        clause: '>',
-        value: latestDate
-      }, {
         column: 'company_user.company_id',
         value: Store.getters.companyInformation.id
       }],
-      with_trashed: true
+      with_trash: true
+    }
+    if(latestDate){
+      param['condition'].push({
+        column: 'updated_at',
+        clause: '>',
+        value: latestDate
+      })
     }
     return new Promise((resolve, reject) => {
       this.retrieveAPIData('user/retrieve', param).then(response => {
@@ -92,6 +116,8 @@ export default class UserSync extends Sync{
                 user.add(userData).then(() => {
                   counter++
                 })
+              } else {
+                counter++
               }
             })
           }
@@ -105,6 +131,7 @@ export default class UserSync extends Sync{
           resolve(5)
         }
       }).catch((error, status) => {
+        resolve(5)
         console.log('failed to sync', error, status)
         reject(error)
       })

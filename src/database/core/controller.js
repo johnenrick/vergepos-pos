@@ -24,20 +24,28 @@ export default class Controller {
         values: data,
         return: true
       }).then(response => {
-        resolve(response.length ? response[0] : null)
+        if(data.length > 1){
+          resolve(response.length ? response : null)
+        }else{
+          resolve(response.length ? response[0] : null)
+        }
       }).catch(error => {
-        console.log(this.tableName, data)
+        console.log(this.tableName, data, error)
         reject(error)
       })
     })
   }
   update(data){
-    data['updated_at'] = (new Date()).getTime()
     if(isNaN(data['created_at'] * 1)){
       // data['created_at'] = (new Date(data['created_at'])).getTime()
     }
     if(data['created_at']){
       data['created_at'] = (new Date(data['created_at'])).getTime()
+    }
+    if(typeof data['updated_at'] !== 'undefined' || data['updated_at']){
+      data['updated_at'] = (new Date(data['updated_at'])).getTime()
+    }else{
+      data['updated_at'] = (new Date()).getTime()
     }
     return new Promise((resolve, reject) => {
       let where = {}
@@ -102,7 +110,8 @@ export default class Controller {
           }
         }
       }).catch(error => {
-        console.log('error', error)
+        console.log('error', query['from'], error, query)
+        reject(error)
       }).finally(() => {
       })
     })
@@ -120,23 +129,41 @@ export default class Controller {
       for(let withTable in query['with']){
         let mainTable = pluralize.singular(query['from'])
         let withQuery = query['with'][withTable]
-        withQuery['from'] = withTable
+        withQuery['from'] = pluralize.plural(withTable)
         if(typeof withQuery['where'] === 'undefined'){
           withQuery['where'] = {}
         }
-        if(typeof query['with'][withTable]['is_parent'] === 'undefined' || !query['with'][withTable]['is_parent']){
+        let withTableIdList = []
+        let withTablename = pluralize.singular(withTable)
+        if(typeof query['with'][withTable]['is_parent'] === 'undefined' || !query['with'][withTable]['is_parent']){ // if with table is child
           withQuery['where'][mainTable + '_id'] = {
             in: rootTableIdList
           }
-        }
-        this.get(withQuery).then(response => {
-          let groupedResult = us.groupBy(response, mainTable + '_id')
-          for(let parentId in groupedResult){
-            if(typeof result[idLookUp[parentId]] !== 'undefined'){
-              result[idLookUp[parentId]][withTable] = groupedResult[parentId]
-            }else{
-              console.error('The aliasing of joined table might be overidding the main table column')
+          query['with'][withTable]['is_parent'] = false
+        }else{
+          for(let x = 0; x < result.length; x++){
+            idLookUp[result[x]['id']] = x
+            if(result[x][withTablename + '_id']){
+              withTableIdList.push(result[x][withTablename + '_id'])
             }
+          }
+          withQuery['where']['id'] = {
+            in: withTableIdList
+          }
+        }
+        let isOnlyOne = withTable === withTablename
+        this.get(withQuery).then(response => {
+          if(!query['with'][withTable]['is_parent']){ // if with table is child
+            let groupedResult = us.groupBy(response, mainTable + '_id')
+            for(let parentId in groupedResult){
+              if(typeof result[idLookUp[parentId]] !== 'undefined'){
+                result[idLookUp[parentId]][withTable] = !isOnlyOne ? groupedResult[parentId] : groupedResult[parentId][0]
+              }else{
+                console.error('The aliasing of joined table might be overidding the main table column')
+              }
+            }
+          }else{
+            console.log('parent table', withTablename, response, withQuery['where'])
           }
         }).finally(() => {
           completedQuery++
@@ -157,6 +184,30 @@ export default class Controller {
       }).then(result => {
         resolve(result.length ? result : null)
       })
+    })
+  }
+  delete(query){
+    let where = {}
+    if(typeof query === 'object'){
+      where = query['where']
+    }else{
+      where['id'] = query * 1
+    }
+    return new Promise((resolve, reject) => {
+      if(typeof query === 'undefined' || !query){
+        console.log(this.tableName, 'Removing item with no condition', where)
+        reject(false)
+      }else{
+        connection.remove({
+          from: this.tableName,
+          where: where
+        }).then(response => {
+          resolve(response)
+        }).catch(error => {
+          console.log(this.tableName, error)
+          reject(error)
+        })
+      }
     })
   }
   getAll(){

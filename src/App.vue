@@ -1,5 +1,5 @@
 <template>
-  <div id="app" style="padding-top:56px" @mouseover="isMouseOnPage = true" @mouseleave="isMouseOnPage = false">
+  <div id="app" style="padding-top:67px" @mouseover="isMouseOnPage = true" @mouseleave="isMouseOnPage = false">
 
     <modal ref="modal" :closeable="false">
       <template v-slot:body >
@@ -21,7 +21,6 @@
         <div v-else class="text-center">
           <img src="/img/loading.gif" width="100px">
           <br>Loading components...
-          {{isLoadingModule + ''}} {{dataSynced + ''}}
         </div>
       </div>
     </div>
@@ -40,7 +39,7 @@ import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
 import SyncAll from '@/database/sync/sync-all'
 import SyncStore from '@/database/sync/sync-store'
 import Migrate from '@/database/migrate'
-import UpSync from '@/system/upSync'
+import UpSync from '@/database/up-sync/up-sync'
 import Menu from '@/system/menus'
 window.$ = require('jquery')
 window.jQuery = window.$
@@ -65,20 +64,22 @@ export default {
     $('#loadingApplicationMessage').hide()
     $('#app').show()
     this.migrateDB().finally(() => {
-      this.checkConnectivity().then((ping) => { // Online
-        if(this.$auth.check()){ // Online and logged in
-          // TODO Diri ang problema kay dili siya ready
-          console.log('online login ready')
-          store.dispatch('setUserInformation')
-        }else{ // Online but not logged in
-          console.log('online - log out 2')
-          store.dispatch('setUserInformation')
-        }
-      }).catch((status) => { // Offline
-        console.log('offline', status)
+      if(this.mode === 'offline'){
         store.dispatch('setUserInformationOffline')
-      }).finally(() => {
-      })
+      }else{
+        this.checkConnectivity().then((ping) => { // Online
+          if(this.$auth.check()){ // Online and logged in
+            // TODO Diri ang problema kay dili siya ready
+            console.log('online login ready')
+            store.dispatch('setUserInformation')
+          }else{ // Online but not logged in
+            console.log('online - log out 2')
+            store.dispatch('setUserInformation')
+          }
+        }).catch((status) => { // Offline
+          store.dispatch('setUserInformationOffline')
+        })
+      }
     })
   },
   data () {
@@ -166,6 +167,9 @@ export default {
   computed: {
     userID(){
       return store.state.userInformation ? store.state.userInformation.id : null
+    },
+    mode(){
+      return store.state.mode
     },
     noSidebar(){
       return !navigationConfig.noSideBar && navigationConfig.sidebarToggled

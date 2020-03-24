@@ -27,7 +27,6 @@ let routes = [
     path: '/company-registration',
     name: 'CompanyRegistration',
     component: () => {
-      store.commit('setModuleLoading', true)
       return {
         component: import('@/views/registration/CompanyRegistration.vue')
       }
@@ -40,12 +39,7 @@ let routes = [
   {
     path: '/user-management',
     name: 'UserManagement',
-    component: () => {
-      store.commit('setModuleLoading', true)
-      return {
-        component: import('@/views/user_management/UserManagement.vue')
-      }
-    },
+    component: () => import('@/views/user_management/UserManagement.vue'),
     meta: {
       auth_offline: true
     }
@@ -165,6 +159,34 @@ let routes = [
     meta: {
       no_sidebar: true
     }
+  },
+  {
+    path: '/test',
+    name: 'TestPage',
+    component: require('@/views/dev-config/TestPage.vue').default,
+    meta: {
+    }
+  },
+  {
+    path: '/error/online-only',
+    name: 'OnlineOnlyPage',
+    component: require('@/views/error/OnlineOnly.vue').default,
+    meta: {
+    }
+  },
+  {
+    path: '/error/not-found',
+    name: 'NotFoundPage',
+    component: require('@/views/error/NotFound.vue').default,
+    meta: {
+    }
+  },
+  {
+    path: '/error/cannot-access',
+    name: 'CannotAccess',
+    component: require('@/views/error/CannotAccess.vue').default,
+    meta: {
+    }
   }
 ]
 let router = new Router({
@@ -180,6 +202,7 @@ router.beforeResolve((to, from, next) => {
       store.commit('isReady', () => {
         if(to.meta.auth_offline && store.getters.user){
           next()
+          store.commit('setModuleLoading', false)
         }else{
           next({ path: '/' })
           store.commit('setModuleLoading', false)
@@ -187,6 +210,7 @@ router.beforeResolve((to, from, next) => {
       })
     }else{
       next()
+      store.commit('setModuleLoading', false)
     }
   }else{
     next()
@@ -197,11 +221,6 @@ router.beforeResolve((to, from, next) => {
   }else{
     navConfig.noSideBar = false
   }
-})
-router.afterEach((to, from) => {
-  // console.log('after', from.path, to.path)
-  // Complete the animation of the route progress bar.
-  store.commit('setModuleLoading', false)
 })
 
 export default router

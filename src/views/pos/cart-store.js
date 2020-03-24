@@ -116,6 +116,7 @@ let store = new Vuex.Store({
       for(let x = 0; x < state.items.length; x++){
         Vue.set(state.itemLookUp, state.items[x]['id'], x)
       }
+      cacheCart(state)
       calculateCartTotal(state)
     },
     setLatestTransactionNUmber(state, transactionNumber){

@@ -98,7 +98,8 @@ export default {
   mounted(){
     this.feedback = 'Loading... Please wait'
     this.prompt = 'alert-primary'
-    if(localStorage.getItem('is_terminal') * 1 === 2){
+    console.log(localStorage.getItem('is_terminal'))
+    if(localStorage.getItem('is_terminal') * 1 === 1){
       if(UserStore.getters.sessionConnection === 'online'){
         this.isConnected = true
         this.retrieveDetailOnline()

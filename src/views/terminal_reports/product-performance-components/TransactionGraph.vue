@@ -29,18 +29,9 @@ export default {
       }
     }
   },
-  watch: {
-    dataProp: function (){
-      if(this.dataProp.length > 0){
-        if(this.passedData.length > 0){
-          this.passedData = []
-        }
-        this.passedData = this.dataProp
-      }
-    }
-  },
   methods: {
-    plotData(){
+    plotData(data){
+      this.passedData = data
       let dateLabel = []
       let transactionAmountTrend = []
       let transactionDiscountAmountTrend = []

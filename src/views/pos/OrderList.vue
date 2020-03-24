@@ -175,6 +175,9 @@ export default {
     }
   },
   methods: {
+    _initialize(){
+      this.$refs.discountManagement._initialize()
+    },
     saveOrderedItem (index) {
     },
     deletedOrderedItem (index) {

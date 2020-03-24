@@ -16,7 +16,7 @@
               <form class="form-signin">
                 <div class="form-group">
                   <label >Email address</label>
-                  <input @keyup="isTypingUsername" v-model="username" type="text" id="inputEmail" class="form-control" placeholder="Email address" required autofocus autocomplete="username">
+                  <input @keyup="isTypingUsername" v-model="username" type="email" class="form-control" placeholder="Email address" required autofocus autocomplete="username">
                 </div>
                 <div class="form-group">
                   <label>{{isOffline === false ? 'Password' : 'PIN'}}</label>
@@ -44,6 +44,7 @@ export default {
   components: {
   },
   mounted(){
+    console.log('current terminal', localStorage.getItem('company_id') * 1)
     if(VueCoreStore.getters.devConfig){
       let devConfig = VueCoreStore.getters.devConfig
       this.username = devConfig.default_username
@@ -85,10 +86,8 @@ export default {
       // return this.isOffline = true
       this.checkConnectivity().then((ping) => {
         this.isOffline = false
-        VueCoreStore.dispatch('setUserInformationOffline')
       }).catch((status) => {
         this.isOffline = true
-        VueCoreStore.dispatch('setUserInformation')
       }).finally(() => {
         if(typeof callback === 'function'){
           callback()
@@ -135,7 +134,7 @@ export default {
         params: { email: this.username, password: this.password },
         rememberMe: false,
         success: (response) => {
-          if(localStorage.getItem('company_id') * 1 !== response.data.user.company_id * 1){
+          if(localStorage.getItem('company_id') * 1 !== response.data.user.company_id * 1 && localStorage.getItem('company_id') * 1 !== 0){
             if(confirm('You are trying to log in a different company. This will clear the data of the previous company from this machine. Do you still want to continue?') === true){
               localStorage.removeItem('is_terminal')
               this.removeTerminal(() => {
