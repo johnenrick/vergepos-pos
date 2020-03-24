@@ -291,7 +291,7 @@ export default {
             for(let x = 0; x < response.length; x++){
               for(let y = 0; y < this.selectFilterValue.length; y++){
                 if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
-                  response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
+                  response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_exempt_sales'] + response[x]['vat_zero_rated_sales'] + response[x]['vat_amount']
                   this.transactionProducts.push(response[x])
 
                   let prepareData = []
@@ -304,6 +304,7 @@ export default {
                       }
                       if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
                         Vue.set(data, 'y', response[x]['quantity'])
+                        Vue.set(data, 'amt', response[x]['vat_sales'] + response[x]['vat_exempt_sales'] + response[x]['vat_zero_rated_sales'] + response[x]['vat_amount'])
                       }
 
                       let modifiedDate = new Date()
@@ -318,6 +319,7 @@ export default {
                       description: response[x]['description'],
                       cost: response[x]['cost'],
                       price: response[x]['price'],
+                      discount_amt: response[x]['discount_amount'],
                       data: prepareData
                     }
                   }else{
@@ -337,9 +339,9 @@ export default {
             }
           }else{
             for(let x = 0; x < response.length; x++){
-              response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales']
+              response[x]['amount'] = response[x]['vat_sales'] + response[x]['vat_exempt_sales'] + response[x]['vat_zero_rated_sales'] + response[x]['vat_amount']
               response[x]['created_at'] = new Date(response[x]['created_at']).toUTCString().split(' ').slice(0, 5).join(' ')
-              response[x]['profit'] = response[x]['amount'] - (response[x]['quantity'] * response[x]['cost'])
+              response[x]['profit'] = (response[x]['amount'] * 1) - ((response[x]['quantity'] * response[x]['cost']) + (response[x]['quantity'] * response[x]['discount_amount']))
               this.transactionProducts.push(response[x])
 
               let prepareData = []
@@ -353,6 +355,7 @@ export default {
                   }
                   if(new Date(this.startDatetimeFilter).getDate() + i === new Date(response[x]['created_at']).getDate()){
                     Vue.set(data, 'y', response[x]['quantity'])
+                    Vue.set(data, 'amt', response[x]['vat_sales'] + response[x]['vat_exempt_sales'] + response[x]['vat_zero_rated_sales'] + response[x]['vat_amount'])
                   }
                   let modifiedDate = new Date()
 
@@ -365,6 +368,7 @@ export default {
                   description: response[x]['description'],
                   cost: response[x]['cost'],
                   price: response[x]['price'],
+                  discount_amt: response[x]['discount_amount'],
                   data: prepareData
                 }
               }else{
@@ -374,7 +378,7 @@ export default {
                     if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()) {
                     // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
                       this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
-                      this.dailyTransactionProducts[index]['data'][i].amt += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'])
+                      this.dailyTransactionProducts[index]['data'][i].amt += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] + response[x]['vat_zero_rated_sales'])
                     }
                   }
                 }
@@ -390,7 +394,7 @@ export default {
                   created_at: this.dailyTransactionProducts[i]['data'][x].x.toString().split(' ').slice(0, 5).join(' '),
                   quantity: this.dailyTransactionProducts[i]['data'][x].y,
                   amount: this.dailyTransactionProducts[i]['data'][x].amt,
-                  profit: this.dailyTransactionProducts[i]['data'][x].amt - (this.dailyTransactionProducts[i]['data'][x].y * this.dailyTransactionProducts[i].cost)
+                  profit: this.dailyTransactionProducts[i]['data'][x].amt - ((this.dailyTransactionProducts[i]['data'][x].y * this.dailyTransactionProducts[i].cost) + (this.dailyTransactionProducts[i]['data'][x].y * this.dailyTransactionProducts[i].discount_amt))
                 }
                 forTableData.push(data)
               }
@@ -450,6 +454,7 @@ export default {
           //   }
           //   prepareData.push(this.monthlyTransactionProduct)
           // }
+          console.log(filteredData)
           for(let x = 0; x < filteredData.length; x++){
             prepareData = []
             if(typeof this.monthlyTransactionProduct[filteredData[x]['product_id']] === 'undefined'){
@@ -461,7 +466,7 @@ export default {
                 }
                 if(new Date(startDatetimeFilter).getMonth() + i === new Date(filteredData[x]['created_at']).getMonth()){
                   Vue.set(data, 'y', filteredData[x]['quantity'])
-                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
+                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_exempt_sales'] + filteredData[x]['vat_zero_rated_sales'] + filteredData[x]['vat_amount'])
                 }
                 Vue.set(data, 'x', month[new Date(startDatetimeFilter).getMonth() + i])
                 prepareData.push(data)
@@ -471,6 +476,7 @@ export default {
                 description: filteredData[x]['description'],
                 cost: filteredData[x]['cost'],
                 price: filteredData[x]['price'],
+                discount_amt: filteredData[x]['discount_amount'],
                 data: prepareData
               }
             }else {
@@ -493,7 +499,7 @@ export default {
                   created_at: this.monthlyTransactionProduct[i]['data'][x].x,
                   quantity: this.monthlyTransactionProduct[i]['data'][x].y,
                   amount: this.monthlyTransactionProduct[i]['data'][x].amt,
-                  profit: this.monthlyTransactionProduct[i]['data'][x].amt - (this.monthlyTransactionProduct[i]['data'][x].y * this.monthlyTransactionProduct[i].cost)
+                  profit: this.monthlyTransactionProduct[i]['data'][x].amt - ((this.monthlyTransactionProduct[i]['data'][x].y * this.monthlyTransactionProduct[i].cost) + (this.monthlyTransactionProduct[i]['data'][x].y * this.monthlyTransactionProduct[i].discount_amt))
                 }
                 forTableData.push(data)
               }
@@ -532,7 +538,7 @@ export default {
                 }
                 if(new Date(startDatetimeFilter).getFullYear() + i === new Date(filteredData[x]['created_at']).getFullYear()){
                   Vue.set(data, 'y', filteredData[x]['quantity'])
-                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
+                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_exempt_sales'] + filteredData[x]['vat_zero_rated_sales'] + filteredData[x]['vat_amount'])
                 }
                 Vue.set(data, 'x', new Date(startDatetimeFilter).getFullYear() + i)
                 prepareData.push(data)
@@ -542,6 +548,7 @@ export default {
                 description: filteredData[x]['description'],
                 cost: filteredData[x]['cost'],
                 price: filteredData[x]['price'],
+                discount_amt: filteredData[x]['discount_amount'],
                 data: prepareData
               }
             }else {
@@ -564,7 +571,7 @@ export default {
                   created_at: this.yearlyTransactionProducts[i]['data'][x].x,
                   quantity: this.yearlyTransactionProducts[i]['data'][x].y,
                   amount: this.yearlyTransactionProducts[i]['data'][x].amt,
-                  profit: this.yearlyTransactionProducts[i]['data'][x].amt - (this.yearlyTransactionProducts[i]['data'][x].y * this.yearlyTransactionProducts[i].cost)
+                  profit: this.yearlyTransactionProducts[i]['data'][x].amt - ((this.yearlyTransactionProducts[i]['data'][x].y * this.yearlyTransactionProducts[i].cost) + (this.yearlyTransactionProducts[i]['data'][x].y * this.yearlyTransactionProducts[i].discount_amt))
                 }
                 forTableData.push(data)
               }
@@ -601,7 +608,7 @@ export default {
                 }
                 if(new Date(startDatetimeFilter).getHours() + i === new Date(filteredData[x]['created_at']).getHours()){
                   Vue.set(data, 'y', filteredData[x]['quantity'])
-                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
+                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_exempt_sales'] + filteredData[x]['vat_zero_rated_sales'] + filteredData[x]['vat_amount'])
                 }
                 Vue.set(data, 'x', new Date(startDatetimeFilter).getHours() + i + ':00')
                 prepareData.push(data)
@@ -611,6 +618,7 @@ export default {
                 description: filteredData[x]['description'],
                 cost: filteredData[x]['cost'],
                 price: filteredData[x]['price'],
+                discount_amt: filteredData[x]['discount_amount'],
                 data: prepareData
               }
             }else {
@@ -633,7 +641,7 @@ export default {
                   created_at: this.hourlyTransactionProducts[i]['data'][x].x,
                   quantity: this.hourlyTransactionProducts[i]['data'][x].y,
                   amount: this.hourlyTransactionProducts[i]['data'][x].amt,
-                  profit: this.hourlyTransactionProducts[i]['data'][x].amt - (this.hourlyTransactionProducts[i]['data'][x].y * this.hourlyTransactionProducts[i].cost)
+                  profit: this.hourlyTransactionProducts[i]['data'][x].amt - ((this.hourlyTransactionProducts[i]['data'][x].y * this.hourlyTransactionProducts[i].cost) + (this.hourlyTransactionProducts[i]['data'][x].y * this.hourlyTransactionProducts[i].discount_amt))
                 }
                 forTableData.push(data)
               }

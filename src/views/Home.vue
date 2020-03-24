@@ -23,6 +23,7 @@
                   <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required autocomplete="current-password">
                 </div>
                 <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" class="btn btn-lg btn-primary btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Signing In' : 'Sign In'}} <small v-if="isOffline">(Offline)</small></button>
+                <button ref ="buttonStat" @click="switchLoginStatus" :model = "loginStatus" class = "btn-secondary btn-block text-uppercase mt-3 mb-2" type="button">Switch to <b>{{ loginStatus }}</b> Mode</button>
                 <p :hidden="isOffline === false ? false : true" class="text-center">Don't have an account?<router-link :hidden="isOffline === false ? false : true" to="/company-registration"><b> Sign Up</b></router-link></p>
               </form>
             </template>
@@ -51,6 +52,10 @@ export default {
       }else{
         this.password = devConfig.default_pin + ''
       }
+
+      if(localStorage.getItem('is_terminal')){
+        loginSwitch = true
+      }
     }
     this.checkIfOnline(() => {
       VueCoreStore.commit('isReady', () => {
@@ -70,7 +75,9 @@ export default {
       tokenAge: 0,
       tokenBirth: '',
       intervalID: 0,
-      isOffline: null
+      isOffline: null,
+      loginSwitch: false,
+      loginStatus: 'Offline'
     }
   },
   methods: {
@@ -87,6 +94,10 @@ export default {
           callback()
         }
       })
+    },
+    switchLoginStatus(){
+      this.isOffline = !this.isOffline
+      this.isOffline ? this.loginStatus = 'Online' : this.loginStatus = 'Offline'
     },
     offlineSignIn(){
       if(!localStorage.getItem('is_terminal')){
