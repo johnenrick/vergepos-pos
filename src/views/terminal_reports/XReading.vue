@@ -13,7 +13,7 @@
               :use12-hour="true"
               auto
               type="datetime"
-              value-zone="local"
+              value-zone="utc"
               zone="utc"
             />
           </div>
@@ -28,7 +28,7 @@
               :use12-hour="true"
               auto
               type="datetime"
-              value-zone="local"
+              value-zone="utc"
               zone="utc"
             />
           </div>
@@ -111,10 +111,8 @@ export default {
     generateReading(){
       this.isGenerating = true
       // console.log('ge', new Date(this.startDatetime), this.startDatetime)
-      let startDatetime = new Date(this.startDatetime)
-      startDatetime = new Date(startDatetime.getTime() - 28800000)
-      let endDatetime = new Date(this.endDatetime)
-      endDatetime = new Date(endDatetime.getTime() - 28800000)
+      let startDatetime = new Date((this.startDatetime.replace('T', ' ').split('.'))[0])
+      let endDatetime = new Date((this.endDatetime.replace('T', ' ').split('.'))[0])
       this.$refs.xReading._generate(startDatetime, endDatetime, this.cashierId * 1).finally(() => {
         this.isGenerating = false
       })

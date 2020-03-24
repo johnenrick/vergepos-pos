@@ -39,7 +39,7 @@ import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
 import SyncAll from '@/database/sync/sync-all'
 import SyncStore from '@/database/sync/sync-store'
 import Migrate from '@/database/migrate'
-import UpSync from '@/system/upSync'
+import UpSync from '@/database/up-sync/up-sync'
 import Menu from '@/system/menus'
 window.$ = require('jquery')
 window.jQuery = window.$

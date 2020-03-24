@@ -161,6 +161,13 @@ let routes = [
     }
   },
   {
+    path: '/test',
+    name: 'TestPage',
+    component: require('@/views/dev-config/TestPage.vue').default,
+    meta: {
+    }
+  },
+  {
     path: '/error/online-only',
     name: 'OnlineOnlyPage',
     component: require('@/views/error/OnlineOnly.vue').default,

@@ -37,7 +37,7 @@ import TerminalSelection from './TerminalSelection'
 import UserStore from '@/vue-web-core/system/store'
 import TransactionNumber from '@/database/controller/transaction-number'
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
-import UpSync from '@/system/upSync'
+import UpSync from '@/database/up-sync/up-sync'
 import BackupDatabase from '@/components/BackupDatabase'
 
 export default {

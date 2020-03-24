@@ -81,7 +81,7 @@ export default {
     }
   }, {
     name: 'transaction_products',
-    version: 1,
+    version: 2,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       transaction_id: { notNull: true, dataType: 'number' },
@@ -92,6 +92,7 @@ export default {
       vat_exempt_sales: { notNull: true, dataType: 'number' },
       vat_zero_rated_sales: { notNull: true, dataType: 'number' },
       vat_amount: { notNull: true, dataType: 'number' },
+      discount_id: { notNull: false, dataType: 'number' },
       discount_amount: { notNull: true, dataType: 'number' },
     }
   }, {
@@ -121,16 +122,19 @@ export default {
     name: 'transaction_reprints',
     columns: {
       db_id: { notNull: true, dataType: 'number' },
-      transaction_id: { notNull: false, dataType: 'number' },
       transacton_number_id: { notNull: false, dataType: 'number' },
+      transaction_id: { notNull: false, dataType: 'number' },
+      voided_transaction_number: { notNull: true, dataType: 'number' },
       remarks: { notNull: false, dataType: 'string' }
     }
   }, {
     name: 'transaction_voids',
+    version: 4,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
-      transaction_id: { notNull: false, dataType: 'number' },
-      transacton_number_id: { notNull: false, dataType: 'number' },
+      transaction_number_id: { notNull: true, dataType: 'number', enableSearch: true }, // the parent transaction number id, not the voided transaction number id
+      transaction_id: { notNull: true, dataType: 'number' }, // transaction id of the voided transaction
+      voided_transaction_number: { notNull: true, dataType: 'number' }, // the voided transaction number
       remarks: { notNull: true, dataType: 'string' }
     }
   }, {
