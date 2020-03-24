@@ -40,6 +40,7 @@ import FormComponent from '@/vue-web-core/components/form/Form'
 import ResponseUtil from '@/vue-web-core/helper/api/response-util.js'
 import APIUtil from '@/vue-web-core/helper/api/util.js'
 import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
+import VueCoreStore from '@/vue-web-core/system/store'
 export default {
   name: 'CompanyRegistration',
   components: {
@@ -192,7 +193,12 @@ export default {
         params: this.credential,
         rememberMe: false,
         success: (response) => {
+          console.log('response ni siya', response)
           localStorage.removeItem('is_terminal')
+          localStorage.setItem('company_id', response.data.user.company_id)
+          localStorage.setItem('user_id', response.data.user.id)
+          localStorage.setItem('roles', JSON.stringify(response.data.user.roles))
+          VueCoreStore.dispatch('setUserInformation')
           this.isLoading = false
           setTimeout(() => {
             window.location = '/'

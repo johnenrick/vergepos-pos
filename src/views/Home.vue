@@ -43,6 +43,7 @@ export default {
   components: {
   },
   mounted(){
+    console.log('current terminal', localStorage.getItem('company_id') * 1)
     if(VueCoreStore.getters.devConfig){
       let devConfig = VueCoreStore.getters.devConfig
       this.username = devConfig.default_username
@@ -122,7 +123,7 @@ export default {
         params: { email: this.username, password: this.password },
         rememberMe: false,
         success: (response) => {
-          if(localStorage.getItem('company_id') * 1 !== response.data.user.company_id * 1){
+          if(localStorage.getItem('company_id') * 1 !== response.data.user.company_id * 1 && localStorage.getItem('company_id') * 1 !== 0){
             if(confirm('You are trying to log in a different company. This will clear the data of the previous company from this machine. Do you still want to continue?') === true){
               localStorage.removeItem('is_terminal')
               this.removeTerminal(() => {
