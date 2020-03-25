@@ -18,7 +18,8 @@
       ref="container"
       id="container"
 
-      :style="{'min-height': containerHeight}"
+      :style="{'max-height': containerHeight , 'min-height': containerHeight }"
+      style=" overflow-y:scroll"
     >
       <div
         v-for="(order, index) in orderList"

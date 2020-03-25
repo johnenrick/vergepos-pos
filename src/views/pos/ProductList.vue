@@ -63,7 +63,7 @@
     <div
       ref="container"
       id="container"
-      :style="{'min-height': containerHeight}"
+      :style="{'max-height': containerHeight}"
       style="min-height:235px; overflow-y:scroll"
       class="pb-2"
     >
