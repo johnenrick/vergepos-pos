@@ -11,13 +11,21 @@
       <h4 class="text-center" :style="isPrinting ? printingStyle : ''">X Reading</h4>
       <table class="table table-sm" :style="isPrinting ? printingStyle : ''">
         <tbody>
-          <tr>
+          <tr v-if="date">
             <td>Date</td>
             <td class="text-right">{{date | formatDate}}</td>
           </tr>
+          <tr v-if="firstTransactionDatetime">
+            <td>First Txn Date</td>
+            <td class="text-right">{{firstTransactionDatetime | formatDate('mm/dd/yy hh:mm')}}</td>
+          </tr>
+          <tr v-if="lastTransactionDatetime">
+            <td>Last Txn Date</td>
+            <td class="text-right">{{lastTransactionDatetime | formatDate('mm/dd/yy hh:mm')}}</td>
+          </tr>
           <tr>
             <td>Transaction Numbers</td>
-            <td class="text-right">{{initialTransactionNumber + ' - ' + finalTransactionNumber}}</td>
+            <td class="text-right">{{firstTransactionNumber + ' - ' + lastTransactionNumber}}</td>
           </tr>
           <tr>
             <td>Vat Sales</td>
@@ -101,6 +109,8 @@ Vue.use(VueHtmlToPaper, options)
 export default {
   props: {
     date: Date,
+    firstTransactionDatetime: Date,
+    lastTransactionDatetime: Date,
     vatSales: Number,
     vatExemptSales: Number,
     vatZeroRatedSales: Number,
@@ -111,8 +121,8 @@ export default {
     voidedTransactionCount: Number,
     reprintTransactionCount: Number,
     salesTransactionCount: Number,
-    initialTransactionNumber: Number,
-    finalTransactionNumber: Number,
+    firstTransactionNumber: Number,
+    lastTransactionNumber: Number,
     hasGrandTotal: {
       type: Boolean,
       default: true

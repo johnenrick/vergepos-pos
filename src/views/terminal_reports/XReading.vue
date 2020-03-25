@@ -80,7 +80,6 @@ export default {
       endDatetime: null,
       cashierId: 0,
       cashierList: [],
-
       vatSales: 0,
       vatExemptSales: 0,
       vatZeroRatedSales: 0,
@@ -110,7 +109,6 @@ export default {
     },
     generateReading(){
       this.isGenerating = true
-      // console.log('ge', new Date(this.startDatetime), this.startDatetime)
       let startDatetime = new Date((this.startDatetime.replace('T', ' ').split('.'))[0])
       let endDatetime = new Date((this.endDatetime.replace('T', ' ').split('.'))[0])
       this.$refs.xReading._generate(startDatetime, endDatetime, this.cashierId * 1).finally(() => {

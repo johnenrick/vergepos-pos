@@ -198,7 +198,7 @@ export default {
         cash_amount_paid: Cart.state.totalAmount,
         discount_id: Cart.state.discountId,
         discount_remarks: Cart.state.discountRemarks,
-      }, Cart.state.items).then((response) => {
+      }, JSON.parse(JSON.stringify(Cart.getters.items))).then((response) => {
         Cart.commit('setLatestTransactionNUmber', response['number'])
         this.transactionStatus = true
         let funcCallback = () => {

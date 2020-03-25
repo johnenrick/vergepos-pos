@@ -150,6 +150,7 @@ let store = new Vuex.Store({
       } else { // add new product
         state.items.push({
           id: productDetail.db_id,
+          product_id: productDetail.db_id,
           local_id: productDetail.id, // indexedDB ID
           order_item_identifier: productDetail.db_id + '-' + (new Date()).getTime(),
           description: productDetail.description,
