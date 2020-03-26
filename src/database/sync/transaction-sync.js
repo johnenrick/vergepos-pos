@@ -90,9 +90,7 @@ export default class TransactionNumberSync extends Sync{
     }
     return new Promise((resolve, reject) => {
       this.retrieveAPIData('transaction-number/retrieve', param).then(response => {
-        console.log(response)
         resolve(this.resolveId)
-        console.log(response['data'])
         if (response['data'].length) {
           let transactionNumber = new TransactionNumber()
           let transaction = new Transaction()
@@ -110,7 +108,6 @@ export default class TransactionNumberSync extends Sync{
             transactionNumber.get(idbParam).then((result) => {
               if (!result.length) {
                 if(transactionNumberData['operation'] === 2 && response['data'][x]['transaction_void']){
-                  console.log(x, response['data'][x])
                   transactionVoids.push(response['data'][x])
                   counter++
                 }else{
@@ -163,7 +160,6 @@ export default class TransactionNumberSync extends Sync{
     let transactionNumberDB = new TransactionNumber()
     let transactionVoidDB = new TransactionVoid()
     return new Promise((resolve, reject) => {
-      console.log(transactionNumbers)
       let transactionNumberNumbers = []
       let transactionNumberLookUp = {}
       for(let x = 0; x < transactionNumbers.length; x++){
@@ -183,7 +179,6 @@ export default class TransactionNumberSync extends Sync{
       transactionNumberDB.get(query).then((result) => {
         let doneCounter = 0
         let transactionNumberCount = result.length
-        console.log(query, transactionNumberNumbers)
         for(let x = 0; x < transactionNumberCount; x++){
           let transactionNumberIndex = transactionNumberLookUp[result[x]['number']]
           let transactionNumberData = this.prepareTransactionNumber(transactionNumbers[transactionNumberIndex])
@@ -241,7 +236,6 @@ export default class TransactionNumberSync extends Sync{
       status: transaction['status'] * 1,
       discount_id: transaction['discount_id'] * 1,
       discount_remarks: transaction['discount_remarks'],
-
       total_vat_sales: 0,
       total_vat_exempt_sales: 0,
       total_vat_zero_rated_sales: 0,

@@ -76,7 +76,7 @@
           :fields="tableSetting.columns"
         >
           <template slot="actions" slot-scope="props">
-            <button @click="openTransaction(props.rowData['number'])" class="btn btn-sm btn-info"><fa icon="search" /></button>
+            <button v-if="props.rowData['id']" @click="openTransaction(props.rowData['number'])" class="btn btn-sm btn-info"><fa icon="search" /></button>
           </template>
         </vuetable>
         <product-history
@@ -91,7 +91,6 @@
 <script>
 import { Datetime } from 'vue-datetime' // https://github.com/mariomka/vue-datetime?ref=madewithvuejs.com
 import 'vue-datetime/dist/vue-datetime.css'
-import Transaction from '@/database/controller/transaction.js'
 import TransactionNumber from '@/database/controller/transaction-number.js'
 import TransactionViewer from '@/views/pos/control_box_components/TransactionViewer'
 import Vuetable from 'vuetable-2/src/components/Vuetable' // https://ratiw.github.io/vuetable-2/#/Special-Fields?id=-__slotltnamegt
@@ -130,7 +129,7 @@ export default {
           titleClass: 'text-center',
           dataClass: 'text-center',
           callback: (value) => {
-            return this.padNumber(value, 7)
+            return isNaN(value * 1) ? value : this.padNumber(value, 7)
           }
         }, {
           name: 'created_at',
@@ -138,7 +137,7 @@ export default {
           titleClass: 'text-center',
           dataClass: 'text-center',
           callback: (value) => {
-            return this.formatDate(value, 'mm/dd/yy hh:mm')
+            return value ? this.formatDate(value, 'mm/dd/yy hh:mm') : ''
           }
         }, {
           name: 'total_amount',
@@ -155,16 +154,14 @@ export default {
           title: 'Status',
           titleClass: 'text-center',
           dataClass: 'text-center',
-          callback: (value) => {
+          callback: (value, row) => {
             return this.statusBadge(value)
           }
         }, {
           name: '__slot:actions',
           title: 'Action',
           titleClass: 'text-center',
-          dataClass: 'text-center',
-          callback: (test, fmt, yawa) => {
-          }
+          dataClass: 'text-center'
         }]
       }
     }
@@ -204,117 +201,78 @@ export default {
         },
         groupBy: 'id',
         with: {
-          transaction_products: {
-            join: {
-              with: 'products',
-              on: 'products.db_id=transaction_products.product_id',
-              type: 'inner',
-              as: {
-                'id': 'product_id',
-                'db_id': 'product_db_id',
-                'created_at': 'product_created_at',
-                'updated_at': 'product_updated_at',
-                'deleted_at': 'product_deleted_at',
-                'cost': 'cost'
+          transaction: {
+            with: {
+              transaction_products: {
+                join: {
+                  with: 'products',
+                  on: 'products.db_id=transaction_products.product_id',
+                  type: 'inner',
+                  as: {
+                    'id': 'product_id',
+                    'db_id': 'product_db_id',
+                    'created_at': 'product_created_at',
+                    'updated_at': 'product_updated_at',
+                    'deleted_at': 'product_deleted_at',
+                    'cost': 'cost'
+                  }
+                }
+              }
+            }
+          },
+          transaction_void: {
+            with: {
+              transaction: {
+                is_parent: true,
+                with: {
+                  transaction_products: {}
+                }
               }
             }
           }
         },
-        join: {
-          with: 'transaction_numbers',
-          on: 'transactions.transaction_number_id=transaction_numbers.id',
-          type: 'inner',
-          as: {
-            'id': 'transaction_number_id',
-            'db_id': 'transaction_number_db_id',
-            'created_at': 'transaction_number_created_at',
-            'updated_at': 'transaction_number_updated_at',
-            'deleted_at': 'transaction_number_deleted_at',
-          }
-        }
       }
       let transactionNumberWhereQuery = JSON.parse(JSON.stringify(query.where))
       if(this.cashierId){
         transactionNumberWhereQuery['user_id'] = this.cashierId
-        // query.where['transaction_numbers.user_id'] = {'=': transactionNumberWhereQuery['user_id']}
       }
       this.reset()
       return new Promise((resolve, reject) => {
-        this.getTransactionNumber(transactionNumberWhereQuery).then(transactionNumbers => {
-          if(!transactionNumbers.length){
-            resolve(null)
-            return false
-          }else{
+        let transactionNumberDB = new TransactionNumber()
+        transactionNumberDB.get(query).then(result => {
+          for(let x = 0; x < result.length; x++){
+            if(result[x]['operation'] === 1 && typeof result[x]['transaction'] !== 'undefined'){
+              result[x]['status'] = 1
+              result[x]['total_amount'] = result[x]['transaction']['total_amount']
+              result[x]['total_discount_amount'] = result[x]['transaction']['total_discount_amount']
+              this.totalDiscount += (result[x]['transaction']['total_discount_amount'] * 1).toFixed(2) * 1
+              this.totalAmount += (result[x]['transaction']['total_amount'] * 1).toFixed(2) * 1
+              result[x]['transaction_products'] = result[x]['transaction']['transaction_products']
+            }else if(result[x]['operation'] === 2 && typeof result[x]['transaction_void'] !== 'undefined' && typeof result[x]['transaction_void']['transaction'] !== 'undefined'){
+              result[x]['status'] = 2
+              result[x]['total_amount'] = '(' + result[x]['transaction_void']['transaction']['total_amount'] + ')'
+              result[x]['total_discount_amount'] = '(' + result[x]['transaction_void']['transaction']['total_discount_amount'] + ')'
+              this.totalDiscount += (result[x]['transaction_void']['transaction']['total_discount_amount'] * 1).toFixed(2) * -1
+              this.totalAmount += (result[x]['transaction_void']['transaction']['total_amount'] * 1).toFixed(2) * -1
+              result[x]['transaction_products'] = result[x]['transaction_void']['transaction']['transaction_products']
+            }
           }
-          let transactionNumberIds = this.getTransactionNumberId(transactionNumbers)
-          query.where['transaction_number_id'] = {
-            in: transactionNumberIds
-          }
-          this.getTransactions(query).then(response => {
-            resolve(response)
-            this.generateReport()
-          }).catch(error => {
-            reject(error)
-          })
-        }).finally(() => {
-          resolve(null)
-          this.isGenerating = false
-        })
-      })
-    },
-    getTransactionNumberId(transactionNumbers){
-      let ids = []
-      for(let x = 0; x < transactionNumbers.length; x++){
-        ids.push(transactionNumbers[x]['id'])
-      }
-      return ids
-    },
-    getTransactionNumber(whereCondition){
-      let query = {
-        where: whereCondition,
-        order: {
-          by: 'created_at',
-          type: 'asc'
-        }
-      }
-      let transactionNumberDB = new TransactionNumber()
-      return new Promise((resolve, reject) => {
-        transactionNumberDB.get(query).then(response => {
-          if(response.length){
-          }
-          resolve(response)
-        })
-      })
-    },
-    getTransactions(query){
-      let transactionDB = new Transaction()
-      return new Promise((resolve, reject) => {
-        transactionDB.get(query).then((response) => {
-          this.transactions = response
+          this.transactions = result
+          console.log('transaction history 2', this.transactions)
           this.$refs.productHistory.getData(this.transactions)
-          // this.salesTransactionCount = response.length
-          for(let x = 0; x < response.length; x++){
-            // this.vatSales += response[x]['total_vat_sales'] * 1
-            // this.vatExemptSales += response[x]['total_vat_exempt_sales'] * 1
-            // this.vatZeroRatedSales += response[x]['total_vat_zero_rated_sales'] * 1
-            // this.vatAmount += response[x]['total_vat_amount'] * 1
-            this.totalDiscount += (response[x]['total_discount_amount'] * 1).toFixed(2) * 1
-            this.totalAmount += (response[x]['total_amount'] * 1).toFixed(2) * 1
-            // this.reprintTransactionCount += response[x]['total_vat_sales'] * 1
-            // if(response[x]['status'] === 2){
-            //   ++this.voidedTransactionCount
-            // }
-            // let transactionProducts = response[x]['transaction_products']
-            // for(let y = 0; y < transactionProducts.length; y++){
-            //   let discountId = transactionProducts[y]['discount_id']
-            //   if(discountId){
-            //     Vue.set(this.discountAmounts[discountId], 'amount', this.discountAmounts[discountId]['amount'] + transactionProducts[y]['discount_amount'])
-            //   }
-            // }
-          }
-          resolve(response)
-        }).catch(error => {
-          reject(error)
+          this.transactions.push({
+            id: null,
+            number: '<strong>TOTAL</strong>',
+            created_at: null,
+            total_amount: '<strong>' + this.totalAmount + '</strong>',
+            total_discount_amount: '<strong>' + this.totalDiscount + '</strong>',
+          })
+          this.isGenerating = false
+          resolve(true)
+        }).catch((error) => {
+          console.log(error)
+          this.isGenerating = false
+          resolve(true)
         })
       })
     },
@@ -339,7 +297,7 @@ export default {
         case 1:
           return '<span class="badge badge-success">Ok</span>'
         case 2:
-          return '<span class="badge badge-danger">Voided</span>'
+          return '<span class="badge badge-danger">Void</span>'
       }
     }
   },
