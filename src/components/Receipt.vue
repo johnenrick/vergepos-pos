@@ -89,7 +89,7 @@
     </div>
     <div v-if="transactionDetail.id && !toVoid" class="p-2 pt-3">
       <button v-if="transactionDetail.voidable && transactionDetail.status !== 2" @click="triggerVoid"  class="btn btn-danger"><fa :icon="'ban'" /> VOID</button>
-      <span v-if="transactionDetail.status === 2" class="btn btn-danger">Voided</span>
+      <span v-if="transactionDetail.status === 2" class="btn-danger btn disabled">Voided</span>
       <button @click="print" type="button" class="btn btn-outline-primary float-right"><fa :icon="'print'" /> Reprint</button>
     </div>
     <div v-if="toVoid">
@@ -195,76 +195,67 @@ export default {
         return false
       }
       return new Promise((resolve, reject) => {
-        this.transactionDB.get({
-          // with: {
-          //   transaction_products: {}
-          // },
-          join: {
-            with: 'transaction_numbers',
-            on: 'transactions.transaction_number_id=transaction_numbers.id',
-            type: 'inner',
-            as: {
-              id: 'transaction_number_id',
-              db_id: 'transaction_number_db_id',
-              created_at: 'transaction_number_created_at',
-              updated_at: 'transaction_number_updated_at',
-              deleted_at: 'transaction_number_deleted_at',
+        this.transactionNumberDB.get({
+          where: {
+            number: this.transactionNumber * 1,
+            operation: 1
+          },
+          with: {
+            transaction: {
+              with: {
+                transaction_products: {
+                  join: {
+                    with: 'products',
+                    on: 'transaction_products.product_id=products.db_id',
+                    type: 'inner',
+                    as: {
+                      'id': 'product_id',
+                      'db_id': 'product_db_id',
+                      'cost': 'product_cost',
+                      'created_at': 'product_created_at',
+                      'updated_at': 'product_updated_at',
+                      'deleted_at': 'product_deleted_at'
+                    }
+                  }
+                }
+              }
             },
-            where: {
-              number: this.transactionNumber * 1
+          },
+          join: {
+            with: 'transaction_voids',
+            on: 'transaction_numbers.number=transaction_voids.voided_transaction_number',
+            type: 'left',
+            as: {
+              'id': 'transaction_void_id',
+              'db_id': 'transaction_void_db_id',
+              'created_at': 'transaction_void_created_at',
+              'updated_at': 'transaction_void_updated_at',
+              'deleted_at': 'transaction_void_deleted_at'
             }
           }
         }).then((result) => {
           if(result.length){
             result = result[0]
-            this.transactionDetail.id = result['id']
-            this.transactionDetail.transaction_number_id = result['transaction_number_id']
+            this.transactionDetail.id = result['transaction']['id']
             this.transactionDetail.transaction_number = result['number']
-            this.transactionDetail.vatSales = result['total_vat_sales']
-            this.transactionDetail.vatExemptSales = result['total_vat_exempt_sales']
-            this.transactionDetail.vatZeroRatedSales = result['total_vat_zero_rated_sales']
-            this.transactionDetail.vatAmount = result['total_vat_amount']
-            this.transactionDetail.discountAmount = result['total_discount_amount']
-            this.transactionDetail.totalAmount = result['total_amount']
-            this.transactionDetail.subTotalAmount = result['sub_total_amount']
-            this.transactionDetail.cashTendered = result['cash_tendered']
+            this.transactionDetail.vatSales = result['transaction']['total_vat_sales']
+            this.transactionDetail.vatExemptSales = result['transaction']['total_vat_exempt_sales']
+            this.transactionDetail.vatZeroRatedSales = result['transaction']['total_vat_zero_rated_sales']
+            this.transactionDetail.vatAmount = result['transaction']['total_vat_amount']
+            this.transactionDetail.discountAmount = result['transaction']['total_discount_amount']
+            this.transactionDetail.totalAmount = result['transaction']['total_amount']
+            this.transactionDetail.subTotalAmount = result['transaction']['sub_total_amount']
+            this.transactionDetail.cashTendered = result['transaction']['cash_tendered']
             this.transactionDetail.datetime = result['created_at']
-            this.transactionDetail.status = result['status']
+            this.transactionDetail.status = result['transaction_void_id']
             let dateCreated = new Date(this.transactionDetail.datetime)
             let currentDate = new Date()
             this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate()
-            let getQuery = {
-              where: {
-                transaction_id: result['id']
-              },
-              join: {
-                with: 'products',
-                on: 'transaction_products.product_id=products.db_id',
-                type: 'inner',
-                as: {
-                  'id': 'product_id',
-                  'db_id': 'product_db_id',
-                  'cost': 'product_cost',
-                  'created_at': 'product_created_at',
-                  'updated_at': 'product_updated_at',
-                  'deleted_at': 'product_deleted_at'
-                }
-              }
-            }
-            this.transactionProductDB.get(getQuery).then(transactionProductResult => {
-              if(transactionProductResult.length){
-                this.transactionProduct = transactionProductResult
-                this.isLoading = false
-              }else{
-                this.isLoading = false
-                console.warn('No Product Retrieved')
-              }
-              setTimeout(() => {
-                resolve()
-              }, 100)
-            }).catch(errorResult => {
-              reject()
-            })
+            this.transactionProduct = result['transaction']['transaction_products']
+            setTimeout(() => {
+              this.isLoading = false
+              resolve()
+            }, 100)
           }else{
             this.isLoading = false
             this.errorMessage = 'No Transaction Found.'
@@ -318,7 +309,7 @@ export default {
 
               this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
                 let transactionvoidEntry = {
-                  transaction_id: this.transactionNumber,
+                  transaction_id: this.transactionDetail.id,
                   transaction_number_id: transactionNumberResult['id'] * 1,
                   voided_transaction_number: this.transactionDetail.transaction_number,
                   db_id: 0,

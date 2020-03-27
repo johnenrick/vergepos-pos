@@ -135,16 +135,18 @@ export default class Controller {
         }
         let withTableIdList = []
         let withTablename = pluralize.singular(withTable)
+        let childTableLookUp = {} // Used if the with table is a parent table
         if(typeof query['with'][withTable]['is_parent'] === 'undefined' || !query['with'][withTable]['is_parent']){ // if with table is child
           withQuery['where'][mainTable + '_id'] = {
             in: rootTableIdList
           }
           query['with'][withTable]['is_parent'] = false
-        }else{
+        }else{ // if with table is a parent
           for(let x = 0; x < result.length; x++){
-            idLookUp[result[x]['id']] = x
-            if(result[x][withTablename + '_id']){
-              withTableIdList.push(result[x][withTablename + '_id'])
+            let parentTableId = result[x][withTablename + '_id']
+            if(parentTableId){
+              childTableLookUp[parentTableId] = x
+              withTableIdList.push(parentTableId)
             }
           }
           withQuery['where']['id'] = {
@@ -163,7 +165,10 @@ export default class Controller {
               }
             }
           }else{
-            console.log('parent table', withTablename, response, withQuery['where'])
+            for(let parentIndex = 0; parentIndex < response.length; parentIndex++){
+              let resultIndex = childTableLookUp[response[parentIndex]['id']]
+              result[resultIndex][withTable] = response[parentIndex]
+            }
           }
         }).finally(() => {
           completedQuery++

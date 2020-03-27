@@ -2,7 +2,9 @@
   <div >
     <reading-template
       ref="ReadingTemplate"
-      :date="startDatetime"
+      :date="null"
+      :firstTransactionDatetime="firstTransactionDatetime"
+      :lastTransactionDatetime="lastTransactionDatetime"
       :vatSales="vatSales"
       :vatExemptSales="vatExemptSales"
       :vatZeroRatedSales="vatZeroRatedSales"
@@ -13,8 +15,8 @@
       :voidedTransactionCount="voidedTransactionCount"
       :reprintTransactionCount="reprintTransactionCount"
       :salesTransactionCount="salesTransactionCount"
-      :initialTransactionNumber="initialTransactionNumber"
-      :finalTransactionNumber="finalTransactionNumber"
+      :firstTransactionNumber="firstTransactionNumber"
+      :lastTransactionNumber="lastTransactionNumber"
       :hasGrandTotal="false"
     />
   </div>
@@ -29,7 +31,10 @@ export default {
     ReadingTemplate
   },
   props: {
-
+    offline: {
+      type: Boolean,
+      default: true
+    }
   },
   mounted(){
     this.init()
@@ -38,36 +43,45 @@ export default {
     return {
       startDatetime: null,
       endDatetime: null,
+      firstTransactionDatetime: null,
+      lastTransactionDatetime: null,
       cashierId: null,
+      storeTerminalId: null,
       vatSales: 0,
       vatExemptSales: 0,
       vatZeroRatedSales: 0,
       vatAmount: 0,
-      discountAmounts: {
-
-      },
+      discountAmounts: {},
       totalDiscount: 0,
       previousGrandTotal: 0,
       voidedTransactionCount: 0,
       reprintTransactionCount: 0,
       salesTransactionCount: 0,
-      initialTransactionNumber: 0,
-      finalTransactionNumber: 0
+      firstTransactionNumber: 0,
+      lastTransactionNumber: 0
     }
   },
   methods: {
-    _generate(startDatetime = null, endDatetime = null, cashierId = null){
+    _generate(startDatetime = null, endDatetime = null, cashierId = null, storeTerminalId = null){
       if(startDatetime === null){
         this.startDatetime = new Date()
         this.startDatetime.setHours(0, 0, 0)
       }
+      this.storeTerminalId = storeTerminalId
+      this.cashierId = cashierId
       this.startDatetime = startDatetime
       this.endDatetime = endDatetime
-
+      if(this.offline){
+        return this.offlineSource() // load data from iDB
+      }else{
+        return this.onlineSource() // load data from API
+      }
+    },
+    offlineSource(){
       let createdAtCondition = {
         '>': this.startDatetime.getTime()
       }
-      if(endDatetime){
+      if(this.endDatetime){
         createdAtCondition['<'] = this.endDatetime.getTime()
       }
       let query = {
@@ -94,15 +108,21 @@ export default {
           type: 'asc'
         }
       }
+      if(this.cashierId){
+        query['where']['user_id'] = this.cashierId
+      }
       this.reset()
       return new Promise((resolve, reject) => {
         let transactionNumberDB = new TransactionNumber()
         transactionNumberDB.get(query).then(transactionNumbers => {
-          console.log(transactionNumbers)
           if(!transactionNumbers.length){
             resolve(null)
             return false
           }else{
+            this.firstTransactionNumber = transactionNumbers[0]['number'] * 1
+            this.lastTransactionNumber = transactionNumbers[transactionNumbers.length - 1]['number'] * 1
+            this.firstTransactionDatetime = new Date(transactionNumbers[0]['created_at'])
+            this.lastTransactionDatetime = new Date(transactionNumbers[transactionNumbers.length - 1]['created_at'])
             for(let x = 0; x < transactionNumbers.length; x++){
               if(transactionNumbers[x]['operation'] * 1 === 1 && typeof transactionNumbers[x]['transaction'] !== 'undefined' && transactionNumbers[x]['transaction']){ // transaction
                 this.calculateTransactions(transactionNumbers[x]['transaction'])
@@ -112,9 +132,86 @@ export default {
                 ++this.voidedTransactionCount
               }
             }
+            resolve(null)
           }
         }).finally(() => {
           resolve(null)
+        })
+      })
+    },
+    onlineSource(){
+      let condition = [{
+        column: 'created_at',
+        clause: '>=',
+        value: this.serverDatetimeFormat(this.startDatetime.getTime(), true)
+      }]
+      if(this.endDatetime){
+        condition.push({
+          column: 'created_at',
+          clause: '<=',
+          value: this.serverDatetimeFormat(this.endDatetime.getTime(), true)
+        })
+      }
+      this.reset()
+      let param = {
+        select: {
+          0: 'number',
+          1: 'operation',
+          2: 'user_id',
+          3: 'store_terminal_id',
+          4: 'created_at',
+          5: 'updated_at',
+          6: 'deleted_at',
+          transaction: this.transactionSelectParameter(),
+          transaction_void: {
+            select: {
+              0: 'transaction_number_id',
+              1: 'transaction_id',
+              2: 'remarks',
+              3: 'created_at',
+              4: 'voided_transaction_number',
+              transaction: this.transactionSelectParameter()
+            }
+          }
+        },
+        condition: condition,
+        sort: [{
+          column: 'number',
+          order: 'asc'
+        }]
+      }
+      return new Promise((resolve, reject) => {
+        this.apiRequest('transaction-number/retrieve', param, response => {
+          let responseLength = response['data'].length
+          if(!responseLength){
+            resolve(null)
+            return false
+          }else{
+            this.firstTransactionNumber = response['data'][0]['number'] * 1
+            this.lastTransactionNumber = response['data'][responseLength - 1]['number'] * 1
+            this.firstTransactionDatetime = new Date((new Date(response['data'][0]['created_at'])).getTime() + 28800)
+            this.lastTransactionDatetime = new Date((new Date(response['data'][responseLength - 1]['created_at'])).getTime() + 28800)
+            for(let x = 0; x < responseLength; x++){
+              if(response['data'][x]['operation'] * 1 === 1 && typeof response['data'][x]['transaction'] !== 'undefined' && response['data'][x]['transaction']){ // transaction
+                let transaction = {
+                  total_vat_sales: response['data'][x]['transaction']['transaction_computation']['total_vat_sales'] * 1,
+                  total_vat_exempt_sales: response['data'][x]['transaction']['transaction_computation']['total_vat_exempt_sales'] * 1,
+                  total_vat_zero_rated_sales: response['data'][x]['transaction']['transaction_computation']['total_vat_zero_rated_sales'] * 1,
+                  total_vat_amount: response['data'][x]['transaction']['transaction_computation']['total_vat_amount'] * 1,
+                  total_discount_amount: response['data'][x]['transaction']['transaction_computation']['total_discount_amount'] * 1,
+                  transaction_products: response['data'][x]['transaction']['transaction_products']
+                }
+                this.calculateTransactions(transaction)
+              }else if(response['data'][x]['operation'] * 1 === 2){ // voided transaction
+                // TODO Do some calculations regarding voided transactions
+                /* The voided transaction details can be found in transactionNumbers[x]['voided_transaction']['transaction'] */
+                ++this.voidedTransactionCount
+              }else if(response['data'][x]['operation'] * 1 === 3){
+                ++this.reprintTransactionCount
+              }
+            }
+            resolve(null)
+          }
         })
       })
     },
@@ -134,16 +231,18 @@ export default {
       this.vatZeroRatedSales += transaction['total_vat_zero_rated_sales'] * 1
       this.vatAmount += transaction['total_vat_amount'] * 1
       this.totalDiscount += transaction['total_discount_amount'] * 1
-      this.reprintTransactionCount += transaction['total_vat_sales'] * 1
       let transactionProducts = transaction['transaction_products']
       for(let y = 0; y < transactionProducts.length; y++){
         let discountId = transactionProducts[y]['discount_id']
         if(discountId){
-          Vue.set(this.discountAmounts[discountId], 'amount', this.discountAmounts[discountId]['amount'] + transactionProducts[y]['discount_amount'])
+          Vue.set(this.discountAmounts[discountId], 'amount', this.discountAmounts[discountId]['amount'] + (transactionProducts[y]['discount_amount'] * 1))
         }
       }
     },
     reset(){
+      this.date = null
+      this.firstTransactionDatetime = null
+      this.lastTransactionDatetime = null
       this.vatSales = 0
       this.vatExemptSales = 0
       this.vatZeroRatedSales = 0
@@ -152,8 +251,8 @@ export default {
       this.voidedTransactionCount = 0
       this.reprintTransactionCount = 0
       this.salesTransactionCount = 0
-      this.initialTransactionNumber = 0
-      this.finalTransactionNumber = 0
+      this.firstTransactionNumber = 0
+      this.lastTransactionNumber = 0
       for(let x in this.discountAmounts){
         Vue.set(this.discountAmounts, x, {
           description: this.discountAmounts[x]['description'],
@@ -171,6 +270,37 @@ export default {
           })
         }
       })
+    },
+    transactionSelectParameter(){
+      return {
+        select: {
+          0: 'transaction_number_id',
+          1: 'customer_id',
+          2: 'status',
+          3: 'cash_tendered',
+          4: 'cash_amount_paid',
+          5: 'discount_remarks',
+          6: 'discount_id',
+          7: 'created_at',
+          transaction_products: {
+            select: {
+              0: 'transaction_id',
+              1: 'product_id',
+              2: 'quantity',
+              3: 'vat_sales',
+              4: 'vat_exempt_sales',
+              5: 'vat_zero_rated_sales',
+              6: 'vat_amount',
+              7: 'discount_amount',
+              8: 'created_at',
+              11: 'cost'
+            }
+          },
+          transaction_computation: {
+            select: ['transaction_id', 'total_vat_sales', 'total_vat_exempt_sales', 'total_vat_zero_rated_sales', 'total_vat_amount', 'total_discount_amount']
+          }
+        }
+      }
     }
   },
   computed: {

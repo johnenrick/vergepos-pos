@@ -55,7 +55,7 @@ export default {
       }
 
       if(localStorage.getItem('is_terminal')){
-        loginSwitch = true
+        this.loginSwitch = true
       }
     }
     this.checkIfOnline(() => {

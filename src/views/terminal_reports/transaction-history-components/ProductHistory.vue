@@ -52,7 +52,7 @@ export default {
     }
   },
   methods: {
-    getData(data){
+    getData(data){ // Use proper naming, and add underscore prefix if the method is exposed
       data.forEach(elem => {
         elem['transaction_products'].forEach(element => {
           this.transactions.push({
