@@ -187,40 +187,56 @@ let routes = [
     component: require('@/views/error/CannotAccess.vue').default,
     meta: {
     }
+  },
+  {
+    path: '*',
+    redirect: '/error/not-found'
   }
 ]
+for(let x = 0; x < routes.length; x++){
+  routes[x]['beforeEnter'] = (to, from, next) => {
+    // If this isn't an initial page load.
+    if (to.name) {
+      store.commit('setModuleLoading', true)
+    }
+    let toMeta = to.meta
+    console.log('router', to.path, store.getters.userRoles, to.path === '/', store.getters.user)
+    store.commit('isReady', () => {
+      if(to.path === '/' && store.getters.user){
+        if(typeof store.getters.userRoles['100'] !== 'undefined'){
+          next({ path: '/dashboard' })
+          toMeta = routes[1]['meta']
+        }else if(typeof store.getters.userRoles['101'] !== 'undefined'){
+          next({ path: '/pos' })
+        }else{
+          console.log('Cant seem to find your place mortal', VueCoreStore.getters.user, VueCoreStore.getters.userRoles)
+          next()
+        }
+      }else if(from.path !== to.path){
+        if(typeof to.meta.auth_offline !== 'undefined'){
+          if(to.meta.auth_offline && store.getters.user){
+            next()
+          }else{
+            next({ path: '/' })
+          }
+        }else{
+          next()
+        }
+      }else{
+        next()
+      }
+      store.commit('setModuleLoading', false)
+      if(typeof toMeta.no_sidebar !== 'undefined' && toMeta.no_sidebar){
+        navConfig.noSideBar = true
+      }else{
+        navConfig.noSideBar = false
+      }
+    })
+  }
+}
 let router = new Router({
   routes: routes
 })
-router.beforeResolve((to, from, next) => {
-  // If this isn't an initial page load.
-  if (to.name) {
-    store.commit('setModuleLoading', true)
-  }
-  if(from.path !== to.path){
-    if(typeof to.meta.auth_offline !== 'undefined'){
-      store.commit('isReady', () => {
-        if(to.meta.auth_offline && store.getters.user){
-          next()
-          store.commit('setModuleLoading', false)
-        }else{
-          next({ path: '/' })
-          store.commit('setModuleLoading', false)
-        }
-      })
-    }else{
-      next()
-      store.commit('setModuleLoading', false)
-    }
-  }else{
-    next()
-    store.commit('setModuleLoading', false)
-  }
-  if(typeof to.meta.no_sidebar !== 'undefined' && to.meta.no_sidebar){
-    navConfig.noSideBar = true
-  }else{
-    navConfig.noSideBar = false
-  }
-})
+// router.beforeResolve()
 
 export default router

@@ -59,9 +59,7 @@ export default {
       }
     }
     this.checkIfOnline(() => {
-      VueCoreStore.commit('isReady', () => {
-        this.redirect()
-      })
+      VueCoreStore.commit('isReady', () => {})
     })
   },
   updated(){
@@ -178,8 +176,7 @@ export default {
         if(typeof VueCoreStore.getters.userRoles['100'] !== 'undefined'){
           this.$router.push({
             path: '/dashboard'
-          }, () => {
-          })
+          }, () => {})
         }else if(typeof VueCoreStore.getters.userRoles['101'] !== 'undefined'){
           this.$router.push({
             path: '/pos'
@@ -214,13 +211,6 @@ export default {
       VueCoreStore.commit('isReady', () => {
         this.redirect()
       })
-    },
-    authToken(newValue, oldValue){
-      setTimeout(() => {
-        VueCoreStore.commit('isReady', () => {
-          this.redirect()
-        })
-      }, 500)
     }
   }
 }

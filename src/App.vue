@@ -60,6 +60,7 @@ export default {
     })
   },
   mounted(){
+    console.log('mounted')
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
     $('#app').show()
@@ -70,10 +71,8 @@ export default {
         this.checkConnectivity().then((ping) => { // Online
           if(this.$auth.check()){ // Online and logged in
             // TODO Diri ang problema kay dili siya ready
-            console.log('online login ready')
             store.dispatch('setUserInformation')
           }else{ // Online but not logged in
-            console.log('online - log out 2')
             store.dispatch('setUserInformation')
           }
         }).catch((status) => { // Offline
