@@ -63,7 +63,7 @@
     <div
       ref="container"
       id="container"
-      :style="{'max-height': containerHeight}"
+      :style="{'min-height': containerHeight, 'max-height' : containerHeight}"
       style="min-height:235px; overflow-y:scroll"
       class="pb-2"
     >
@@ -243,6 +243,9 @@ export default {
       }
       this.filterItemList()
     }
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.draw)
   }
 }
 </script>

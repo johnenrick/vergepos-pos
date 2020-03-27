@@ -243,6 +243,9 @@ export default {
     }
   },
   watch: {
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.draw)
   }
 }
 </script>
