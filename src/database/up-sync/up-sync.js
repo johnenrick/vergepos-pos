@@ -22,7 +22,6 @@ class UpSync {
       this.resync = true
       return this.isSyncing
     }
-    console.log('synching up')
     this.isSyncing = new Promise((resolve, reject) => {
       if(localStorage.getItem('is_terminal') === null || !localStorage.getItem('is_terminal')){
         reject('not_terminal')
@@ -68,7 +67,6 @@ class UpSync {
             transaction_numbers: result
           }
           APIRequest.request('transaction-number/sync', param, (response) => {
-            console.log(response)
             if(response['data']){
               this.updateTransactionNumber(result, response['data'])
             }
@@ -83,7 +81,7 @@ class UpSync {
               }
               resolve(true)
             }
-          })
+          }, (response, status) => {})
         }else{
           resolve(true)
         }
@@ -100,9 +98,7 @@ class UpSync {
     // let transactionProductDB = new TransactionProduct()
     let transactionNumberDB = new TransactionNumber()
     let transactionVoidDB = new TransactionVoid()
-    console.log('transactionNumbers', transactionNumbers)
     for(let x = 0; x < transactionNumbers.length; x++){
-      console.log(transactionNumbers[x])
       if(transactionNumbers[x]['error'] === 'already_exists'){
         // TODO Do something incredible
         await transactionNumberDB.update({ id: uploadedTransactionNumbers[x]['id'], db_id: transactionNumbers[x]['id'] })

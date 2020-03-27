@@ -200,7 +200,6 @@ for(let x = 0; x < routes.length; x++){
       store.commit('setModuleLoading', true)
     }
     let toMeta = to.meta
-    console.log('router', to.path, store.getters.userRoles, to.path === '/', store.getters.user)
     store.commit('isReady', () => {
       if(to.path === '/' && store.getters.user){
         if(typeof store.getters.userRoles['100'] !== 'undefined'){

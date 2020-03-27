@@ -44,7 +44,6 @@ export default {
   components: {
   },
   mounted(){
-    console.log('current terminal', localStorage.getItem('company_id') * 1)
     if(VueCoreStore.getters.devConfig){
       let devConfig = VueCoreStore.getters.devConfig
       this.username = devConfig.default_username

@@ -60,7 +60,6 @@ export default {
     })
   },
   mounted(){
-    console.log('mounted')
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
     $('#app').show()
