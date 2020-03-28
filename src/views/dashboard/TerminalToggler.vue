@@ -18,10 +18,11 @@
     </div>
     <modal ref="removeTerminalModal" title="Warning" icon="exclamation-triangle" icon-color="#f2a11d " :closeable="false">
       <template v-slot:body>
-        <p v-if="unsynchedTransaction">There are {{unsynchedTransaction}} transaction that has not been sync yet. Removing this device as terminal will lose those data.</p>
-        <p v-else>Removing as terminal will clear the data on this device</p>
+        <p v-if="mode === 'offline'">You are currently using Offline Mode. Make sure you have internet connection and relogin without using Offline Mode to remove this device as Terminal</p>
+        <p v-else-if="unsynchedTransaction">There are {{unsynchedTransaction}} transaction that has not been sync yet. Removing this device as terminal will lose those data.</p>
+        <p v-else>Removing as terminal will clear all the data on this device. You can always download a backup data before doing so if you are not confident on removing this.</p>
         <div v-if="!isUpSynching" class="text-center">
-          <button @click="removeTerminal" class="btn btn-danger mr-2"><fa icon='desktop' /> Remove Terminal</button>
+          <button v-if="mode !== 'offline'" @click="removeTerminal" class="btn btn-danger mr-2"><fa icon='desktop' /> Remove Terminal</button>
           <button v-if="unsynchedTransaction" @click="uploadData" class="btn btn-outline-success mr-2"><fa icon="arrow-up" /> Upload Data </button>
           <button @click="closeRemoveTerminal" class="btn btn-outline-secondary">Close</button>
         </div>
@@ -116,7 +117,6 @@ export default {
       }
       return new Promise((resolve, reject) => {
         transactionNumber.get(query).then(result => {
-          console.log(result)
           this.unsynchedTransaction = result.length
         }).finally(() => {
           resolve(this.unsynchedTransaction)
@@ -139,6 +139,11 @@ export default {
     },
     closeRemoveTerminal(){
       this.$refs.removeTerminalModal._close()
+    }
+  },
+  computed: {
+    mode(){
+      return UserStore.getters.mode
     }
   }
 }
