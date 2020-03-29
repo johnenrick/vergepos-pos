@@ -93,9 +93,6 @@ export default {
         }
       })
     },
-    toggleLogInSwitch(){
-
-    },
     switchLoginStatus(){
       this.isOffline = !this.isOffline
       this.isOffline ? this.loginStatus = 'Online' : this.loginStatus = 'Offline'

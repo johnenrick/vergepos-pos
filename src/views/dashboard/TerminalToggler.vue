@@ -7,7 +7,6 @@
         <terminal-selection ref="terminalSelection" />
       </div>
       <div v-else>
-        <backup-database></backup-database>
         <div class="bg-info text-white p-2 rounded">
           <fa icon="info-circle" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and offline log in has been enabled. <a @click.stop="openRemoveTerminal" href="#" class="text-white font-weight-bold">Undo</a>
         </div>
@@ -38,13 +37,11 @@ import UserStore from '@/vue-web-core/system/store'
 import TransactionNumber from '@/database/controller/transaction-number'
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
 import UpSync from '@/database/up-sync/up-sync'
-import BackupDatabase from '@/components/BackupDatabase'
 
 export default {
   components: {
     TerminalSelection,
     Modal,
-    BackupDatabase
   },
   data(){
     return {
