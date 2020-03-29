@@ -44,7 +44,6 @@ export default {
   components: {
   },
   mounted(){
-    console.log('current terminal', localStorage.getItem('company_id') * 1)
     if(VueCoreStore.getters.devConfig){
       let devConfig = VueCoreStore.getters.devConfig
       this.username = devConfig.default_username
@@ -56,7 +55,6 @@ export default {
     }
     this.checkIfOnline(() => {
       VueCoreStore.commit('isReady', () => {
-        this.redirect()
         if(localStorage.getItem('is_terminal') && this.isOffline === false){
           this.loginSwitch = true
         }
@@ -178,8 +176,7 @@ export default {
         if(typeof VueCoreStore.getters.userRoles['100'] !== 'undefined'){
           this.$router.push({
             path: '/dashboard'
-          }, () => {
-          })
+          }, () => {})
         }else if(typeof VueCoreStore.getters.userRoles['101'] !== 'undefined'){
           this.$router.push({
             path: '/pos'
@@ -214,13 +211,6 @@ export default {
       VueCoreStore.commit('isReady', () => {
         this.redirect()
       })
-    },
-    authToken(newValue, oldValue){
-      setTimeout(() => {
-        VueCoreStore.commit('isReady', () => {
-          this.redirect()
-        })
-      }, 500)
     }
   }
 }

@@ -1,7 +1,7 @@
 export default {
   header_menus: [{
     name: 'Manage',
-    link: 'dashboard',
+    link: '/dashboard',
     icon: 'list',
     offline_only: false
   }, {
@@ -34,11 +34,11 @@ export default {
     name: 'Terminal Reports',
     sub_item: [{
       name: 'Transaction History',
-      route: 'transaction-history',
+      route: '/transaction-history',
       has_offline: true
     }, {
       name: 'Product Performance',
-      route: 'product-performance',
+      route: '/product-performance',
       has_offline: true
     }, {
       name: 'X Reading',
