@@ -258,15 +258,16 @@ export default {
             }
           }
           this.transactions = result
-          console.log('transaction history 2', this.transactions)
           this.$refs.productHistory.getData(this.transactions)
-          this.transactions.push({
-            id: null,
-            number: '<strong>TOTAL</strong>',
-            created_at: null,
-            total_amount: '<strong>' + this.totalAmount + '</strong>',
-            total_discount_amount: '<strong>' + this.totalDiscount + '</strong>',
-          })
+          if(result.length){
+            this.transactions.push({
+              id: null,
+              number: '<strong>TOTAL</strong>',
+              created_at: null,
+              total_amount: '<strong>' + this.totalAmount + '</strong>',
+              total_discount_amount: '<strong>' + this.totalDiscount + '</strong>',
+            })
+          }
           this.isGenerating = false
           resolve(true)
         }).catch((error) => {

@@ -1,14 +1,8 @@
 <template>
     <div>
-      <!-- <div class="bg-warning text-white p-2 mb-3 rounded">
-          <fa icon="info-circle" /> It is strongly recommend that you export your data to have a backup incase anything happens .You can either click the <strong><a href="#" @click="exportDatabase"><u>EXPORT</u></a></strong> text or click the <button class="btn btn-sm btn-primary">EXPORT</button> button
-      </div> -->
-      <div class="pt-2">
-        <button @click="exportDatabase" class="btn btn-warning"><fa icon="file-archive" /> Backup Data</button><br>
-        <small>It is strongly recommended that you <strong><a href="#" @click="exportDatabase"><u>BACK UP</u></a></strong> your data from time to time whenever you're in offline mode incase anything happens. </small>
-        </div>
+      <backup-database/>
       <div>
-        <modal ref="exportOfflineData" :closeable="false">
+        <modal ref="exportOfflineData" :closeable="true">
           <template v-slot:body>
             <div class="text-center" v-if="status">
               Please wait while we are backing up your datas ....
@@ -16,6 +10,10 @@
             <div v-else>
               <div class="text-center">
                 Successfully exported your data. You can copy it to a flash drive or other location for safe keeping.
+              </div>
+
+              <div class="w-100 text-right">
+                <button @click="closeModal" class="btn btn-outline-danger mr-2">Close</button>
               </div>
             </div>
           </template>
@@ -25,6 +23,7 @@
 </template>
 
 <script>
+import BackupDatabase from '@/views/dashboard/BackupDatabase.vue'
 import Category from '@/database/controller/category.js'
 import Customer from '@/database/controller/customer.js'
 import Discount from '@/database/controller/discount.js'
@@ -38,10 +37,12 @@ import Modal from '@/vue-web-core/components/bootstrap/Modal'
 
 export default {
   components: {
+    BackupDatabase,
     Modal
   },
   data() {
     return {
+      isTerminal: localStorage.getItem('is_terminal'),
       categoryDB: new Category(),
       customerDB: new Customer(),
       discountDB: new Discount(),
@@ -109,7 +110,7 @@ export default {
                           a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
                           e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
                           a.dispatchEvent(e)
-                          this.closeModal()
+                          // this.closeModal()
                           this.status = false
                         })
                       })
@@ -123,9 +124,10 @@ export default {
       }, 5000)
     },
     closeModal(){
-      setTimeout(() => {
-        this.$refs.exportOfflineData._close()
-      }, 1000)
+      // setTimeout(() => {
+      //   this.$refs.exportOfflineData._close()
+      // }, 1000)
+      this.$refs.exportOfflineData._close()
     }
   }
 }

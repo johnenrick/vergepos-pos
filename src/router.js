@@ -208,7 +208,6 @@ for(let x = 0; x < routes.length; x++){
         }else if(typeof store.getters.userRoles['101'] !== 'undefined'){
           next({ path: '/pos' })
         }else{
-          console.log('Cant seem to find your place mortal', VueCoreStore.getters.user, VueCoreStore.getters.userRoles)
           next()
         }
       }else if(from.path !== to.path){
@@ -216,7 +215,8 @@ for(let x = 0; x < routes.length; x++){
           if(to.meta.auth_offline && store.getters.user){
             next()
           }else{
-            next({ path: '/' })
+            next('/')
+            toMeta = routes[0]['meta']
           }
         }else{
           next()

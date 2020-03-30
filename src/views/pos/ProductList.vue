@@ -155,7 +155,7 @@ export default {
     },
     draw () {
       let totalHeight = $(window).height()
-      let offset = 35 + 150
+      let offset = 35 + 120
       // totalheight - the space from the windows top until container top - the height of the footer
       this.containerHeight = (totalHeight - $(this.$refs.container).position().top - offset) + 'px'
     },

@@ -23,7 +23,7 @@
                   <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required autocomplete="current-password">
                 </div>
                 <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" class="btn btn-lg btn-primary btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Signing In' : 'Sign In'}} <small v-if="isOffline">(Offline)</small></button>
-                <button ref ="buttonStat" @click="switchLoginStatus" :model = "loginStatus" v-if="loginSwitch" class = "btn btn-primary btn-block text-uppercase mt-3 mb-2" type="button">Switch to <b>{{ loginStatus }}</b> Mode</button>
+                <button ref ="buttonStat" @click="switchLoginStatus" :model = "loginStatus" v-if="loginSwitch" class = "btn btn-warning btn-block text-uppercase mt-3 mb-2" type="button">Switch to <b>{{ loginStatus }}</b> Mode</button>
                 <p :hidden="isOffline === false ? false : true" class="text-center">Don't have an account?<router-link :hidden="isOffline === false ? false : true" to="/company-registration"><b> Sign Up</b></router-link></p>
               </form>
             </template>
@@ -90,9 +90,6 @@ export default {
           callback()
         }
       })
-    },
-    toggleLogInSwitch(){
-
     },
     switchLoginStatus(){
       this.isOffline = !this.isOffline
