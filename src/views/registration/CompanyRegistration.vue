@@ -29,7 +29,8 @@
             Congratulation, {{username}}!
           </h1>
           <p class="lead mt-4">Your account has been successfully created! You can now start exploring VergePOS and transform your business!</p>
-          <button @click="logIn" class="btn btn-success btn-lg">Proceed To My Account <fa :icon="'arrow-right'"  /></button>
+          <button v-if="isTerminal === false" @click="logIn" class="btn btn-success btn-lg">Proceed To My Account <fa :icon="'arrow-right'"  /></button>
+          <button v-else @click="goHome" class="btn btn-success btn-lg">Go to Log In Page <fa :icon="'arrow-right'"  /></button>
         </div>
       </template>
     </modal>
@@ -48,10 +49,15 @@ export default {
     Modal
   },
   mounted(){
-
+    if(localStorage.getItem('is_terminal') * 1 === 2){
+      this.isTerminal = true
+    } else{
+      this.isTerminal = false
+    }
   },
   data () {
     return {
+      isTerminal: Boolean,
       passwordMatched: false,
       isLoading: false,
       validationMessage: {},
@@ -211,6 +217,9 @@ export default {
           this.isLoading = false
         }
       })
+    },
+    goHome(){
+      window.location = '/'
     }
   }
 }
