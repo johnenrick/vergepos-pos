@@ -65,7 +65,7 @@
     </div>
     <div class="row">
       <div class="col-12">
-        <button class="btn btn-primary mb-4" @click="toggleButtonState = !toggleButtonState">{{toggleButtonState === true ? 'Switch to Product History Table' : 'Switch to Transaction History Table' }}</button>
+        <button class="btn btn-outline-primary mb-4" @click="toggleButtonState = !toggleButtonState">{{toggleButtonState === true ? 'View Product History' : 'View Transaction History' }}</button>
         <vuetable
           v-show="toggleButtonState === false"
           ref="vuetable"
@@ -258,7 +258,7 @@ export default {
             }
           }
           this.transactions = result
-          this.$refs.productHistory.getData(this.transactions)
+          this.$refs.productHistory._getData(this.transactions)
           if(result.length){
             this.transactions.push({
               id: null,
