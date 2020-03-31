@@ -13,34 +13,40 @@
               </div>
             </div>
           </div>
-          <div class="row">
-            <div class="col form-group">
+          <!-- <div class="row">
+            <div class="col-3 form-group">
               <label>First Name</label>
             </div>
-          </div>
-          <div class="row">
-            <div class="col form-group">
-              <input v-model="fName" class='form-control' :disabled="isConnected === true && isEdit === true? false : true">
+            <div class="col-9 form-control-plaintext">
+              <p v-show="isConnected === false">{{fName}}</p>
             </div>
-          </div>
-           <div class="row">
-            <div class="col form-group">
-              <label>Last Name</label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col form-group">
-              <input v-model="lName" class='form-control' :disabled="isConnected === true  && isEdit === true? false : true">
-            </div>
-          </div>
-           <div class="row">
-            <div class="col form-group">
-              <label>E-mail Address</label>
+          </div> -->
+          <div class="form-group row">
+           <label class="col-2 col-form-label">First Name</label>
+            <div class="col-10">
+              <input v-show="isConnected === false" type="text" readonly class="form-control-plaintext" v-model="fName">
             </div>
           </div>
           <div class="row">
             <div class="col form-group">
-              <input v-model="email" class='form-control' disabled>
+              <input v-show="isConnected === true" v-model="fName" class='form-control' :disabled="isConnected === true && isEdit === true? false : true">
+            </div>
+          </div>
+          <div class="form-group row">
+           <label class="col-2 col-form-label">Last Name</label>
+            <div class="col-10">
+              <input v-show="isConnected === false" type="text" readonly class="form-control-plaintext" v-model="lName">
+            </div>
+          </div>
+          <div class="row">
+            <div class="col form-group">
+              <input v-show="isConnected === true" v-model="lName" class='form-control' :disabled="isConnected === true  && isEdit === true? false : true">
+            </div>
+          </div>
+          <div class="form-group row">
+           <label class="col-2 col-form-label">E-mail Address</label>
+            <div class="col-10">
+              <input type="text" readonly class="form-control-plaintext" v-model="email">
             </div>
           </div>
            <div class="row" v-if="isConnected === true">
@@ -99,7 +105,7 @@ export default {
     this.feedback = 'Loading... Please wait'
     this.prompt = 'alert-primary'
     console.log(localStorage.getItem('is_terminal'))
-    if(localStorage.getItem('is_terminal') * 1 === 1){
+    if(localStorage.getItem('is_terminal') * 1 === 2){
       if(UserStore.getters.sessionConnection === 'online'){
         this.isConnected = true
         this.retrieveDetailOnline()
