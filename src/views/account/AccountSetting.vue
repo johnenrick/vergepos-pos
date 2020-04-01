@@ -4,7 +4,7 @@
     <div class="row justify-content-center">
       <div class="col">
         <div class="card p-3">
-           <div class="row justify-content-center">
+           <div class="row justify-content-center" :hidden="isHidden">
             <div class="col-12">
                 <div class="form-group">
                   <div :class="prompt" class="alert">
@@ -13,49 +13,29 @@
               </div>
             </div>
           </div>
-          <!-- <div class="row">
-            <div class="col-3 form-group">
-              <label>First Name</label>
+          <div class="form-group row">
+           <label class="col-2 col-form-label">Email</label>
+            <div class="col-10">
+              <input type="text" readonly class="form-control-plaintext" v-model="email">
             </div>
-            <div class="col-9 form-control-plaintext">
-              <p v-show="isConnected === false">{{fName}}</p>
-            </div>
-          </div> -->
+          </div>
           <div class="form-group row">
            <label class="col-2 col-form-label">First Name</label>
             <div class="col-10">
-              <input v-show="isConnected === false" type="text" readonly class="form-control-plaintext" v-model="fName">
-            </div>
-          </div>
-          <div class="row">
-            <div class="col form-group">
-              <input v-show="isConnected === true" v-model="fName" class='form-control' :disabled="isConnected === true && isEdit === true? false : true">
+              <input v-if="isConnected === true" v-model="fName" class='form-control' :disabled="isConnected === true && isEdit === true? false : true">
+              <input v-else type="text" readonly class="form-control-plaintext" v-model="fName">
             </div>
           </div>
           <div class="form-group row">
            <label class="col-2 col-form-label">Last Name</label>
             <div class="col-10">
-              <input v-show="isConnected === false" type="text" readonly class="form-control-plaintext" v-model="lName">
+              <input v-if="isConnected === true" v-model="lName" class='form-control' :disabled="isConnected === true  && isEdit === true? false : true">
+              <input v-else type="text" readonly class="form-control-plaintext" v-model="lName">
             </div>
           </div>
-          <div class="row">
-            <div class="col form-group">
-              <input v-show="isConnected === true" v-model="lName" class='form-control' :disabled="isConnected === true  && isEdit === true? false : true">
-            </div>
-          </div>
-          <div class="form-group row">
-           <label class="col-2 col-form-label">E-mail Address</label>
+          <div class="form-group row" v-if="isConnected === true">
+           <label class="col-2 col-form-label">Password</label>
             <div class="col-10">
-              <input type="text" readonly class="form-control-plaintext" v-model="email">
-            </div>
-          </div>
-           <div class="row" v-if="isConnected === true">
-            <div class="col form-group">
-              <label>Password</label>
-            </div>
-          </div>
-          <div class="row" v-if="isConnected === true">
-            <div class="col form-group">
               <input type="password" :class="passwordClass" v-model="password" class='form-control' :disabled="isEdit === false ? true : false" autocomplete="off">
               <div class="invalid-feedback">
                 {{passwordPrompt}}
@@ -65,13 +45,9 @@
               </div>
             </div>
           </div>
-           <div class="row">
-            <div class="col form-group">
-              <label>PIN</label>
-            </div>
-          </div>
-          <div class="row">
-            <div class="col form-group">
+          <div class="form-group row">
+           <label class="col-2 col-form-label">PIN</label>
+            <div class="col-10">
               <input type="password" :class="pinClass" v-model="pin" class='form-control' :disabled="isEdit === false ? true : false" autocomplete="off">
               <div class="invalid-feedback">
                 {{pinPrompt}}
@@ -102,6 +78,7 @@ import UserStore from '@/vue-web-core/system/store'
 import User from '@/database/controller/user'
 export default {
   mounted(){
+    this.isHidden = false
     this.feedback = 'Loading... Please wait'
     this.prompt = 'alert-primary'
     console.log(localStorage.getItem('is_terminal'))
@@ -120,6 +97,7 @@ export default {
   },
   data() {
     return {
+      isHidden: Boolean,
       isConnected: Boolean,
       prompt: 'invisible',
       passwordPrompt: '',
@@ -222,13 +200,14 @@ export default {
             if(this.responseTempOffline === response[0]){
               this.setDetails(2)
             } else{
+              this.isHidden = false
               this.feedback = 'An unexpected error occured. No details available'
               this.prompt = 'alert-danger'
             }
           }
         })
         this.feedback = ''
-        this.prompt = 'invisible'
+        this.isHidden = true
       })
     },
     retrieveDetailOffline(){
@@ -241,7 +220,7 @@ export default {
         this.responseTempOffline = response[0]
         this.setDetails(2)
         this.feedback = ''
-        this.prompt = 'invisible'
+        this.isHidden = true
       })
     },
     updateDetailOffline(){
@@ -256,15 +235,17 @@ export default {
         (new User()).update(query).then((response) => {
           this.isEdit = false
           this.resetTemp()
+          this.isHidden = false
           this.prompt = 'alert-success'
           this.feedback = 'Changes have been saved'
           UserStore.dispatch('setUserInformationOffline')
-          setTimeout(() => { this.prompt = 'invisible' }, 700)
+          setTimeout(() => { this.isHidden = true }, 700)
         })
       } else{
+        this.isHidden = false
         this.prompt = 'alert-warning'
         this.feedback = 'Please make sure to input valid details'
-        setTimeout(() => { this.prompt = 'invisible' }, 700)
+        setTimeout(() => { this.isHidden = true }, 700)
       }
     },
     updateDetailOnline(){
@@ -297,15 +278,17 @@ export default {
           })
           this.isEdit = false
           this.resetTemp()
+          this.isHidden = false
           this.prompt = 'alert-success'
           this.feedback = 'Changes have been saved'
           UserStore.dispatch('setUserInformation')
-          setTimeout(() => { this.prompt = 'invisible' }, 700)
+          setTimeout(() => { this.isHidden = true }, 700)
         })
       } else{
+        this.isHidden = false
         this.prompt = 'alert-warning'
         this.feedback = 'Please make sure to input valid details'
-        setTimeout(() => { this.prompt = 'invisible' }, 700)
+        setTimeout(() => { this.isHidden = true }, 700)
       }
     },
     editDetails(){
@@ -319,9 +302,10 @@ export default {
       this.pin = this.pinTemp
       this.resetTemp()
       this.isEdit = false
+      this.isHidden = false
       this.prompt = 'alert-secondary'
       this.feedback = 'Changes have been discarded'
-      setTimeout(() => { this.prompt = 'invisible' }, 700)
+      setTimeout(() => { this.isHidden = true }, 700)
     },
     saveEdit(){
       if(this.isConnected === true){

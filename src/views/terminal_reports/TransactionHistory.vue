@@ -258,6 +258,7 @@ export default {
             }
           }
           this.transactions = result
+          console.log(result)
           this.$refs.productHistory._getData(this.transactions)
           if(result.length){
             this.transactions.push({

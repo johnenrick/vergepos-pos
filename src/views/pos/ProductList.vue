@@ -54,10 +54,10 @@
     </div>
     <div v-show="isProductsAvailable === false" class="alert text-center border-warning m-4">
           <span v-if="isOnline === 'online'">
-            <fa icon="exclamation-triangle" class="text-warning"/> There are currently no product created. Go to <fa icon="list"/> <strong> Product</strong> to create products.
+            <fa icon="exclamation-triangle" class="text-warning"/> There are currently no product created. Go to <fa icon="list"/> <strong> Manage</strong> > <fa icon="box"/> <strong> Product</strong> to create products.
           </span>
           <span v-else-if="isOnline === 'offline'">
-            <fa icon="exclamation-triangle" class="text-warning"/> There are currently no products. Try to connect to the internet, and refresh this page. <strong class="c-pointer" onclick="window.location.reload(true)"><fa icon="undo" /> Refresh Now</strong>.
+            <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products saved. Try connecting to the internet, and re-login without using Offline Mode.
           </span>
         </div>
     <div
@@ -155,7 +155,7 @@ export default {
     },
     draw () {
       let totalHeight = $(window).height()
-      let offset = 35 + 120
+      let offset = 35 + 150
       // totalheight - the space from the windows top until container top - the height of the footer
       this.containerHeight = (totalHeight - $(this.$refs.container).position().top - offset) + 'px'
     },
