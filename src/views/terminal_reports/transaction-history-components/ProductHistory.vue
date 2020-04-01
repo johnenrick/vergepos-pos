@@ -22,17 +22,17 @@ export default {
       tableSetting: {
         columns: [
           {
-            name: 'dateAndTime',
-            title: 'Date And Time',
-            callback: (value) => {
-              return this.formatDate(value, 'mm/dd/yy hh:mm')
-            }
-          },
-          {
             name: 'number',
             title: 'Transaction Number',
             callback: (value) => {
               return this.padNumber(value, 7)
+            }
+          },
+          {
+            name: 'dateAndTime',
+            title: 'Date And Time',
+            callback: (value) => {
+              return this.formatDate(value, 'mm/dd/yy hh:mm')
             }
           },
           {
@@ -52,14 +52,14 @@ export default {
     }
   },
   methods: {
-    getData(data){ // Use proper naming, and add underscore prefix if the method is exposed
+    _getData(data){ // Use proper naming, and add underscore prefix if the method is exposed
       data.forEach(elem => {
         elem['transaction_products'].forEach(element => {
           this.transactions.push({
             transactionProd: element,
             number: elem['number'],
-            dateAndTime: elem['transaction_number_created_at'],
-            profit: (element['price'] * 1) - (element['cost'] * 1)
+            dateAndTime: elem['created_at'],
+            profit: (element['vat_sales'] * 1) + (element['vat_exempt_sales'] * 1) + (element['vat_amount'] * 1) - (element['cost'] * 1) - (element['discount_amount'] * 1)
           })
         })
       })
