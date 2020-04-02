@@ -12,8 +12,8 @@ export default {
   },
   data(){
     return {
-      view: false,
-      viewDisplay: 'Profit',
+      view: true,
+      viewDisplay: 'Quantity',
       passedData: {},
       newStart: '',
       newEnd: '',
@@ -34,13 +34,13 @@ export default {
   methods: {
     switchDisplay(){
       this.view = !this.view
-      if(this.view){
+      if(!this.view){
         this.viewDisplay = 'Profit'
       } else{
         this.viewDisplay = 'Quantity'
       }
     },
-    prepData(data, start, end){
+    _prepData(data, start, end){
       this.passedData = data
       this.newStart = start.slice(0, 10)
       let temp = this.newStart.split('-')

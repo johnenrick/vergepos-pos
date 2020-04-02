@@ -283,7 +283,7 @@ export default {
               this.transactionProducts.push(productArr[x])
             }
             console.log('ALLTIME', this.transactionProducts)
-            this.$refs.graph.plotData(this.transactionProducts)
+            this.$refs.graph._plotData(this.transactionProducts)
           }
         }else if(this.selectedReport === 'daily'){
           // if(response.length !== 0){
@@ -403,7 +403,7 @@ export default {
           }
           this.transactionProducts = forTableData
           console.log('DAILY', this.dailyTransactionProducts)
-          this.$refs.lineGraph.prepData(this.dailyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
+          this.$refs.lineGraph._prepData(this.dailyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
           // }
         }else if(this.selectedReport === 'monthly') {
           this.monthlyTransactionProduct = {}
@@ -508,7 +508,7 @@ export default {
           }
           this.transactionProducts = forTableData
           console.log('MONTH DATA', this.monthlyTransactionProduct)
-          this.$refs.monthlyLineGraph.prepData(this.monthlyTransactionProduct, this.startDatetimeFilter, this.endDatetimeFilter)
+          this.$refs.monthlyLineGraph._prepData(this.monthlyTransactionProduct, this.startDatetimeFilter, this.endDatetimeFilter)
         }else if(this.selectedReport === 'yearly') {
           this.yearlyTransactionProducts = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -580,7 +580,7 @@ export default {
           }
           this.transactionProducts = forTableData
           console.log('YEAR DATA', this.yearlyTransactionProducts)
-          this.$refs.yearlyLineGraph.prepData(this.yearlyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
+          this.$refs.yearlyLineGraph._prepData(this.yearlyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
         } else if(this.selectedReport === 'hourly'){
           this.hourlyTransactionProducts = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -650,7 +650,7 @@ export default {
           }
           this.transactionProducts = forTableData
           console.log('HOURLY DATA', this.hourlyTransactionProducts)
-          this.$refs.hourlyLineGraph.plotData(this.hourlyTransactionProducts)
+          this.$refs.hourlyLineGraph._plotData(this.hourlyTransactionProducts)
         }
 
         /* else { // else if(this.selectedReport == 'hourly'){
@@ -703,7 +703,7 @@ export default {
     },
     generateReport(){
       console.log('generating', this.graphType, this.transactions.length)
-      this.$refs.graph.plotData()
+      this.$refs.graph._plotData()
       let reportType = this.graphType
       if(reportType === 'time_in_day'){
         this.$refs.timeInDay._generate()

@@ -1,5 +1,6 @@
 <template>
   <div class="w-100">
+    <button @click="switchDisplay()" class="btn btn-outline-primary mt-4 ml-3">View {{viewDisplay}}</button>
     <bar-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></bar-chart>
   </div>
 </template>
@@ -14,6 +15,8 @@ export default {
   },
   data(){
     return {
+      view: true,
+      viewDisplay: 'Quantity',
       passedData: [],
       datacollection: null,
       chartConfig: {
@@ -30,7 +33,16 @@ export default {
     }
   },
   methods: {
-    plotData(data){
+    switchDisplay(){
+      this.view = !this.view
+      if(!this.view){
+        this.viewDisplay = 'Amount'
+      } else{
+        this.viewDisplay = 'Quantity'
+      }
+      this._plotData(this.passedData)
+    },
+    _plotData(data){
       this.passedData = data
       let dateLabel = []
       let transactionAmountTrend = []
@@ -46,24 +58,34 @@ export default {
           y: (this.passedData[date]['quantity'])
         })
       }
-      this.datacollection = {
-        labels: dateLabel,
-        bezierCurve: false,
-        datasets: [
-          {
-            label: 'Amount',
-            fill: false,
-            borderColor: '#007bff',
-            backgroundColor: '#007bff',
-            data: transactionAmountTrend
-          }, {
-            label: 'Quantity',
-            fill: false,
-            borderColor: '#17a2b8',
-            backgroundColor: '#17a2b8',
-            data: transactionDiscountAmountTrend
-          }
-        ]
+      if(this.view){
+        this.datacollection = {
+          labels: dateLabel,
+          bezierCurve: false,
+          datasets: [
+            {
+              label: 'Amount',
+              fill: false,
+              borderColor: '#007bff',
+              backgroundColor: '#007bff',
+              data: transactionAmountTrend
+            }
+          ]
+        }
+      } else{
+        this.datacollection = {
+          labels: dateLabel,
+          bezierCurve: false,
+          datasets: [
+            {
+              label: 'Quantity',
+              fill: false,
+              borderColor: '#17a2b8',
+              backgroundColor: '#17a2b8',
+              data: transactionDiscountAmountTrend
+            }
+          ]
+        }
       }
     }
   }
