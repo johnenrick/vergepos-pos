@@ -17,6 +17,7 @@
       :salesTransactionCount="salesTransactionCount"
       :firstTransactionNumber="firstTransactionNumber"
       :lastTransactionNumber="lastTransactionNumber"
+      :totalVoidedAmount="totalVoidedAmount"
       :hasGrandTotal="false"
     />
   </div>
@@ -41,6 +42,7 @@ export default {
   },
   data(){
     return {
+      totalVoidedAmount: 0,
       startDatetime: null,
       endDatetime: null,
       firstTransactionDatetime: null,
@@ -129,13 +131,17 @@ export default {
               }else if(transactionNumbers[x]['operation'] * 1 === 2){ // voided transaction
                 // TODO Do some calculations regarding voided transactions
                 /* The voided transaction details can be found in transactionNumbers[x]['voided_transaction']['transaction'] */
+                console.log(transactionNumbers[x])
+                if(transactionNumbers[x]['transaction_void']['transaction']['total_amount']){
+                  this.totalVoidedAmount = (this.totalVoidedAmount * 1) + (transactionNumbers[x]['transaction_void']['transaction']['total_amount'] * 1)
+                }
                 ++this.voidedTransactionCount
               }
             }
             resolve(null)
           }
         }).finally(() => {
-          resolve(null)
+          resolve(null)` `
         })
       })
     },
@@ -205,6 +211,9 @@ export default {
               }else if(response['data'][x]['operation'] * 1 === 2){ // voided transaction
                 // TODO Do some calculations regarding voided transactions
                 /* The voided transaction details can be found in transactionNumbers[x]['voided_transaction']['transaction'] */
+                if(transactionNumbers[x]['transaction_void']['transaction']['total_amount']){
+                  this.totalVoidedAmount = (this.totalVoidedAmount * 1) + (transactionNumbers[x]['transaction_void']['transaction']['total_amount'] * 1)
+                }
                 ++this.voidedTransactionCount
               }else if(response['data'][x]['operation'] * 1 === 3){
                 ++this.reprintTransactionCount

@@ -8,11 +8,11 @@
       </div>
     </div>
       <basic-module v-if="isOffline === false && isOffline !== null && isCategoryAvailable === true" :config="config" />
-      <div v-else-if="isOffline === false && isOffline !== null && isCategoryAvailable === false">
+      <div v-else-if="(isOffline === false || isOffline === true) && isOffline !== null && isCategoryAvailable === false">
         <h2 class="mb-4">Product List</h2>
         <div class="text-center alert border-warning m-4">
           <span>
-            <fa icon="exclamation-triangle" class="text-warning"/> You need to create a <fa icon="boxes" /><strong> Product Category</strong> first before you can create a <strong>Product</strong>. You can do this by clicking <strong>Category</strong> in the side menu.
+            <fa icon="exclamation-triangle" class="text-warning"/> You need to create a <fa icon="boxes" /><strong> Product Category</strong> first before you can create a <fa icon="box" /><strong> Product</strong>. You can do this by clicking <fa icon="boxes" /><strong> Category</strong> in the side menu.
           </span>
         </div>
       </div>
@@ -31,6 +31,7 @@
 import BasicModule from '@/vue-web-core/components/basic-module/BasicModule'
 import ProductListOffline from './ProductListOffline.vue'
 import UserStore from '@/vue-web-core/system/store'
+import Category from '@/database/controller/category.js'
 let ModuleDefault = {
   name: 'dashboard',
   components: {
@@ -39,11 +40,12 @@ let ModuleDefault = {
   },
   mounted () {
     this.isTerminal = localStorage.getItem('is_terminal')
-    this.checkForCategories()
     this.checkConnectivity().then((ping) => {
       this.isOffline = false
     }).catch(() => {
       this.isOffline = true
+    }).finally(() => {
+      this.checkForCategories()
     })
   },
   data () {
@@ -106,20 +108,29 @@ let ModuleDefault = {
   },
   methods: {
     checkForCategories(){
-      let param = {
-        company_id: UserStore.getters.companyInformation.id,
-        select: {
-          0: 'description'
+      if(!this.isOffline){
+        let param = {
+          company_id: UserStore.getters.companyInformation.id,
+          select: {
+            0: 'description'
+          }
         }
+        this.apiRequest('category/retrieve', param, (response) => {
+          if(response.data.length > 0){
+            this.isCategoryAvailable = true
+          } else{
+            this.isCategoryAvailable = false
+          }
+        })
+      } else if(this.isOffline){
+        (new Category()).getAll().then((response) => {
+          if(response.length > 0){
+            this.isCategoryAvailable = true
+          } else {
+            this.isCategoryAvailable = false
+          }
+        })
       }
-      this.apiRequest('category/retrieve', param, (response) => {
-        console.log('dis a data', response)
-        if(response.data.length > 0){
-          this.isCategoryAvailable = true
-        } else{
-          this.isCategoryAvailable = false
-        }
-      })
     },
     checkConnection(){
       this.checkConnectivity().then((ping) => {

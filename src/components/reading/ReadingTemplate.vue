@@ -28,6 +28,10 @@
             <td class="text-right">{{firstTransactionNumber + ' - ' + lastTransactionNumber}}</td>
           </tr>
           <tr>
+            <td>Voided Transaction Count</td>
+            <td class="text-right">{{voidedTransactionCount}}</td>
+          </tr>
+          <tr>
             <td>Vat Sales</td>
             <td class="text-right">{{vatSales | numberToMoney}}</td>
           </tr>
@@ -64,9 +68,13 @@
             <td>Total Discount</td>
             <td class="text-right"></td>
           </tr> -->
+          <tr >
+            <td>Voided Amount</td>
+            <td class="text-right">({{totalVoidedAmount | numberToMoney}})</td>
+          </tr>
           <tr class="font-weight-bold">
             <td>Gross Amount</td>
-            <td class="text-right"><big>{{vatSales + vatExemptSales + vatZeroRatedSales + vatAmount - totalDiscount | numberToMoney}}</big></td>
+            <td class="text-right"><big>{{vatSales + vatExemptSales + vatZeroRatedSales + vatAmount - totalDiscount - totalVoidedAmount| numberToMoney}}</big></td>
           </tr>
           <tr v-if="hasGrandTotal" class="font-weight-bold text-uppercase">
             <td>Previous Grand Total</td>
@@ -108,6 +116,7 @@ const options = {
 Vue.use(VueHtmlToPaper, options)
 export default {
   props: {
+    totalVoidedAmount: Number,
     date: Date,
     firstTransactionDatetime: Date,
     lastTransactionDatetime: Date,
