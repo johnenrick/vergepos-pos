@@ -54,6 +54,7 @@ export default {
       let transactionAmountTrend = []
       let transactionDiscountAmountTrend = []
       let transactionProfit = []
+      let transactionDiscount = []
       for(let date in this.passedData){
         dateLabel.push(this.passedData[date]['description'])
         transactionAmountTrend.push({
@@ -68,6 +69,12 @@ export default {
           x: date,
           y: (this.passedData[date]['profit'])
         })
+        if(this.passedData[date]['discount']){
+          transactionDiscount.push({
+            x: date,
+            y: (this.passedData[date]['discount'])
+          })
+        }
       }
       if(this.view * 1 === 2){
         this.datacollection = {
@@ -108,6 +115,20 @@ export default {
               borderColor: '#17a2b8',
               backgroundColor: '#17a2b8',
               data: transactionProfit
+            }
+          ]
+        }
+      } else if(this.view * 1 === 3){
+        this.datacollection = {
+          labels: dateLabel,
+          bezierCurve: false,
+          datasets: [
+            {
+              label: 'Discount',
+              fill: false,
+              borderColor: '#17a2b8',
+              backgroundColor: '#17a2b8',
+              data: transactionDiscount
             }
           ]
         }
