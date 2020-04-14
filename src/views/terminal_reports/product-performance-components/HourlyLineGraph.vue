@@ -1,6 +1,19 @@
 <template>
   <div class="w-100">
-        <button @click="switchDisplay()" class="btn btn-outline-primary mt-4 ml-3">View {{viewDisplay}}</button>
+      <div class="row">
+        <div class="col">
+        <button @click="switchDisplay(1)" class="btn mt-4 ml-3" :class="view === 1 ? ' btn-primary' : ' btn-outline-primary'">View Quantity</button>
+        </div>
+        <div class="col">
+        <button @click="switchDisplay(2)" class="btn mt-4 ml-3" :class="view === 2 ? ' btn-primary' : ' btn-outline-primary'">View Amount</button>
+        </div>
+        <div class="col">
+        <button @click="switchDisplay(3)" class="btn mt-4 ml-3" :class="view === 3 ? ' btn-primary' : ' btn-outline-primary'">View Discount Amount</button>
+        </div>
+        <div class="col">
+        <button @click="switchDisplay(4)" class="btn mt-4 ml-3" :class="view === 4 ? ' btn-primary' : ' btn-outline-primary'">View Profit</button>
+        </div>
+      </div>
     <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></line-chart>
   </div>
 </template>
@@ -12,8 +25,7 @@ export default {
   },
   data(){
     return {
-      view: false,
-      viewDisplay: 'Profit',
+      view: 1,
       passedData: {},
       newStart: '',
       newEnd: '',
@@ -32,13 +44,8 @@ export default {
     }
   },
   methods: {
-    switchDisplay(){
-      this.view = !this.view
-      if(!this.view){
-        this.viewDisplay = 'Profit'
-      } else{
-        this.viewDisplay = 'Quantity'
-      }
+    switchDisplay(num){
+      this.view = num * 1
     },
     _plotData(data){
       this.passedData = data
@@ -66,9 +73,24 @@ export default {
         })
       })
       for(let date in this.passedData){
-        this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
+        if(this.view * 1 === 1){
+          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
           this.passedData[date]['data']
-        if(!this.view){
+        } else if(this.view * 1 === 2){
+          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
+            this.passedData[date]['data']
+          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'].forEach(elem => {
+            elem['y'] = (elem['y'] * this.passedData[date]['price'])
+          })
+        }else if(this.view * 1 === 3){
+          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
+            this.passedData[date]['data']
+          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'].forEach(elem => {
+            elem['y'] = (elem['y'] * this.passedData[date]['price']) - (elem['y'] * this.passedData[date]['discount_amt'])
+          })
+        } else if(this.view * 1 === 4){
+          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
+            this.passedData[date]['data']
           this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'].forEach(elem => {
             elem['y'] = (elem['y'] * this.passedData[date]['price']) - (elem['y'] * this.passedData[date]['cost'])
           })
