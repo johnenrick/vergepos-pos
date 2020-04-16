@@ -212,7 +212,7 @@ export default {
           $(this.$refs.modal).modal('hide')
           this._reset()
           Cart.commit('reset')
-        }, 1000)
+        }, 800)
       }).catch(error => {
         this.transacting = false
         console.log('ooh', error)
