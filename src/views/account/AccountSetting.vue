@@ -137,9 +137,12 @@ export default {
     pin: function () {
       if(this.pin === ''){
         this.pinClass = 'is-valid'
-        this.pinPrompt = 'Leaving this blank will not change te pin'
-      } else if(this.pin.length < 4 || this.pin.length > 4){
-        this.pinPrompt = 'Must contain 4 characters'
+        this.pinPrompt = 'Leaving this blank will not change the pin'
+      } else if(this.pin.length < 4){
+        this.pinPrompt = 'Must contain at least 4 characters'
+        this.pinClass = 'is-invalid'
+      } else if(this.pin.length > 10){
+        this.pinPrompt = 'Maximum of 10 characters'
         this.pinClass = 'is-invalid'
       } else{
         this.pinClass = 'is-valid'
