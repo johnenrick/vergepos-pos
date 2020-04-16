@@ -41,11 +41,19 @@ export default {
           },
           {
             name: 'transactionProd.price',
-            title: 'Price'
+            title: 'Price',
+            dataClass: 'text-right',
+            callback: (value) => {
+              return (this.numberToMoney(value))
+            }
           },
           {
             name: 'profit',
             title: 'Profit',
+            dataClass: 'text-right',
+            callback: (value) => {
+              return (this.numberToMoney(value))
+            }
           }
         ]
       }
