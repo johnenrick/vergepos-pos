@@ -64,6 +64,7 @@ export default {
     $('#loadingApplicationMessage').hide()
     $('#app').show()
     this.migrateDB().finally(() => {
+      console.log('this.mode', this.mode)
       if(this.mode === 'offline'){
         store.dispatch('setUserInformationOffline')
       }else{
@@ -167,7 +168,7 @@ export default {
       return store.state.userInformation ? store.state.userInformation.id : null
     },
     mode(){
-      return store.state.mode
+      return store.getters.mode
     },
     noSidebar(){
       return !navigationConfig.noSideBar && navigationConfig.sidebarToggled

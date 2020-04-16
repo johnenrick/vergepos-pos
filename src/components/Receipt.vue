@@ -13,9 +13,15 @@
         <br>
         <table class="table table-sm" style="width:100%">
           <tbody>
+            <tr>
+              <td class="text-uppercase  text-center text-danger" colspan="2" v-if="transactionDetail.status === 2">
+                <span class="font-weight-bold" >Voided Transaction</span> <br>
+                Txn# {{transactionDetail.voidedTransactionNumber}}
+              </td>
+            </tr>
             <tr class="">
-              <td class="text-uppercase" colspan="2">{{transactionDetail.datetime | toReadableDateTime}}</td>
-              <td class="text-right" style="text-align: right">{{transactionNumber}} <p class="text-danger" v-if="transactionDetail.status === 2">(Voided)</p></td>
+              <td class="text-uppercase" >{{transactionDetail.datetime | toReadableDateTime}}</td>
+              <td class="text-right" style="text-align: right">{{transactionNumber}} </td>
             </tr>
           </tbody>
         </table>
@@ -180,7 +186,8 @@ export default {
         cashTendered: 0,
         datetime: '0/0/0',
         status: 1,
-        voidable: false
+        voidable: false,
+        voidedTransactionNumber: null
       },
       isPrinting: false
     }
@@ -247,14 +254,18 @@ export default {
             this.transactionDetail.subTotalAmount = result['transaction']['sub_total_amount']
             this.transactionDetail.cashTendered = result['transaction']['cash_tendered']
             this.transactionDetail.datetime = result['created_at']
-            this.transactionDetail.status = result['transaction_void_id']
+            this.transactionDetail.status = result['transaction_void_id'] === null ? 1 : 2
             let dateCreated = new Date(this.transactionDetail.datetime)
             let currentDate = new Date()
-            this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate()
+            this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate() && result['transaction_void_id'] === null
+            if(result['transaction_void_id']){
+              this.transactionDetail.voidedTransactionNumber = result['voided_transaction_number']
+            }
             this.transactionProduct = result['transaction']['transaction_products']
             setTimeout(() => {
               this.isLoading = false
               resolve()
+              console.log(result, this.transactionDetail)
             }, 100)
           }else{
             this.isLoading = false
@@ -316,6 +327,7 @@ export default {
                   remarks: this.remarks
                 }
                 this.transactionVoidDB.add(transactionvoidEntry).then((response) => {
+                  console.log('eeun')
                   this.transactionDetail.status = 2
                   this.voidErrorMessage = null
                   this.toVoid = false
