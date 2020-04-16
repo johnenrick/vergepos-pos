@@ -131,17 +131,16 @@ export default {
               }else if(transactionNumbers[x]['operation'] * 1 === 2){ // voided transaction
                 // TODO Do some calculations regarding voided transactions
                 /* The voided transaction details can be found in transactionNumbers[x]['voided_transaction']['transaction'] */
-                console.log(transactionNumbers[x])
                 if(transactionNumbers[x]['transaction_void']['transaction']['total_amount']){
                   this.totalVoidedAmount = (this.totalVoidedAmount * 1) + (transactionNumbers[x]['transaction_void']['transaction']['total_amount'] * 1)
                 }
                 ++this.voidedTransactionCount
               }
             }
-            resolve(null)
+            // resolve(null)
           }
         }).finally(() => {
-          resolve(null)` `
+          // resolve(null)` `
         })
       })
     },
