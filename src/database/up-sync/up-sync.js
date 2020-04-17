@@ -8,7 +8,7 @@ class UpSync {
   isSyncing = false
   resync = false
   silentSyncTimeoutId = 0
-  silentSyncFrequency = 5000
+  silentSyncFrequency = 20000
   silentSync(){
     this.isSynchingSilently = true
     this.sync().finally(() => {
@@ -83,6 +83,7 @@ class UpSync {
             }
           }, (response, status) => {})
         }else{
+          this.resync = false
           resolve(true)
         }
       })
