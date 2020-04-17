@@ -49,7 +49,7 @@ export default {
     Modal
   },
   mounted(){
-    if(localStorage.getItem('is_terminal') * 1 === 2){
+    if(localStorage.getItem('is_terminal')){
       this.isTerminal = true
     } else{
       this.isTerminal = false
@@ -149,7 +149,7 @@ export default {
           'user.pin': {
             name: 'PIN',
             config: {
-              maxlength: 4
+              maxlength: 10
             }
           },
         }
