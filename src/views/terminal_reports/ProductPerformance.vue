@@ -44,26 +44,30 @@
         <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right"><fa icon="chart-line" /> Show Graph</button>
         <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right"><fa icon="chart-line" /> Hide Graph</button>
       </div>
-      <transaction-graph
-      v-show="selectedReport === 'transaction'"
-      ref='graph'
-      />
-      <line-graph
-        v-show="selectedReport === 'daily'"
-        ref="lineGraph"
-      />
-      <monthly-line-graph
-        v-show="selectedReport === 'monthly'"
-        ref="monthlyLineGraph"
-      />
-      <yearly-line-graph
-        v-show="selectedReport === 'yearly'"
-        ref="yearlyLineGraph"
-      />
-      <hourly-line-graph
-        v-show="selectedReport === 'hourly'"
-        ref="hourlyLineGraph"
-      />
+      <div class="w-100 card m-3">
+        <div class="card-body">
+        <transaction-graph
+          v-show="selectedReport === 'transaction'"
+          ref='graph'
+          />
+          <line-graph
+            v-show="selectedReport === 'daily'"
+            ref="lineGraph"
+          />
+          <monthly-line-graph
+            v-show="selectedReport === 'monthly'"
+            ref="monthlyLineGraph"
+          />
+          <yearly-line-graph
+            v-show="selectedReport === 'yearly'"
+            ref="yearlyLineGraph"
+          />
+          <hourly-line-graph
+            v-show="selectedReport === 'hourly'"
+            ref="hourlyLineGraph"
+          />
+          </div>
+        </div>
     </div>
     <div class="row">
       <div class="col-12">

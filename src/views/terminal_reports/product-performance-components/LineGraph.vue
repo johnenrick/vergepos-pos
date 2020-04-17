@@ -14,12 +14,14 @@
     </div>
     <div class="text-center">
       <div class="row mt-2">
-        <div class="col btn-group-sm">
+        <div class="col-2"></div>
+        <div class="col-8 btn-group btn-group-sm">
           <button @click="switchDisplay(1)" class="btn" :class="view === 1 ? ' btn-primary' : ' btn-outline-primary'">Quantity</button>
           <button @click="switchDisplay(2)" class="btn" :class="view === 2 ? ' btn-primary' : ' btn-outline-primary'">Amount</button>
           <button @click="switchDisplay(3)" class="btn" :class="view === 3 ? ' btn-primary' : ' btn-outline-primary'">Discount Amount</button>
           <button @click="switchDisplay(4)" class="btn" :class="view === 4 ? ' btn-primary' : ' btn-outline-primary'">Profit</button>
         </div>
+        <div class="col-2"></div>
       </div>
     </div>
     <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></line-chart>

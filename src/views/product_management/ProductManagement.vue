@@ -39,14 +39,9 @@ let ModuleDefault = {
     ProductListOffline
   },
   mounted () {
+    UserStore.getters.sessionConnection === 'online' ? this.isOffline = false : this.isOffline = true
     this.isTerminal = localStorage.getItem('is_terminal')
-    this.checkConnectivity().then((ping) => {
-      this.isOffline = false
-    }).catch(() => {
-      this.isOffline = true
-    }).finally(() => {
-      this.checkForCategories()
-    })
+    this.checkForCategories()
   },
   data () {
     let tableSettingRetrieveParameter = {
@@ -131,18 +126,6 @@ let ModuleDefault = {
           }
         })
       }
-    },
-    checkConnection(){
-      this.checkConnectivity().then((ping) => {
-        console.log('ping', ping)
-        this.isOffline = false
-      }).catch((status) => {
-        this.isOffline = false
-      }).finally(() => {
-        if(typeof callback === 'function'){
-          callback()
-        }
-      })
     }
   }
 }
