@@ -1,20 +1,26 @@
 <template>
   <div>
-    <div v-if="!isConfuringTerminal" class="mb-4">
-      <div v-if="!isTerminal">
-        <button @click="openTerminalSelection" class="btn btn-secondary"><fa icon="cash-register" /> Set As Terminal</button><br>
-        <small>Set this machine as a Terminal. By doing so, it will allow you to use the POS even if you dont have internet connection. </small>
-        <terminal-selection ref="terminalSelection" />
-      </div>
-      <div v-else>
-        <div class="bg-info text-white p-2 rounded">
-          <fa icon="info-circle" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and offline log in has been enabled. <a @click.stop="openRemoveTerminal" href="#" class="text-white font-weight-bold">Undo</a>
+    <div class="border rounded p-2 px-3">
+      <div v-if="!isConfuringTerminal" class="">
+        <div v-if="!isTerminal">
+          <p class="mb-1">Set this device as a Terminal to use the POS and enable Offline Mode. </p>
+          <div class="text-center">
+            <button @click="openTerminalSelection" class="btn btn-primary"><fa icon="cash-register" /> Set As Terminal</button><br>
+          </div>
+          <terminal-selection ref="terminalSelection" />
+        </div>
+        <div v-else>
+          <p class="mb-1"><fa icon="cash-register" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and Offline Mode has been enabled.</p>
+          <div class="text-center">
+            <a @click.stop="openRemoveTerminal" href="#" class="btn btn-outline-danger btn-sm mb-1">Remove As Terminal</a>
+          </div>
         </div>
       </div>
+      <div v-else class="mb-4 text-center">
+        Configuring Terminal. Please wait...
+      </div>
     </div>
-    <div v-else class="mb-4">
-      Configuring Terminal. Please wait...
-    </div>
+
     <modal ref="removeTerminalModal" title="Warning" icon="exclamation-triangle" icon-color="#f2a11d " :closeable="false">
       <template v-slot:body>
         <p v-if="mode === 'offline'">You are currently using Offline Mode. Make sure you have internet connection and relogin without using Offline Mode to remove this device as Terminal</p>
@@ -22,7 +28,7 @@
         <p v-else>Removing as terminal will clear all the data on this device. You can always download a backup data before doing so if you are not confident on removing this.</p>
         <div v-if="!isUpSynching" class="text-center">
           <button v-if="mode !== 'offline'" @click="removeTerminal" class="btn btn-danger mr-2"><fa icon='desktop' /> Remove Terminal</button>
-          <button v-if="unsynchedTransaction" @click="uploadData" class="btn btn-outline-success mr-2"><fa icon="arrow-up" /> Upload Data </button>
+          <button v-if="unsynchedTransaction && mode === 'online'" @click="uploadData" class="btn btn-outline-success mr-2"><fa icon="arrow-up" /> Upload Data </button>
           <button @click="closeRemoveTerminal" class="btn btn-outline-secondary">Close</button>
         </div>
         <div v-else class="text-center">
@@ -56,9 +62,10 @@ export default {
     uploadData(){
       this.isUpSynching = true
       UpSync.sync().finally(() => {
-        UpSync.sync().finally(() => {
-          this.countUnsynchedTransaction()
-          this.isUpSynching = false
+        console.log('got here')
+        this.isUpSynching = false
+        this.countUnsynchedTransaction().finally(() => {
+          this.isConfuringTerminal = false
         })
       })
     },
