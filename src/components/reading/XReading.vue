@@ -119,7 +119,6 @@ export default {
         transactionNumberDB.get(query).then(transactionNumbers => {
           if(!transactionNumbers.length){
             resolve(null)
-            return false
           }else{
             this.firstTransactionNumber = transactionNumbers[0]['number'] * 1
             this.lastTransactionNumber = transactionNumbers[transactionNumbers.length - 1]['number'] * 1
@@ -137,10 +136,10 @@ export default {
                 ++this.voidedTransactionCount
               }
             }
-            // resolve(null)
+            resolve(null)
           }
         }).finally(() => {
-          // resolve(null)` `
+          resolve(null)
         })
       })
     },

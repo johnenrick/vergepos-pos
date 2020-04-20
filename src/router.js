@@ -37,6 +37,19 @@ let routes = [
     }
   },
   {
+    path: '/password-reset',
+    name: 'PasswordReset',
+    component: () => {
+      return {
+        component: import('@/views/PasswordReset.vue')
+      }
+    },
+    meta: {
+      auth: false,
+      no_sidebar: true
+    }
+  },
+  {
     path: '/user-management',
     name: 'UserManagement',
     component: () => import('@/views/user_management/UserManagement.vue'),
