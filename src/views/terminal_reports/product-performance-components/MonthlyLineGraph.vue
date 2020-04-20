@@ -56,6 +56,8 @@ export default {
   methods: {
     switchDisplay(num){
       this.view = num * 1
+      this.datacollection = null
+      this.plotData()
     },
     _prepData(data, start, end){
       this.passedData = data
@@ -69,21 +71,40 @@ export default {
     },
     plotData(){
       let dateLabel = this.createDateLabels()
+      let qty = []
+      let amt = []
+      let discAmt = []
+      let prft = []
       let products = []
       for(let element in this.passedData){
         if(!products.includes(this.passedData[element]['description'])){
           products.push(this.passedData[element]['description'])
         }
       }
-      this.datacollection = {
-        labels: dateLabel,
-        bezierCurve: false,
-        datasets: [
-        ]
-      }
       products.forEach(element => {
         let color = '#' + Math.floor(Math.random() * 16777215).toString(16)
-        this.datacollection.datasets.push({
+        qty.push({
+          label: element,
+          fill: false,
+          borderColor: color,
+          backgroundColor: color,
+          data: []
+        })
+        amt.push({
+          label: element,
+          fill: false,
+          borderColor: color,
+          backgroundColor: color,
+          data: []
+        })
+        discAmt.push({
+          label: element,
+          fill: false,
+          borderColor: color,
+          backgroundColor: color,
+          data: []
+        })
+        prft.push({
           label: element,
           fill: false,
           borderColor: color,
@@ -91,28 +112,49 @@ export default {
           data: []
         })
       })
-      for(let date in this.passedData){
-        if(this.view * 1 === 1){
-          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
-          this.passedData[date]['data']
-        } else if(this.view * 1 === 2){
-          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
-            this.passedData[date]['data']
-          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'].forEach(elem => {
-            elem['y'] = (elem['y'] * this.passedData[date]['price'])
+      for(let x in this.passedData){
+        for(let y in this.passedData[x]['data']){
+          qty[products.indexOf(this.passedData[x]['description'])]['data'].push({
+            x: this.passedData[x]['data'][y]['x'],
+            y: this.passedData[x]['data'][y]['y']
           })
-        }else if(this.view * 1 === 3){
-          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
-            this.passedData[date]['data']
-          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'].forEach(elem => {
-            elem['y'] = (elem['y'] * this.passedData[date]['price']) - (elem['y'] * this.passedData[date]['discount_amt'])
+          amt[products.indexOf(this.passedData[x]['description'])]['data'].push({
+            x: this.passedData[x]['data'][y]['x'],
+            y: this.passedData[x]['data'][y]['y'] * this.passedData[x]['price']
           })
-        } else if(this.view * 1 === 4){
-          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'] =
-            this.passedData[date]['data']
-          this.datacollection['datasets'][products.indexOf(this.passedData[date]['description'])]['data'].forEach(elem => {
-            elem['y'] = (elem['y'] * this.passedData[date]['price']) - (elem['y'] * this.passedData[date]['cost'])
+          discAmt[products.indexOf(this.passedData[x]['description'])]['data'].push({
+            x: this.passedData[x]['data'][y]['x'],
+            y: (this.passedData[x]['data'][y]['y'] * this.passedData[x]['price']) - (this.passedData[x]['data'][y]['y'] * this.passedData[x]['discount_amt'])
           })
+          prft[products.indexOf(this.passedData[x]['description'])]['data'].push({
+            x: this.passedData[x]['data'][y]['x'],
+            y: (this.passedData[x]['data'][y]['y'] * this.passedData[x]['price']) - (this.passedData[x]['data'][y]['y'] * this.passedData[x]['cost'])
+          })
+        }
+      }
+      if(this.view * 1 === 1){
+        this.datacollection = {
+          labels: dateLabel,
+          bezierCurve: false,
+          datasets: qty
+        }
+      } else if(this.view * 1 === 2){
+        this.datacollection = {
+          labels: dateLabel,
+          bezierCurve: false,
+          datasets: amt
+        }
+      } if(this.view * 1 === 3){
+        this.datacollection = {
+          labels: dateLabel,
+          bezierCurve: false,
+          datasets: discAmt
+        }
+      } if(this.view * 1 === 4){
+        this.datacollection = {
+          labels: dateLabel,
+          bezierCurve: false,
+          datasets: prft
         }
       }
     },

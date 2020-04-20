@@ -55,6 +55,7 @@ export default {
   methods: {
     switchDisplay(num){
       this.view = num * 1
+      this._plotData(this.passedData)
     },
     _plotData(data){
       this.passedData = data
@@ -118,10 +119,10 @@ export default {
           bezierCurve: false,
           datasets: [
             {
-              label: 'Quantity',
+              label: 'Profit',
               fill: false,
-              borderColor: '#17a2b8',
-              backgroundColor: '#17a2b8',
+              borderColor: '#aac5b8',
+              backgroundColor: '#aac5b8',
               data: transactionProfit
             }
           ]
@@ -134,8 +135,8 @@ export default {
             {
               label: 'Discount',
               fill: false,
-              borderColor: '#17a2b8',
-              backgroundColor: '#17a2b8',
+              borderColor: '#d2a2bd',
+              backgroundColor: '#d2a2bd',
               data: transactionDiscount
             }
           ]
