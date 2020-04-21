@@ -288,6 +288,10 @@ export default {
             }
             console.log('ALLTIME', this.transactionProducts)
             this.$refs.graph._plotData(this.transactionProducts)
+            this.$refs.hourlyLineGraph._plotData()
+            this.$refs.yearlyLineGraph._prepData()
+            this.$refs.monthlyLineGraph._prepData()
+            this.$refs.lineGraph._prepData()
           }
         }else if(this.selectedReport === 'daily'){
           // if(response.length !== 0){
@@ -408,6 +412,10 @@ export default {
           this.transactionProducts = forTableData
           console.log('DAILY', this.dailyTransactionProducts)
           this.$refs.lineGraph._prepData(this.dailyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
+          this.$refs.graph._plotData()
+          this.$refs.hourlyLineGraph._plotData()
+          this.$refs.yearlyLineGraph._prepData()
+          this.$refs.monthlyLineGraph._prepData()
           // }
         }else if(this.selectedReport === 'monthly') {
           this.monthlyTransactionProduct = {}
@@ -513,6 +521,10 @@ export default {
           this.transactionProducts = forTableData
           console.log('MONTH DATA', this.monthlyTransactionProduct)
           this.$refs.monthlyLineGraph._prepData(this.monthlyTransactionProduct, this.startDatetimeFilter, this.endDatetimeFilter)
+          this.$refs.lineGraph._prepData()
+          this.$refs.graph._plotData()
+          this.$refs.hourlyLineGraph._plotData()
+          this.$refs.yearlyLineGraph._prepData()
         }else if(this.selectedReport === 'yearly') {
           this.yearlyTransactionProducts = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -585,6 +597,10 @@ export default {
           this.transactionProducts = forTableData
           console.log('YEAR DATA', this.yearlyTransactionProducts)
           this.$refs.yearlyLineGraph._prepData(this.yearlyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
+          this.$refs.monthlyLineGraph._prepData()
+          this.$refs.lineGraph._prepData()
+          this.$refs.graph._plotData()
+          this.$refs.hourlyLineGraph._plotData()
         } else if(this.selectedReport === 'hourly'){
           this.hourlyTransactionProducts = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -655,6 +671,11 @@ export default {
           this.transactionProducts = forTableData
           console.log('HOURLY DATA', this.hourlyTransactionProducts)
           this.$refs.hourlyLineGraph._plotData(this.hourlyTransactionProducts)
+          this.$refs.yearlyLineGraph._prepData()
+          this.$refs.monthlyLineGraph._prepData()
+          this.$refs.lineGraph._prepData()
+          this.$refs.graph._plotData()
+          this.$refs.hourlyLineGraph._plotData()
         }
 
         /* else { // else if(this.selectedReport == 'hourly'){
