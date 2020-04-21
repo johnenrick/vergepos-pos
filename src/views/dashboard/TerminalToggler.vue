@@ -16,7 +16,7 @@
           </div>
         </div>
       </div>
-      <div v-else class="mb-4 text-center">
+      <div v-else class=" text-center">
         Configuring Terminal. Please wait...
       </div>
     </div>

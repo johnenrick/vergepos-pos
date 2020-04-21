@@ -1,5 +1,5 @@
 <template>
-  <div class="row no-gutters mb-4">
+  <div class="row no-gutters mb-1">
     <div class="col-12 p-1 text"><h6 class="font-weight-bold text-uppercase">Today's Status on {{currentDate | formatDate('M d, yyyy hh:mm')}}</h6></div>
     <div class="col-12 col-md-4 px-1">
       <div class="card text-white bg-success mb-3" >
