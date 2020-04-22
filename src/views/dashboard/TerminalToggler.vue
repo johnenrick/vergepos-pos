@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="border rounded p-2 px-3">
+    <div class="border bg-white rounded p-2 px-3">
       <div v-if="!isConfuringTerminal" class="">
         <div v-if="!isTerminal">
           <p class="mb-1">Set this device as a Terminal to use the POS and enable Offline Mode. </p>

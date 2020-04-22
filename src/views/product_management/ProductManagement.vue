@@ -61,14 +61,6 @@ let ModuleDefault = {
     }
     let formFieldSetting = {
       fields: {
-        description: {
-        },
-        barcode: {
-        },
-        cost: {
-        },
-        price: {
-        },
         category_id: {
           name: 'Category',
           type: 'select',
@@ -76,6 +68,14 @@ let ModuleDefault = {
             api_link: 'category/retrieve',
             api_option_text: 'description'
           }
+        },
+        description: {
+        },
+        barcode: {
+        },
+        cost: {
+        },
+        price: {
         }
       }
     }
