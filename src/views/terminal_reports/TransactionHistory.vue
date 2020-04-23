@@ -143,12 +143,18 @@ export default {
           name: 'total_amount',
           title: 'Amount',
           titleClass: 'text-center',
-          dataClass: 'text-right'
+          dataClass: 'text-right',
+          callback: (value) => {
+            return isNaN(value * 1) ? value : this.numberToMoney(value)
+          }
         }, {
           name: 'total_discount_amount',
           title: 'Discount',
           titleClass: 'text-center',
-          dataClass: 'text-right'
+          dataClass: 'text-right',
+          callback: (value) => {
+            return isNaN(value * 1) ? value : this.numberToMoney(value)
+          }
         }, {
           name: 'status',
           title: 'Status',
@@ -265,8 +271,8 @@ export default {
               id: null,
               number: '<strong>TOTAL</strong>',
               created_at: null,
-              total_amount: '<strong>' + this.totalAmount + '</strong>',
-              total_discount_amount: '<strong>' + this.totalDiscount + '</strong>',
+              total_amount: '<strong>' + this.numberToMoney(this.totalAmount) + '</strong>',
+              total_discount_amount: '<strong>' + this.numberToMoney(this.totalDiscount) + '</strong>',
             })
           }
           this.isGenerating = false
