@@ -24,6 +24,8 @@ export default {
           {
             name: 'number',
             title: 'Transaction Number',
+            titleClass: 'text-center',
+            dataClass: 'text-center',
             callback: (value) => {
               return this.padNumber(value, 7)
             }
@@ -31,17 +33,22 @@ export default {
           {
             name: 'dateAndTime',
             title: 'Date And Time',
+            titleClass: 'text-center',
+            dataClass: 'text-center',
             callback: (value) => {
               return this.formatDate(value, 'mm/dd/yy hh:mm')
             }
           },
           {
             name: 'transactionProd.description',
-            title: 'Description'
+            title: 'Description',
+            titleClass: 'text-center',
+            dataClass: 'text-center',
           },
           {
             name: 'transactionProd.price',
             title: 'Price',
+            titleClass: 'text-center',
             dataClass: 'text-right',
             callback: (value) => {
               return (this.numberToMoney(value))
@@ -50,6 +57,7 @@ export default {
           {
             name: 'profit',
             title: 'Profit',
+            titleClass: 'text-center',
             dataClass: 'text-right',
             callback: (value) => {
               return (this.numberToMoney(value))

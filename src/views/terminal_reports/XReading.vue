@@ -112,7 +112,6 @@ export default {
       let startDatetime = new Date((this.startDatetime.replace('T', ' ').split('.'))[0])
       let endDatetime = new Date((this.endDatetime.replace('T', ' ').split('.'))[0])
       this.$refs.xReading._generate(startDatetime, endDatetime, this.cashierId * 1).finally(() => {
-        console.log('shot')
         this.isGenerating = false
       })
     },
