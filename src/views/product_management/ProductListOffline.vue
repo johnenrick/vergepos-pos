@@ -94,19 +94,27 @@ export default {
       tableSetting: {
         columns: [{
           name: 'description',
-          title: 'Description'
+          title: 'Description',
+          titleClass: 'text-center',
+          dataClass: 'text-justify'
         }, {
           name: 'category_name',
-          title: 'Category'
+          title: 'Category',
+          titleClass: 'text-center',
+          dataClass: 'text-justify'
         }, {
           name: 'price',
           title: 'Price',
+          titleClass: 'text-center',
+          dataClass: 'text-right',
           callback: (value) => {
             return QuickHelper.numberToMoney(value)
           }
         }, {
           name: '__slot:actions',
-          title: 'Buttons'
+          title: 'Buttons',
+          titleClass: 'text-center',
+          dataClass: 'text-center'
         }]
       }
     }

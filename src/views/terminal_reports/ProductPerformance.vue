@@ -47,23 +47,23 @@
       <div class="w-100 card m-3">
         <div class="card-body">
         <transaction-graph
-          v-show="selectedReport === 'transaction'"
+          v-show="toDisplay === 'transaction'"
           ref='graph'
           />
           <line-graph
-            v-show="selectedReport === 'daily'"
+            v-show="toDisplay === 'daily'"
             ref="lineGraph"
           />
           <monthly-line-graph
-            v-show="selectedReport === 'monthly'"
+            v-show="toDisplay === 'monthly'"
             ref="monthlyLineGraph"
           />
           <yearly-line-graph
-            v-show="selectedReport === 'yearly'"
+            v-show="toDisplay === 'yearly'"
             ref="yearlyLineGraph"
           />
           <hourly-line-graph
-            v-show="selectedReport === 'hourly'"
+            v-show="toDisplay === 'hourly'"
             ref="hourlyLineGraph"
           />
           </div>
@@ -120,6 +120,7 @@ export default {
   },
   data(){
     return {
+      toDisplay: 'transaction',
       graphType: 'null',
       startDatetimeFilter: null,
       endDatetimeFilter: null,
@@ -245,54 +246,49 @@ export default {
 
       transactionProduct.get(query).then(response => {
         if(this.selectedReport === 'transaction'){
-          if(response.length !== 0){
-            let productArr = {}
-            if(this.selectFilterValue.length !== 0){
-              for(let x = 0; x < response.length; x++){
-                for(let y = 0; y < this.selectFilterValue.length; y++){
-                  if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
-                    if(typeof productArr[response[x]['product_id']] === 'undefined'){
-                      productArr[response[x]['product_id']] = {
-                        quantity: 0,
-                        amount: 0,
-                        profit: 0
-                      }
+          let productArr = {}
+          if(this.selectFilterValue.length !== 0){
+            for(let x = 0; x < response.length; x++){
+              for(let y = 0; y < this.selectFilterValue.length; y++){
+                if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
+                  if(typeof productArr[response[x]['product_id']] === 'undefined'){
+                    productArr[response[x]['product_id']] = {
+                      quantity: 0,
+                      amount: 0,
+                      profit: 0
                     }
-                    productArr[response[x]['product_id']]['product_id'] = response[x]['product_id']
-                    productArr[response[x]['product_id']]['created_at'] = 'N/A'
-                    productArr[response[x]['product_id']]['description'] = response[x]['description']
-                    productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
-                    productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
-                    productArr[response[x]['product_id']]['profit'] += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1) - ((response[x]['quantity'] * 1) * (response[x]['cost'] * 1))
                   }
+                  productArr[response[x]['product_id']]['product_id'] = response[x]['product_id']
+                  productArr[response[x]['product_id']]['created_at'] = 'N/A'
+                  productArr[response[x]['product_id']]['description'] = response[x]['description']
+                  productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
+                  productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
+                  productArr[response[x]['product_id']]['profit'] += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1) - ((response[x]['quantity'] * 1) * (response[x]['cost'] * 1))
                 }
               }
-            }else{
-              for(let x = 0; x < response.length; x++){
-                if(typeof productArr[response[x]['product_id']] === 'undefined'){
-                  productArr[response[x]['product_id']] = {
-                    quantity: 0,
-                    amount: 0,
-                    profit: 0
-                  }
+            }
+          }else{
+            for(let x = 0; x < response.length; x++){
+              if(typeof productArr[response[x]['product_id']] === 'undefined'){
+                productArr[response[x]['product_id']] = {
+                  quantity: 0,
+                  amount: 0,
+                  profit: 0
                 }
-                productArr[response[x]['product_id']]['created_at'] = 'N/A'
-                productArr[response[x]['product_id']]['description'] = response[x]['description']
-                productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
-                productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
-                productArr[response[x]['product_id']]['profit'] += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1) - ((response[x]['quantity'] * 1) * (response[x]['cost'] * 1))
               }
+              productArr[response[x]['product_id']]['created_at'] = 'N/A'
+              productArr[response[x]['product_id']]['description'] = response[x]['description']
+              productArr[response[x]['product_id']]['amount'] += response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1
+              productArr[response[x]['product_id']]['quantity'] += response[x]['quantity'] * 1
+              productArr[response[x]['product_id']]['profit'] += (response[x]['vat_sales'] + response[x]['vat_amount'] + response[x]['vat_exempt_sales'] * 1) - ((response[x]['quantity'] * 1) * (response[x]['cost'] * 1))
             }
-            for(let x in productArr){
-              this.transactionProducts.push(productArr[x])
-            }
-            console.log('ALLTIME', this.transactionProducts)
-            this.$refs.graph._plotData(this.transactionProducts)
-            this.$refs.hourlyLineGraph._plotData()
-            this.$refs.yearlyLineGraph._prepData()
-            this.$refs.monthlyLineGraph._prepData()
-            this.$refs.lineGraph._prepData()
           }
+          for(let x in productArr){
+            this.transactionProducts.push(productArr[x])
+          }
+          console.log('ALLTIME', this.transactionProducts)
+          this.toDisplay = this.selectedReport
+          this.$refs.graph._plotData(this.transactionProducts)
         }else if(this.selectedReport === 'daily'){
           // if(response.length !== 0){
           if(this.selectFilterValue.length !== 0){
@@ -411,11 +407,8 @@ export default {
           }
           this.transactionProducts = forTableData
           console.log('DAILY', this.dailyTransactionProducts)
+          this.toDisplay = this.selectedReport
           this.$refs.lineGraph._prepData(this.dailyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
-          this.$refs.graph._plotData()
-          this.$refs.hourlyLineGraph._plotData()
-          this.$refs.yearlyLineGraph._prepData()
-          this.$refs.monthlyLineGraph._prepData()
           // }
         }else if(this.selectedReport === 'monthly') {
           this.monthlyTransactionProduct = {}
@@ -520,11 +513,8 @@ export default {
           }
           this.transactionProducts = forTableData
           console.log('MONTH DATA', this.monthlyTransactionProduct)
+          this.toDisplay = this.selectedReport
           this.$refs.monthlyLineGraph._prepData(this.monthlyTransactionProduct, this.startDatetimeFilter, this.endDatetimeFilter)
-          this.$refs.lineGraph._prepData()
-          this.$refs.graph._plotData()
-          this.$refs.hourlyLineGraph._plotData()
-          this.$refs.yearlyLineGraph._prepData()
         }else if(this.selectedReport === 'yearly') {
           this.yearlyTransactionProducts = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -596,11 +586,8 @@ export default {
           }
           this.transactionProducts = forTableData
           console.log('YEAR DATA', this.yearlyTransactionProducts)
+          this.toDisplay = this.selectedReport
           this.$refs.yearlyLineGraph._prepData(this.yearlyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
-          this.$refs.monthlyLineGraph._prepData()
-          this.$refs.lineGraph._prepData()
-          this.$refs.graph._plotData()
-          this.$refs.hourlyLineGraph._plotData()
         } else if(this.selectedReport === 'hourly'){
           this.hourlyTransactionProducts = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -670,12 +657,8 @@ export default {
           }
           this.transactionProducts = forTableData
           console.log('HOURLY DATA', this.hourlyTransactionProducts)
+          this.toDisplay = this.selectedReport
           this.$refs.hourlyLineGraph._plotData(this.hourlyTransactionProducts)
-          this.$refs.yearlyLineGraph._prepData()
-          this.$refs.monthlyLineGraph._prepData()
-          this.$refs.lineGraph._prepData()
-          this.$refs.graph._plotData()
-          this.$refs.hourlyLineGraph._plotData()
         }
 
         /* else { // else if(this.selectedReport == 'hourly'){
@@ -724,19 +707,6 @@ export default {
       this.transactions = []
       this.totalDiscount = 0
       this.totalAmount = 0
-      this.generateReport()
-    },
-    generateReport(){
-      console.log('generating', this.graphType, this.transactions.length)
-      this.$refs.graph._plotData()
-      let reportType = this.graphType
-      if(reportType === 'time_in_day'){
-        this.$refs.timeInDay._generate()
-      }else if(reportType === 'sales_per_day'){
-        this.$refs.salesPerDay._generate()
-      }else if(reportType === 'day_in_week'){
-        this.$refs.dayInWeek._generate()
-      }
     },
     statusBadge(status){
       switch(status * 1){
@@ -751,9 +721,6 @@ export default {
     startDatetimeFilter(newDatetime){
       let startdatetimeSegnment = newDatetime.split('T')
       this.endDatetimeFilter = startdatetimeSegnment[0] + 'T23:59:59.999Z'
-    },
-    graphType(newData){
-      this.generateReport()
     }
   },
   filters: {

@@ -43,7 +43,7 @@ export default {
             name: 'transactionProd.description',
             title: 'Description',
             titleClass: 'text-center',
-            dataClass: 'text-center',
+            dataClass: 'text-justify',
           },
           {
             name: 'transactionProd.price',
