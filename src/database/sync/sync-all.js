@@ -6,7 +6,7 @@ import DiscountSync from './discount-sync'
 import CustomerSync from './customer-sync'
 import UserSync from './user-sync'
 import SyncStore from './sync-store'
-export default class SyncAll {
+class SyncAll {
   transactionSync
   categorySync
   productSync
@@ -15,7 +15,8 @@ export default class SyncAll {
   syncItems
   syncSuccessCount
   syncFailCount
-  progressListener
+  progressListener // needs to be changed to a list
+  reSync = false
   constructor(){
     this.transactionSync = new TransactionSync()
     this.categorySync = new CategorySync()
@@ -25,6 +26,9 @@ export default class SyncAll {
     this.userSync = new UserSync()
   }
   downSync(progressListener){
+    if(SyncStore.getters.isSynching){
+      this.reSync = true
+    }
     SyncStore.commit('isSynching')
     if(typeof progressListener === 'function'){
       this.progressListener = progressListener
@@ -53,6 +57,11 @@ export default class SyncAll {
     }
     let progress = (this.syncSuccess + this.syncFail) / this.syncItems.length
     if(progress === 1){
+      if(this.reSync){
+        this.reSync = false
+      }else{
+        this.downSync(this.progressListener)
+      }
       SyncStore.commit('isNotSynching')
     }
     if(typeof this.progressListener === 'function'){
@@ -60,3 +69,5 @@ export default class SyncAll {
     }
   }
 }
+
+export default new SyncAll()

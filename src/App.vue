@@ -85,7 +85,7 @@ export default {
     return {
       migrated: false,
       isOffline: false,
-      syncAll: new SyncAll(),
+      syncAll: SyncAll,
       dataSynced: 0,
       navConfig: navigationConfig,
       sidebarMenu: Menu.side_menus,

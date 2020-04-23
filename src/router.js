@@ -45,7 +45,6 @@ let routes = [
       }
     },
     meta: {
-      auth: false,
       no_sidebar: true
     }
   },
@@ -178,6 +177,14 @@ let routes = [
     name: 'TestPage',
     component: require('@/views/dev-config/TestPage.vue').default,
     meta: {
+    }
+  },
+  {
+    path: '/terminal-report-not-terminal',
+    name: 'TerminalReportNotTerminal',
+    component: require('@/views/terminal_reports/NotTerminal.vue').default,
+    meta: {
+      auth: true
     }
   },
   {

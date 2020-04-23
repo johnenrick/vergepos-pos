@@ -15,11 +15,11 @@
               </div>
               <form class="form-signin">
                 <div class="form-group">
-                  <label >Email address</label>
+                  <label ><fa icon="envelope" /> Email Address</label>
                   <input @keyup="isTypingUsername" v-model="username" type="email" class="form-control" placeholder="Email address" required autofocus autocomplete="username">
                 </div>
                 <div class="form-group">
-                  <label class="w-100">{{isOffline === false ? 'Password' : 'PIN'}} <router-link v-if="!isOffline" to="/password-reset" class="float-right text-info"><small class="">Forgot Password?</small></router-link></label>
+                  <label class="w-100"><fa icon="lock" />  {{isOffline === false ? 'Password' : 'PIN'}} <router-link v-if="!isOffline" to="/password-reset" class="float-right text-info"><small class="">Forgot Password?</small></router-link></label>
                   <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required autocomplete="current-password">
                 </div>
                 <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" class="btn btn-lg btn-primary btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Signing In' : 'Sign In'}} <small v-if="isOffline">(Offline)</small></button>

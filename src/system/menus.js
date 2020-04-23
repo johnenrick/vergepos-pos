@@ -32,6 +32,7 @@ export default {
   }, {
     icon: 'file-contract',
     name: 'Terminal Reports',
+    not_terminal_link: 'terminal-report-not-terminal',
     sub_item: [{
       name: 'Transaction History',
       route: '/transaction-history',
