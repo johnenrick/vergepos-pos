@@ -21,6 +21,9 @@ import OrderList from './OrderList.vue'
 import ProductList from './ProductList.vue'
 import ControlBox from './ControlBox.vue'
 import SyncStore from '@/database/sync/sync-store'
+import SyncAll from '@/database/sync/sync-all'
+import UserSession from '@/vue-web-core/system/store'
+
 export default {
   components: {
     OrderList,
@@ -28,44 +31,45 @@ export default {
     ControlBox
   },
   mounted () {
-    if(this.isSynching === false){
-      this.postSync()
-    }
+    this.postSync()
   },
   beforeDestroy () {
   },
   data () {
     return {
       isTerminal: localStorage.getItem('is_terminal'),
-      doneSynching: false
+      doneReSynching: false
     }
   },
   computed: {
     isSynching(){
-      return SyncStore.state.isSynching
+      return SyncStore.getters.isSynching
     }
   },
   watch: {
     isSynching(newData){
-      console.log('watching', newData)
-      if(newData === false){
-        this.postSync()
-      }
+      this.postSync()
     }
   },
   methods: {
     postSync(){
+      console.log('bulaga')
       if(SyncStore.state.isSynching){
         return false
       }
-      this.doneSynching = true
-      if(typeof this.$refs.productList === 'undefined'){
-        this.$nextTick(() => {
-          this.$refs.productList._initialize()
-        })
+      if(!this.doneReSynching && UserSession.getters.mode === 'online'){
+        SyncAll.downSync(null)
+        this.doneReSynching = true
       }else{
-        this.$refs.productList._initialize()
-        this.$refs.orderList._initialize()
+        this.doneReSynching = true
+        if(typeof this.$refs.productList === 'undefined'){
+          this.$nextTick(() => {
+            this.$refs.productList._initialize()
+          })
+        }else{
+          this.$refs.productList._initialize()
+          this.$refs.orderList._initialize()
+        }
       }
     }
   }
