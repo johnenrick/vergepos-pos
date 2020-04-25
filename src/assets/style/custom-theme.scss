@@ -8,6 +8,7 @@
 // $font-family-sans-serif:      'Theme Font';
 // $font-family-monospace:       $font-family-sans-serif;
 // $body-bg: #f8f9fa;
+$text-color: #505050;
 $primary: #552254;
 $success: #00AF54;
 $warning: #f2a11d;
@@ -19,6 +20,13 @@ $font-family-sans-serif: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Hel
 @import "node_modules/bootstrap/scss/mixins/box-shadow";
 @import "node_modules/bootstrap/scss/bootstrap";
 @import "node_modules/bootstrap/scss/variables";
+
+#app {
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  // text-align: center;
+  color: $text-color!important;;
+  font-size: 14px;
+}
 
 /*Remove Input Number Arrows*/
 /* Chrome, Safari, Edge, Opera */

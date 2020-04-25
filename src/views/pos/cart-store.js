@@ -49,9 +49,13 @@ let store = new Vuex.Store({
     totalVatAmount: 0,
     totalDiscountAmount: 0,
     taxPercentage: 0.12,
-    discountRemarks: ''
+    discountRemarks: '',
+    event: { description: 'none' }
   },
   getters: {
+    event: (state) => {
+      return state.event
+    },
     items: (state) => {
       return state.items
     },
@@ -88,6 +92,7 @@ let store = new Vuex.Store({
             Vue.set(state, item, cachedCart[item])
           }
         }
+        Vue.set(state, 'cache_restored', { description: 'item_discount_applied' })
       }
     },
     calculateTotal(state){
@@ -99,11 +104,13 @@ let store = new Vuex.Store({
       Vue.set(state.items[index], 'discount_quantity', discountQuantity)
       Vue.set(state.items[index], 'vat_exempt_quatity', vatExemptQuantity)
       Vue.set(state.items[index], 'vat_exempt_sales', vatExemptSales)
+      Vue.set(state, 'event', { description: 'item_discount_applied', details: { discount_id: discountId } })
       cacheCart(state)
     },
     changeQuantity(state, [itemIndex, quantity]){
       if(!isNaN(quantity * 1)){
         Vue.set(state.items[itemIndex], 'quantity', quantity)
+        Vue.set(state, 'event', { description: 'item_quantity_changed', details: { item_index: itemIndex } })
         calculateCartTotal(state)
       }else{
         console.error('Cart Commit Change Quantity: wrong quantity variable type', quantity)
@@ -143,9 +150,10 @@ let store = new Vuex.Store({
         }
         productID = productID['product_id']
       }
-      if (typeof state.itemLookUp[productID] !== 'undefined') {
+      if (typeof state.itemLookUp[productID] !== 'undefined') { // add on existing product
         Vue.set(state.items[state.itemLookUp[productID]], 'quantity', state.items[state.itemLookUp[productID]]['quantity'] * 1 + 1)
         calculateCartTotal(state)
+        Vue.set(state, 'event', { description: 'added_existing_item', details: { product_id: productDetail.db_id, item_index: state.itemLookUp[productID] } })
         if(typeof callback === 'function') callback()
       } else { // add new product
         state.items.push({
@@ -169,6 +177,7 @@ let store = new Vuex.Store({
           discount_quantity: 0 // the quantity of items to be discounted
         })
         Vue.set(state.itemLookUp, productID, state.items.length - 1)
+        Vue.set(state, 'event', { description: 'item_added', details: { product_id: productDetail.db_id } })
         if(typeof callback === 'function') callback()
         calculateCartTotal(state)
       }
