@@ -16,15 +16,16 @@
     </div>
     <div
       ref="container"
-      id="container"
+      class="orderListContainer"
 
       :style="{'max-height': containerHeight , 'min-height': containerHeight }"
       style=" overflow-y:scroll"
     >
       <div
+        ref="itemContainer"
         v-for="(order, index) in orderList"
         @click="openOrder(index)"
-        class="row border-bottom mb-0 py-2 mx-0"
+        class="row border-bottom mb-0 py-2 mx-0 itemContainer"
       >
         <div class="col-6 px-2">
           {{ order['description'] }}
@@ -163,6 +164,11 @@ export default {
 
       this.draw()
       Cart.commit('restoreCached')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          this.addItemContainerEffect()
+        }, 100)
+      })
     })
   },
   data () {
@@ -194,7 +200,6 @@ export default {
     changeQuantity () {
       this.changeQuantityClicked = true
     },
-
     discountUpdated () {
     },
     checkout () {
@@ -214,12 +219,23 @@ export default {
     },
     parkTransaction(){
       this.$refs.parkTransaction._open()
+    },
+    addItemContainerEffect(index = null){
+      if(index !== null){
+        (this.$refs.itemContainer[index]).classList.remove('itemContainerEffect')
+        setTimeout(() => {
+          (this.$refs.itemContainer[index]).classList.add('itemContainerEffect')
+        }, 100)
+      }else{
+        if(this.orderList.length){
+          for(let x = 0; x < this.orderList.length; x++){
+            this.addItemContainerEffect(x)
+          }
+        }
+      }
     }
   },
   computed: {
-    itemList: () => {
-      return Cart.state.items
-    },
     totalAmount: () => {
       return Cart.state.totalAmount
     },
@@ -240,38 +256,73 @@ export default {
     },
     orderList: () => {
       return Cart.state.items
+    },
+    cartEvent: () => {
+      return Cart.state.event
     }
   },
   watch: {
+    cartEvent(newData){
+      if(newData['description'] === 'item_added'){
+        setTimeout(() => {
+          this.$refs.container.scrollTop = this.$refs.container.scrollHeight
+          this.addItemContainerEffect(this.orderList.length - 1)
+        }, 100)
+      }else if(newData['description'] === 'added_existing_item'){
+        setTimeout(() => {
+          let index = newData['details']['item_index'];
+          (this.$refs.itemContainer[index]).scrollIntoView()
+          this.addItemContainerEffect(index)
+        }, 100)
+      }else if(newData['description'] === 'cache_restored'){
+        (this.$refs.itemContainer).classList.add('itemContainerEffect')
+      }
+    }
   },
   destroyed() {
     window.removeEventListener('resize', this.draw)
   }
 }
 </script>
-<style scoped>
-#container{
+<style lang="scss" scoped>
+
+@import "@/assets/style/custom-theme";
+
+.orderListContainer{
   min-height: 185px; overflow-y: scroll
 }
 /* width */
-#container::-webkit-scrollbar {
+.orderListContainer::-webkit-scrollbar {
   width: 5px;
   background: #550055;
 }
 
 /* Track */
-#container::-webkit-scrollbar-track {
+.orderListContainer::-webkit-scrollbar-track {
   background: #f1f1f1;
 }
 
 /* Handle */
-#container::-webkit-scrollbar-thumb {
+.orderListContainer::-webkit-scrollbar-thumb {
   background: gray;
 }
 
 /* Handle on hover */
-#container::-webkit-scrollbar-thumb:hover {
+.orderListContainer::-webkit-scrollbar-thumb:hover {
   background: #550055;
 }
-
+.itemContainer {
+  background: #550055;
+  color: white
+}
+.itemContainerEffect {
+  background: transparent;
+  color: $text-color;
+  /* -webkit-transition-property: background;
+  -webkit-transition-duration: 0s, 1s;
+  -webkit-transition-timing-function: linear, ease-in; */
+  transition-property: background, color;
+  transition-duration: 0.3s;
+  transition-timing-function: linear;
+}
 </style>

@@ -53,7 +53,6 @@ export default {
   },
   methods: {
     postSync(){
-      console.log('bulaga')
       if(SyncStore.state.isSynching){
         return false
       }
