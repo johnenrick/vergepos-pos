@@ -12,7 +12,7 @@
         <h2 class="mb-4">Product List</h2>
         <div class="text-center alert border-warning m-4">
           <span>
-            <fa icon="exclamation-triangle" class="text-warning"/> You need to create a <fa icon="boxes" /><strong> Product Category</strong> first before you can create a <fa icon="box" /><strong> Product</strong>. You can do this by clicking <fa icon="boxes" /><strong> Category</strong> in the side menu.
+            <fa icon="exclamation-triangle" class="text-warning"/> You need to create a Product Category first before you can create a <strong> Product</strong>. You can do this by clicking <fa icon="boxes" /><strong> Category</strong> in the side menu.
           </span>
         </div>
       </div>
