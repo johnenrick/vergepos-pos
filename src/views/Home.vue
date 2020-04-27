@@ -1,5 +1,19 @@
 <template>
   <div class="home">
+    <modal ref="modal" size="lg">
+      <template v-slot:body>
+        <div class="p-4 text-center">
+          <p class="lead mt-4">You are trying to log in a different company. This will clear the data of the previous company from this machine. Do you still want to continue?</p>
+          <div class="row">
+            <div class="col-1"></div>
+            <button class="col-4 btn btn-primary" @click="Proceed">Proceed</button>
+            <div class="col-2"></div>
+            <button class="col-4 btn btn-secondary" @click="Decline">Decline</button>
+            <div class="col-1"></div>
+          </div>
+        </div>
+      </template>
+    </modal>
     <div class="row">
       <div class="col-sm-9 col-md-7 col-lg-4 ml-auto">
         <div class="card card-signin my-5">
@@ -39,9 +53,11 @@
 // import store from '@/system/store'
 import VueCoreStore from '@/vue-web-core/system/store'
 import User from '@/database/controller/user'
+import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
 export default {
   name: 'home',
   components: {
+    Modal
   },
   mounted(){
     if(VueCoreStore.getters.devConfig){
@@ -65,6 +81,7 @@ export default {
   },
   data(){
     return {
+      authData: Object,
       username: '',
       password: '',
       isLoading: false,
@@ -124,6 +141,22 @@ export default {
         this.isLoading = false
       })
     },
+    Proceed(){
+      localStorage.removeItem('is_terminal')
+      this.removeTerminal(() => {
+        localStorage.setItem('company_id', this.authData.data.user.company_id)
+        localStorage.setItem('user_id', this.authData.data.user.id)
+        localStorage.setItem('roles', JSON.stringify(this.authData.data.user.roles))
+        // store.commit('setAuthToken', response.data.access_token)
+        VueCoreStore.dispatch('setUserInformation')
+        this.isLoading = false
+        this.$refs.modal._close()
+      })
+    },
+    Decline(){
+      this.isLoading = false
+      this.$refs.modal._close()
+    },
     signIn(){
       this.isLoading = true
       this.errorMessage = ''
@@ -132,19 +165,8 @@ export default {
         rememberMe: false,
         success: (response) => {
           if(localStorage.getItem('company_id') * 1 !== response.data.user.company_id * 1 && localStorage.getItem('company_id') * 1 !== 0){
-            if(confirm('You are trying to log in a different company. This will clear the data of the previous company from this machine. Do you still want to continue?') === true){
-              localStorage.removeItem('is_terminal')
-              this.removeTerminal(() => {
-                localStorage.setItem('company_id', response.data.user.company_id)
-                localStorage.setItem('user_id', response.data.user.id)
-                localStorage.setItem('roles', JSON.stringify(response.data.user.roles))
-                // store.commit('setAuthToken', response.data.access_token)
-                VueCoreStore.dispatch('setUserInformation')
-                this.isLoading = false
-              })
-            } else{
-              this.isLoading = false
-            }
+            this.authData = response
+            this.$refs.modal._open()
           } else{
             localStorage.setItem('company_id', response.data.user.company_id)
             localStorage.setItem('user_id', response.data.user.id)
