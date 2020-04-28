@@ -8,7 +8,7 @@
             <div class="col-1"></div>
             <button class="col-4 btn btn-primary" @click="Proceed">Proceed</button>
             <div class="col-2"></div>
-            <button class="col-4 btn btn-secondary" @click="Decline">Decline</button>
+            <button class="col-4 btn btn-outline-secondary" @click="Decline">Decline</button>
             <div class="col-1"></div>
           </div>
         </div>
