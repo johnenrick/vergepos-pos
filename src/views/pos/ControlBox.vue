@@ -1,5 +1,19 @@
 <template>
   <div class="row pb-3">
+    <modal ref="modal" size="lg">
+      <template v-slot:body>
+        <div class="p-4 text-center">
+          <p class="lead mt-4">Are you sure you want to clear your cart?</p>
+          <div class="row">
+            <div class="col-1"></div>
+            <button class="col-4 btn btn-primary" @click="proceed">Proceed</button>
+            <div class="col-2"></div>
+            <button class="col-4 btn btn-outline-secondary" @click="decline">Decline</button>
+            <div class="col-1"></div>
+          </div>
+        </div>
+      </template>
+    </modal>
     <div class="col-12 col-md-9">
       <button @click="toggleFullscreen" class="btn btn-lg btn-outline-dark mr-1" :title="isFullscreen ? 'Minimize Screen' : 'Full Screen'"><fa :icon="!isFullscreen2 ? 'window-maximize' : 'window-minimize'" /></button>
       <button @click="refreshApp" class="btn btn-lg btn-outline-dark mr-1" title="Refresh the app">
@@ -29,10 +43,12 @@ import TransactionViewer from './control_box_components/TransactionViewer'
 import Benchmark from './control_box_components/Benchmark'
 import ToggleFullscreen from '@/helpers/toggle-fullscreen'
 import Cart from './cart-store'
+import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
 export default {
   components: {
     TransactionViewer,
-    Benchmark
+    Benchmark,
+    Modal
   },
   mounted(){
     this.runLiveTime()
@@ -55,11 +71,18 @@ export default {
     }
   },
   methods: {
+    proceed(){
+      Cart.commit('reset')
+      this.$refs.modal._close()
+    },
+    decline(){
+      this.$refs.modal._close()
+    },
     toggleFullscreen(){
       this.isFullscreen = ToggleFullscreen.toggle()
     },
     clearCart(){
-      Cart.commit('reset')
+      this.$refs.modal._open()
     },
     refreshApp(){
       location.reload()

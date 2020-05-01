@@ -81,11 +81,13 @@ export default {
     this.isHidden = false
     this.feedback = 'Loading... Please wait'
     this.prompt = 'alert-primary'
+    let connection = UserStore.getters.sessionConnection
+    console.log('con', connection)
     if(localStorage.getItem('is_terminal')){
-      if(UserStore.getters.sessionConnection === 'online'){
+      if(connection === 'online'){
         this.isConnected = true
         this.retrieveDetailOnline()
-      } else{
+      } else if(connection === 'offline'){
         this.isConnected = false
         this.retrieveDetailOffline()
       }
