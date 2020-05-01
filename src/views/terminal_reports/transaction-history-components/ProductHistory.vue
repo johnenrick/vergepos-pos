@@ -51,7 +51,11 @@ export default {
             titleClass: 'text-center',
             dataClass: 'text-right',
             callback: (value) => {
-              return (this.numberToMoney(value))
+              if(value * 1 > 0){
+                return (this.numberToMoney(value))
+              }else{
+                return '(' + (this.numberToMoney(value * -1)) + ')'
+              }
             }
           },
           {
@@ -60,7 +64,11 @@ export default {
             titleClass: 'text-center',
             dataClass: 'text-right',
             callback: (value) => {
-              return (this.numberToMoney(value))
+              if(value * 1 > 0){
+                return (this.numberToMoney(value))
+              }else{
+                return '(' + (this.numberToMoney(value * -1)) + ')'
+              }
             }
           }
         ]
@@ -79,6 +87,9 @@ export default {
           })
         })
       })
+    },
+    _reset(){
+      this.transactions = []
     }
   }
 }

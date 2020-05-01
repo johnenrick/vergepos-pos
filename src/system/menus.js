@@ -46,14 +46,17 @@ export default {
       has_offline: true
     }]
   }, {
-  //   icon: 'file-contract',
-  //   name: 'Reports',
-  //   sub_item: [{
-  //     name: 'Product Performance'
-  //   }, {
-  //     name: 'Overall Z Reading'
-  //   }]
-  // }, {
+    icon: 'file-contract',
+    name: 'Reports',
+    sub_item: [{
+      name: 'Transaction History',
+      route: '/report/transaction-history'
+    }, {
+      name: 'Product Performance'
+    }, {
+      name: 'Overall Z Reading'
+    }]
+  }, {
     icon: 'tools',
     name: 'Business',
     sub_item: [{

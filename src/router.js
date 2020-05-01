@@ -149,6 +149,14 @@ let routes = [
     }
   },
   {
+    path: '/report/transaction-history',
+    name: 'TransactionHistory',
+    component: require('@/views/reports/TransactionHistory.vue').default,
+    meta: {
+      auth: true
+    }
+  },
+  {
     path: '/business-detail',
     name: 'BusinessDetail',
     component: require('@/views/business-detail/BusinessDetail.vue').default,
