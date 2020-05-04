@@ -109,7 +109,7 @@ let routes = [
   },
   {
     path: '/transaction-history',
-    name: 'TransactionHistory',
+    name: 'TransactionHistoryTerminalReport',
     component: require('@/views/terminal_reports/TransactionHistory.vue').default,
     meta: {
       auth_offline: true
@@ -150,7 +150,7 @@ let routes = [
   },
   {
     path: '/report/transaction-history',
-    name: 'TransactionHistory',
+    name: 'TransactionHistoryReport',
     component: require('@/views/reports/TransactionHistory.vue').default,
     meta: {
       auth: true
