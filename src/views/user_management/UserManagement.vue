@@ -59,7 +59,15 @@ let ModuleDefault = {
       roles: {
         type: 'html',
         value_function: (rowData) => {
-          return 'hey'
+          let roles = ''
+          console.log(rowData, rowData['user_roles.array_key_list'], rowData['id'])
+          if(typeof rowData['user_roles.array_key_list'] !== 'undefined' && (rowData['user_roles.array_key_list']).length){
+            for(let x in rowData['user_roles.array_key_list']){
+              let key = rowData['user_roles.array_key_list'][x]
+              roles += (x > 0 ? ', ' : ' ') + rowData['user_roles.' + key + '.role.description']
+            }
+          }
+          return roles !== '' ? roles : 'Unknown'
         }
       },
       status: {

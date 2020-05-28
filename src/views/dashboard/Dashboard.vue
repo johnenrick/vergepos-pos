@@ -4,13 +4,13 @@
       <h2 class="font-weight-bold mb-4">Welcome to your VergePOS Dashboard!</h2>
       <p>You dashboard will give you quick reports about your business. From number of transactions to daily sales report!. You can also find other resources here such as <a href="">VergePOS Tutorials</a>, Business Tips, and many more...</p>
     </div>
-    <div class="border rounded p-2 border-secondary1 bg-whitesmoke mb-3">
-      <h5>Quick Actions</h5>
-      <div class="row mb-2">
-        <div v-if="isTerminal" class="col-sm-12 col-md-6 p-1 px-3">
+    <div class="border rounded p-2 border-secondary1 bg-whitesmoke mb-3 pb-2">
+      <h6 class="font-weight-bold text-uppercase">Quick Actions</h6>
+      <div class="row  mx-0">
+        <div v-if="isTerminal" class="col-sm-12 col-md-6 px-1">
           <backup-database/>
         </div>
-        <div class="col-sm-12 col-md-6 p-1 px-3">
+        <div class="col-sm-12 col-md-6 px-1">
           <terminal-toggler/>
         </div>
       </div>

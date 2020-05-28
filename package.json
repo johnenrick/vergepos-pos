@@ -29,6 +29,7 @@
     "vue-chartjs": "^3.4.2",
     "vue-datetime": "^1.0.0-beta.10",
     "vue-html-to-paper": "^1.1.1",
+    "vue-pwa-installer": "^0.2.0",
     "vue-router": "^3.1.5",
     "vue-select": "^3.1.0",
     "vuex": "^3.0.1",
