@@ -1,6 +1,7 @@
 {
   "name": "VergePOS",
   "short_name": "Verge",
+  "manifest_version": 1.002,
   "icons": [
     {
       "src": "./img/icons/android-chrome-192x192.png",
@@ -13,8 +14,8 @@
       "type": "image/png"
     }
   ],
-  "start_url": "./index.html",
-  "display": "standalone",
+  "start_url": "/",
+  "display": "fullscreen",
   "background_color": "#000000",
   "theme_color": "#550055"
 }

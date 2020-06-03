@@ -17,7 +17,7 @@ let routes = [
   }, {
     path: '/dashboard',
     name: 'dashboard',
-    component: () => import('./views/dashboard/Dashboard.vue'),
+    component: require('./views/dashboard/Dashboard.vue').default,
     meta: {
       // auth: false,
       auth_offline: true

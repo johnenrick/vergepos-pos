@@ -41,6 +41,7 @@ import SyncStore from '@/database/sync/sync-store'
 import Migrate from '@/database/migrate'
 import UpSync from '@/database/up-sync/up-sync'
 import Menu from '@/system/menus'
+import PWAInstall from '@/vue-web-core/helper/pwa-install-store'
 window.$ = require('jquery')
 window.jQuery = window.$
 export default {
@@ -51,6 +52,11 @@ export default {
     Modal
   },
   beforeCreate() {
+    window.addEventListener('beforeinstallprompt', (e) => {
+      console.log('PWA Install Enabled')
+      e.preventDefault()
+      PWAInstall.commit('deferredPrompt', e)
+    })
     window.addEventListener('beforeunload', event => {
       if(!this.isMouseOnPage){
         if(localStorage.getItem('is_terminal') && localStorage.getItem('user_id')){

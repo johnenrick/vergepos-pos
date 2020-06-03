@@ -12,7 +12,6 @@
         <div v-else>
           <p class="mb-1"><fa icon="cash-register" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and Offline Mode has been enabled.</p>
           <div class="text-center">
-            <button v-if="$installer.canInstall && !$installer.hasInstalled" class="btn btn-success btn-sm mr-2"><fa icon='desktop' /> Install</button>
             <a @click.stop="openRemoveTerminal" href="#" class="btn btn-outline-danger btn-sm mb-1">Remove As Terminal</a>
           </div>
         </div>
@@ -39,14 +38,11 @@
   </div>
 </template>
 <script>
-import Vue from 'vue'
-import VueInstaller from 'vue-pwa-installer'
 import TerminalSelection from './TerminalSelection'
 import UserStore from '@/vue-web-core/system/store'
 import TransactionNumber from '@/database/controller/transaction-number'
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
 import UpSync from '@/database/up-sync/up-sync'
-Vue.use(VueInstaller)
 export default {
   components: {
     TerminalSelection,
