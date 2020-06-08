@@ -1,7 +1,5 @@
 <template>
     <div>
-      <backup-database/>
-      <div>
         <modal ref="exportOfflineData" :closeable="true">
           <template v-slot:body>
             <div class="text-center" v-if="status">
@@ -11,19 +9,16 @@
               <div class="text-center">
                 Successfully exported your data. You can copy it to a flash drive or other location for safe keeping.
               </div>
-
               <div class="w-100 text-right">
                 <button @click="closeModal" class="btn btn-outline-danger mr-2">Close</button>
               </div>
             </div>
           </template>
         </modal>
-      </div>
     </div>
 </template>
 
 <script>
-import BackupDatabase from '@/views/dashboard/BackupDatabase.vue'
 import Category from '@/database/controller/category.js'
 import Customer from '@/database/controller/customer.js'
 import Discount from '@/database/controller/discount.js'
@@ -37,12 +32,10 @@ import Modal from '@/vue-web-core/components/bootstrap/Modal'
 
 export default {
   components: {
-    BackupDatabase,
     Modal
   },
   data() {
     return {
-      isTerminal: localStorage.getItem('is_terminal'),
       categoryDB: new Category(),
       customerDB: new Customer(),
       discountDB: new Discount(),

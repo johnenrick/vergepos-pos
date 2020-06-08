@@ -1,19 +1,10 @@
 <template>
   <div>
     <div class="border bg-white rounded p-2 px-3">
-      <div v-if="!isConfuringTerminal" class="">
-        <div v-if="!isTerminal">
-          <p class="mb-1">Set this device as a Terminal to use the POS and enable Offline Mode. </p>
-          <div class="text-center">
-            <button @click="openTerminalSelection" class="btn btn-primary"><fa icon="cash-register" /> Set As Terminal</button><br>
-          </div>
-          <terminal-selection ref="terminalSelection" />
-        </div>
-        <div v-else>
-          <p class="mb-1"><fa icon="cash-register" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and Offline Mode has been enabled.</p>
-          <div class="text-center">
-            <a @click.stop="openRemoveTerminal" href="#" class="btn btn-outline-danger btn-sm mb-1">Remove As Terminal</a>
-          </div>
+      <div v-if="!isConfuringTerminal">
+        <p class="mb-1"><fa icon="cash-register" /> This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and Offline Mode has been enabled.</p>
+        <div class="text-center">
+          <a @click.stop="openRemoveTerminal" href="#" class="btn btn-outline-danger btn-sm mb-1">Remove As Terminal</a>
         </div>
       </div>
       <div v-else class=" text-center">
@@ -38,15 +29,13 @@
   </div>
 </template>
 <script>
-import TerminalSelection from './TerminalSelection'
+import Modal from '@/vue-web-core/components/bootstrap/Modal'
 import UserStore from '@/vue-web-core/system/store'
 import TransactionNumber from '@/database/controller/transaction-number'
-import Modal from '@/vue-web-core/components/bootstrap/Modal'
 import UpSync from '@/database/up-sync/up-sync'
 export default {
   components: {
-    TerminalSelection,
-    Modal,
+    Modal
   },
   data(){
     return {
@@ -65,49 +54,6 @@ export default {
         this.countUnsynchedTransaction().finally(() => {
           this.isConfuringTerminal = false
         })
-      })
-    },
-    openTerminalSelection(){
-      this.isConfuringTerminal = true
-      let param = {
-        id: UserStore.getters.companyInformation.id,
-        select: {
-          0: 'id',
-          1: 'name',
-          2: 'code',
-          company_detail: {
-            select: ['address', 'contact_number']
-          },
-          stores: {
-            select: {
-              0: 'id',
-              store_terminals: {
-                select: {
-                  0: 'id'
-                }
-              }
-            }
-          }
-        }
-      }
-      this.apiRequest('company/retrieve', param, (response) => {
-        if(response['data'] && typeof response['data']['stores'] !== 'undefined' && response['data']['stores'].length && response['data']['stores'][0]['store_terminals'].length){
-          localStorage.setItem('is_terminal', response['data']['stores'][0]['store_terminals'][0]['id'])
-          console.log(response['data'])
-          let companyInformation = {
-            id: response['data']['id'],
-            name: response['data']['name'],
-            code: response['data']['code'],
-            address: response['data']['company_detail']['address'],
-            contact_number: response['data']['company_detail']['contact_number']
-          }
-          localStorage.setItem('company_detail', JSON.stringify(companyInformation))
-          window.location = '/'
-        }else{
-          console.error('Cannot set Terminal', response['data'])
-          this.$refs.terminalSelection._open()
-          this.isConfuringTerminal = false
-        }
       })
     },
     countUnsynchedTransaction(){
@@ -150,5 +96,3 @@ export default {
   }
 }
 </script>
-<style>
-</style>

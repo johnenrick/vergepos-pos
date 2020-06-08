@@ -17,8 +17,10 @@
     <div class="row">
       <div class="col-sm-9 col-md-7 col-lg-4 ml-auto">
         <div class="card card-signin my-5">
-          <div  class="card-body">
-            <h5 class="card-title text-center font-weight-bold">Welcome to VergePOS <span v-if="isOffline"  class="text-secondary"><fa icon="wifi" /></span></h5>
+          <div v-if="isOffline" class="card-header text-white bg-secondary text-center text-uppercase font-weight-bold">Offline Mode <fa icon="wifi" /></div>
+          <div v-bind:class="isOffline ? 'bg-light' : ''" class="card-body ">
+            <!-- <div v-if="isOffline" class="alert alert-info mb-2"><fa icon="info-circle" /> You will be logging in using <strong>Offline Mode</strong>. Please use your <strong>PIN</strong> instead of password</div> -->
+            <h5 v-bind:class="isOffline ? 'text-secondary' : 'text-primary'" class="card-title text-center font-weight-bold">Welcome to VergePOS </h5>
             <p>Empowering your business and become more</p>
             <div v-if="isOffline === null" class="text-center">
               Checking Connectivity...
@@ -34,10 +36,14 @@
                 </div>
                 <div class="form-group">
                   <label class="w-100"><fa icon="lock" />  {{isOffline === false ? 'Password' : 'PIN'}} <router-link v-if="!isOffline" to="/password-reset" tabindex="-1" class="float-right text-info"><small class="">Forgot Password?</small></router-link></label>
-                  <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" placeholder="Password" required autocomplete="current-password">
+                  <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" v-bind:placeholder="isOffline === false ? 'Password' : 'PIN'" required autocomplete="current-password">
                 </div>
-                <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" class="btn btn-lg btn-primary btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Signing In' : 'Sign In'}} <small v-if="isOffline">(Offline)</small></button>
-                <button ref ="buttonStat" @click="switchLoginStatus" :model = "loginStatus" v-if="loginSwitch" class = "btn btn-warning btn-block text-uppercase mt-3 mb-2" type="button">Switch to <b>{{ loginStatus }}</b> Mode</button>
+                <div v-if="loginSwitch" class="text-hover-underline text-center">
+                  <span v-if="!isOffline" @click="switchLoginMode" class="c-pointer"><big><fa icon="wifi" class=""  /></big> Sign in using <strong class="">Offline Mode</strong></span>
+                  <span v-else @click="switchLoginMode" class="c-pointer text-primary"><big><fa icon="wifi"  class="text-primary" /></big> Sign In without using <strong>Offline Mode</strong></span>
+                </div>
+
+                <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" v-bind:class="isOffline ? 'btn-secondary' : 'btn-primary'" class="btn btn-lg btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Signing In' : 'Sign In'}}</button>
                 <p :hidden="isOffline === false ? false : true" class="text-center">Don't have an account?<router-link :hidden="isOffline === false ? false : true" to="/company-registration"><b> Sign Up</b></router-link></p>
               </form>
             </template>
@@ -73,6 +79,10 @@ export default {
       VueCoreStore.commit('isReady', () => {
         if(localStorage.getItem('is_terminal') && this.isOffline === false){
           this.loginSwitch = true
+          if(localStorage.getItem('selected_login_mode') !== null){
+            console.log(localStorage.getItem('selected_login_mode'))
+            this.isOffline = localStorage.getItem('selected_login_mode') === 'true'
+          }
         }
       })
     })
@@ -92,7 +102,6 @@ export default {
       intervalID: 0,
       isOffline: null,
       loginSwitch: false,
-      loginStatus: 'Offline'
     }
   },
   methods: {
@@ -108,9 +117,10 @@ export default {
         }
       })
     },
-    switchLoginStatus(){
+    switchLoginMode(){
       this.isOffline = !this.isOffline
-      this.isOffline ? this.loginStatus = 'Online' : this.loginStatus = 'Offline'
+      console.log('this.isOffline', this.isOffline)
+      localStorage.setItem('selected_login_mode', this.isOffline)
     },
     offlineSignIn(){
       if(!localStorage.getItem('is_terminal')){
@@ -132,7 +142,7 @@ export default {
           localStorage.setItem('user_id', result[0]['db_id'])
           VueCoreStore.dispatch('setUserInformationOffline')
         }else{
-          this.errorMessage = 'Invalid credentials'
+          this.errorMessage = 'Invalid credentials' + (this.isOffline ? '. Be sure to use your PIN instead of password because you are in Offline Mode' : '.')
         }
         this.isLoading = false
       }).catch(error => {
@@ -173,7 +183,7 @@ export default {
             localStorage.setItem('roles', JSON.stringify(response.data.user.roles))
             // store.commit('setAuthToken', response.data.access_token)
             VueCoreStore.dispatch('setUserInformation')
-            this.isLoading = false
+            // this.isLoading = false
           }
         }
       }).catch((error, status) => {
