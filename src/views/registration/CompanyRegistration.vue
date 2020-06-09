@@ -169,7 +169,6 @@ export default {
       let param = APIUtil.textKeyToArray(this.$refs.form._getFormData())
       this.isLoading = true
       this.username = param.name
-      console.log(param, param.name, this.username)
       this.apiRequest('company/create', param, (response) => {
         if (response.data.id) {
           this.credential = {
@@ -181,7 +180,6 @@ export default {
         }
         this.isLoading = false
       }, (errorResponse, status) => {
-        console.log(errorResponse)
         this.isLoading = false
         if(typeof errorResponse.error !== 'undefined'){
           if (errorResponse.error.code === 1) {

@@ -51,10 +51,10 @@ export default {
     sub_item: [{
       name: 'Transaction History',
       route: '/report/transaction-history'
-    }, {
-      name: 'Product Performance'
-    }, {
-      name: 'Overall Z Reading'
+    // }, {
+    //   name: 'Product Performance'
+    // }, {
+    //   name: 'Overall Z Reading'
     }]
   }, {
     icon: 'tools',

@@ -193,8 +193,6 @@ export default {
       this.startDatetimeFilter = defaultTime
       this.productDB.get().then((e) => {
         this.selectFilterOption = e
-        // console.log(this.selectFilterOption);
-        // console.log(this.selectFilterOption[0].description)
       })
       this.generate()
     },
@@ -204,7 +202,6 @@ export default {
     },
     generate(){
       let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', ''))
-      // console.log("startTime " + startDatetimeFilter, this.startDatetimeFilter)
 
       if(startDatetimeFilter === null){
         startDatetimeFilter = new Date()
@@ -286,7 +283,6 @@ export default {
           for(let x in productArr){
             this.transactionProducts.push(productArr[x])
           }
-          console.log('ALLTIME', this.transactionProducts)
           this.toDisplay = this.selectedReport
           this.$refs.graph._plotData(this.transactionProducts)
         }else if(this.selectedReport === 'daily'){
@@ -329,7 +325,6 @@ export default {
                   }else{
                     for(let index in this.dailyTransactionProducts){
                       for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++){
-                        // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
                         if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()){
                           // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
                           this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
@@ -378,7 +373,6 @@ export default {
               }else{
                 for(let index in this.dailyTransactionProducts){
                   for(let i = 0; i < this.dailyTransactionProducts[index]['data'].length; i++) {
-                    // console.log("LOOP FOR DAILY" , new Date(this.dailyTransactionProducts[index]['data'][i].created_at).getDate() , new Date(response[x]['created_at']).getDate());
                     if(index * 1 === response[x]['product_id'] * 1 && new Date(this.dailyTransactionProducts[index]['data'][i].x).getDate() === new Date(response[x]['created_at']).getDate()) {
                     // this.dailyTransactionProducts[index]['data'][i].total_amount += response[x]['amount']
                       this.dailyTransactionProducts[index]['data'][i].y += response[x]['quantity']
@@ -406,10 +400,8 @@ export default {
             }
           }
           this.transactionProducts = forTableData
-          console.log('DAILY', this.dailyTransactionProducts)
           this.toDisplay = this.selectedReport
           this.$refs.lineGraph._prepData(this.dailyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
-          // }
         }else if(this.selectedReport === 'monthly') {
           this.monthlyTransactionProduct = {}
           let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
@@ -459,7 +451,6 @@ export default {
           //   }
           //   prepareData.push(this.monthlyTransactionProduct)
           // }
-          console.log(filteredData)
           for(let x = 0; x < filteredData.length; x++){
             prepareData = []
             if(typeof this.monthlyTransactionProduct[filteredData[x]['product_id']] === 'undefined'){
@@ -512,7 +503,6 @@ export default {
             }
           }
           this.transactionProducts = forTableData
-          console.log('MONTH DATA', this.monthlyTransactionProduct)
           this.toDisplay = this.selectedReport
           this.$refs.monthlyLineGraph._prepData(this.monthlyTransactionProduct, this.startDatetimeFilter, this.endDatetimeFilter)
         }else if(this.selectedReport === 'yearly') {
@@ -585,7 +575,6 @@ export default {
             }
           }
           this.transactionProducts = forTableData
-          console.log('YEAR DATA', this.yearlyTransactionProducts)
           this.toDisplay = this.selectedReport
           this.$refs.yearlyLineGraph._prepData(this.yearlyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
         } else if(this.selectedReport === 'hourly'){
@@ -656,7 +645,6 @@ export default {
             }
           }
           this.transactionProducts = forTableData
-          console.log('HOURLY DATA', this.hourlyTransactionProducts)
           this.toDisplay = this.selectedReport
           this.$refs.hourlyLineGraph._plotData(this.hourlyTransactionProducts)
         }
@@ -671,7 +659,6 @@ export default {
                 }
               }
             }
-            console.log("TIMELY" , this.transactionProducts);
           }
           else{
             for(let x = 0; x < response.length; x++){

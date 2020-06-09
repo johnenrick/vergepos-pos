@@ -51,7 +51,6 @@ export default {
       // TODO refresh the charts
     },
     toggleQuickActionCard(card, show){
-      console.log('waya')
       this.quickActionCardVisibility[card] = show
     }
   },

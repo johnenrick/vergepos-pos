@@ -82,7 +82,6 @@ export default {
     this.feedback = 'Loading... Please wait'
     this.prompt = 'alert-primary'
     let connection = UserStore.getters.sessionConnection
-    console.log('con', connection)
     if(localStorage.getItem('is_terminal')){
       if(connection === 'online'){
         this.isConnected = true

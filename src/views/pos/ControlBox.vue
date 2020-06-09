@@ -44,6 +44,7 @@ import Benchmark from './control_box_components/Benchmark'
 import ToggleFullscreen from '@/helpers/toggle-fullscreen'
 import Cart from './cart-store'
 import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
+import SyncStore from '@/database/sync/sync-store'
 export default {
   components: {
     TransactionViewer,
@@ -58,10 +59,6 @@ export default {
     // }, 10000)
   },
   props: {
-    isSynching: {
-      type: Boolean,
-      default: false
-    }
   },
   data(){
     return {
@@ -110,6 +107,9 @@ export default {
   computed: {
     isFullscreen2(){
       return ToggleFullscreen.store.getters.isFullscreen
+    },
+    isSynching(){
+      return SyncStore.getters.isSynching
     }
   }
 }

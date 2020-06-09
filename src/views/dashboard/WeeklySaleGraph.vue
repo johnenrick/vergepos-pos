@@ -3,7 +3,7 @@
     <div class="card border-primary mb-3" >
       <div class="card-header bg-primary text-white">Weekly Sales</div>
       <div class="card-body text-primary" >
-        <p class="card-text"><fa icon="info-circle" /> The graph below shows the your business performance in the last 7 days. From {{pastSevenDayDate | formatDate}} to {{new Date() | formatDate}}</p>
+        <p class="card-text"><fa icon="info-circle" /> The graph below shows the sales performance in the last 7 days. From {{pastSevenDayDate | formatDate}} to {{new Date() | formatDate}}.</p>
         <line-chart v-if="!noData" :chart-data="datacollection" :options="chartConfig"></line-chart>
         <div v-else class='text-center p-1 pt-2 border bg-light text-primary p-2 rounded'>
           <span class="">No Transactions found :(</span>

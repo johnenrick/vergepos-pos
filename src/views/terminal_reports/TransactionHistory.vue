@@ -427,7 +427,6 @@ export default {
       this.reset()
       return new Promise((resolve, reject) => {
         this.apiRequest('transaction-number/retrieve', param, (response) => {
-          console.log('response', response)
           if(response['data']){
             let result = response['data']
             for(let x = 0; x < result.length; x++){
@@ -468,7 +467,6 @@ export default {
               })
             }
           }
-          console.log(this.transactions)
           this.isGenerating = false
           resolve(true)
         })

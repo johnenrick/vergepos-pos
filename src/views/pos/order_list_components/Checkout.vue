@@ -214,8 +214,8 @@ export default {
           Cart.commit('reset')
         }, 800)
       }).catch(error => {
+        console.log('Checkout Transact Error', error)
         this.transacting = false
-        console.log('ooh', error)
       })
     },
     _open () { // open the modal

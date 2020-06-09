@@ -5,8 +5,8 @@
     </div>
     <h2 class="mb-4 text-center">This Page is not available in Offline Mode</h2>
     <div class="row">
-      <div class="col-4"></div>
-      <div class="col-4 bg-light pl-3 pr-3 pt-3">
+      <div class="col-sm-12 col-md-4"></div>
+      <div class="col-sm-12 col-md-4 bg-light pl-3 pr-3 pt-3">
         <span>
           <p><fa class="text-info" icon="info-circle" /> To go to Online Mode:</p>
           <ul>

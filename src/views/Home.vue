@@ -119,7 +119,6 @@ export default {
     },
     switchLoginMode(){
       this.isOffline = !this.isOffline
-      console.log('this.isOffline', this.isOffline)
       localStorage.setItem('selected_login_mode', this.isOffline)
     },
     offlineSignIn(){

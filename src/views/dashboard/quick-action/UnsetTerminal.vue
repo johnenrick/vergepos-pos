@@ -49,7 +49,6 @@ export default {
     uploadData(){
       this.isUpSynching = true
       UpSync.sync().finally(() => {
-        console.log('got here')
         this.isUpSynching = false
         this.countUnsynchedTransaction().finally(() => {
           this.isConfuringTerminal = false

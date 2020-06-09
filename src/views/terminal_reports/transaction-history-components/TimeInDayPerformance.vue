@@ -48,7 +48,6 @@ export default {
         transactionGroupByHour[hour]['amount'] += (this.transactions[x]['total_amount'] * 1).toFixed(2) * 1
         transactionGroupByHour[hour]['discount_amount'] += (this.transactions[x]['total_discount_amount'] * 1).toFixed(2) * 1
       }
-      console.log(transactionGroupByHour)
       this.plotData(transactionGroupByHour)
     },
     plotData(transactionGroupByHour){
@@ -66,7 +65,6 @@ export default {
           y: (transactionGroupByHour[hour]['discount_amount']).toFixed(2)
         })
       }
-      console.log('transactionAmountTrend', transactionAmountTrend)
       this.datacollection = {
         labels: hourLabel,
         bezierCurve: false,

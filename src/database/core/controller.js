@@ -200,7 +200,6 @@ export default class Controller {
     }
     return new Promise((resolve, reject) => {
       if(typeof query === 'undefined' || !query){
-        console.log(this.tableName, 'Removing item with no condition', where)
         reject(false)
       }else{
         connection.remove({

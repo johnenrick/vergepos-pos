@@ -157,7 +157,6 @@ export default class QueryBuilder {
       this.openDB().then((db) => {
         let result = {}
         let tx = db.transaction(this.tableName, 'readwrite')
-        console.log('delete', id)
         var txStore = tx.objectStore(this.tableName).delete(id)
         txStore.onsuccess = (event) => {
           result.id = event.target.result

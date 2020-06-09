@@ -265,7 +265,6 @@ export default {
             setTimeout(() => {
               this.isLoading = false
               resolve()
-              console.log(result, this.transactionDetail)
             }, 100)
           }else{
             this.isLoading = false
@@ -327,7 +326,6 @@ export default {
                   remarks: this.remarks
                 }
                 this.transactionVoidDB.add(transactionvoidEntry).then((response) => {
-                  console.log('eeun')
                   this.transactionDetail.status = 2
                   this.voidErrorMessage = null
                   this.toVoid = false

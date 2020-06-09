@@ -109,8 +109,20 @@
         <!-- <div class="col-1" /> -->
         <div class="col-12">
           <button
+            @click="viewProductList"
+            class="btn btn-outline-success float-right w-100 mb-2 d-md-none"
+          >
+            <fa icon="cart-plus" /> Add Item
+          </button>
+          <button
             @click="checkout"
-            class="btn btn-success btn-lg float-right w-100 py-2"
+            class="btn btn-success float-right w-100 d-md-none"
+          >
+            CHECKOUT
+          </button>
+          <button
+            @click="checkout"
+            class="btn btn-success btn-lg float-right w-100 py-2 d-none d-md-block"
           >
             CHECKOUT
           </button>
@@ -160,9 +172,7 @@ export default {
   },
   mounted () {
     this.$nextTick(() => {
-      window.addEventListener('resize', this.draw)
-
-      this.draw()
+      this._draw()
       Cart.commit('restoreCached')
       this.$nextTick(() => {
         setTimeout(() => {
@@ -183,7 +193,11 @@ export default {
   },
   methods: {
     _initialize(){
+      this._draw()
       this.$refs.discountManagement._initialize()
+    },
+    viewProductList(){
+      this.$emit('view-product-list')
     },
     saveOrderedItem (index) {
     },
@@ -208,7 +222,7 @@ export default {
     openApplyDiscount(){
       this.$refs.discountManagement._open()
     },
-    draw () {
+    _draw () {
       let totalHeight = $(window).height()
       let offset = 5
       // totalheight - the space from the windows top until container top - the height of the footer
@@ -280,7 +294,7 @@ export default {
     }
   },
   destroyed() {
-    window.removeEventListener('resize', this.draw)
+    window.removeEventListener('resize', this._draw)
   }
 }
 </script>

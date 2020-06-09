@@ -1,6 +1,8 @@
 <template>
-  <div class="border no_selection">
-    <div class="row mb-2 border-bottom py-2 mx-0 no-gutters">
+  <div>
+
+    <div class="border no_selection">
+      <div class="row mb-2 border-bottom py-2 mx-0 no-gutters">
       <div class="col-4 pl-2">
         <button
           v-if="categoryFilterID"
@@ -100,6 +102,8 @@
         </template>
       </div>
     </div>
+    </div>
+
     <!-- <button @click="listItems">TEst</button> -->
   </div>
 </template>
@@ -108,18 +112,15 @@ import Vue from 'vue'
 import Product from '@/database/controller/product.js'
 import Category from '@/database/controller/category.js'
 import Cart from './cart-store'
+
 import UserStore from '@/vue-web-core/system/store'
 // import SyncStore from '@/database/sync/sync-store'
 export default {
   components: {
+
   },
   mounted () {
     this.checkforProducts()
-    this.$nextTick(() => {
-      window.addEventListener('resize', this.draw)
-
-      this.draw()
-    })
   },
   data () {
     return {
@@ -151,9 +152,10 @@ export default {
       })
     },
     _initialize(){
+      this._draw()
       this.listItems()
     },
-    draw () {
+    _draw () {
       let totalHeight = $(window).height()
       let offset = 35 + 150
       // totalheight - the space from the windows top until container top - the height of the footer
@@ -245,7 +247,7 @@ export default {
     }
   },
   destroyed() {
-    window.removeEventListener('resize', this.draw)
+    window.removeEventListener('resize', this._draw)
   }
 }
 </script>

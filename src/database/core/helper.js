@@ -8,7 +8,6 @@ export default {
         return false
       }
     } else {
-      console.log()
       return false
     }
   },

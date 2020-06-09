@@ -27,7 +27,6 @@
 <script>
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
 import HField from '@/vue-web-core/components/bootstrap/HorizontalField'
-import CartStore from '../cart-store'
 import Select2 from '@/vue-web-core/components/form/InputType/Select2Input'
 import CustomerDB from '@/database/controller/customer'
 export default {
@@ -73,7 +72,6 @@ export default {
       this.$refs.modal._open()
     },
     park(){
-      console.log(CartStore.state)
     }
   }
 }
