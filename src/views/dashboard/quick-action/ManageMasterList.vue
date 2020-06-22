@@ -45,7 +45,6 @@ export default {
     },
     checkMasterListOnline(){
       this.apiRequest('category/retrieve', { limit: 1, select: ['id'] }, (response) => {
-        console.log('response', response)
         if(response['data'].length){
           this.apiRequest('product/retrieve', { limit: 1, select: ['id'] }, (productResponse) => {
             if(productResponse['data'].length){

@@ -64,7 +64,7 @@ class SyncAll {
       }
       SyncStore.commit('isNotSynching')
     }
-    if(typeof this.progressListener === 'function'){
+    if(typeof this.progressListener === 'function' && this.reSync === false){
       this.progressListener(progress)
     }
   }

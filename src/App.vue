@@ -13,7 +13,7 @@
     </modal>
     <header-menu :menu="headerMenu"  :default-company-name="'VergePOS Terminal'"/>
     <div id="wrapper" v-bind:class="(noSidebar) ? 'toggled' : ''">
-      <side-bar :menu="sidebarMenu" />
+      <side-bar ref="sideBar" :menu="sidebarMenu" />
       <div id="page-content-wrapper" style="overflow-wrap: break-word;">
         <div v-if="!isLoadingModule" class="container-fluid-none">
           <router-view/>
@@ -127,10 +127,12 @@ export default {
           store.commit('isReady', () => {
             if(this.userID && localStorage.getItem('is_terminal')){
               this.checkConnectivity().then((ping) => {
+                console.log('checkcon')
                 this.syncAll.downSync((progress) => {
                   this.dataSynced = progress
                   if(progress === 1){
                     setTimeout(() => {
+                      console.log('done sync 1')
                       this.doneSynching()
                       resolve(true)
                     }, 500)
@@ -138,11 +140,13 @@ export default {
                 })
               }).catch(() => {
                 SyncStore.commit('isNotSynching')
+                console.log('done sync 2')
                 this.doneSynching()
                 resolve(true)
               })
             }else{
               SyncStore.commit('isNotSynching')
+              console.log('done sync 3')
               this.doneSynching()
               resolve(true)
             }
@@ -160,6 +164,7 @@ export default {
           UpSync.silentSync()
         }, 100)
       }
+      this.$refs.sideBar._initialize()
     }
   },
   watch: {

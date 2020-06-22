@@ -112,7 +112,7 @@
             @click="viewProductList"
             class="btn btn-outline-success float-right w-100 mb-2 d-md-none"
           >
-            <fa icon="cart-plus" /> Add Item
+            <fa icon="cart-plus" /> Product List
           </button>
           <button
             @click="checkout"
@@ -280,7 +280,9 @@ export default {
       if(newData['description'] === 'item_added'){
         setTimeout(() => {
           this.$refs.container.scrollTop = this.$refs.container.scrollHeight
-          this.addItemContainerEffect(this.orderList.length - 1)
+          if(this.orderList.length){
+            this.addItemContainerEffect(this.orderList.length - 1)
+          }
         }, 100)
       }else if(newData['description'] === 'added_existing_item'){
         setTimeout(() => {

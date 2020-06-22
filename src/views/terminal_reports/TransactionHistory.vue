@@ -10,7 +10,7 @@
           </template>
         </select>
       </div>
-      <div class="col-2">
+      <div class="col-sm-12 col-md-2 mb-2">
         <datetime v-model="startDatetimeFilter" class="theme-orange"
           format="yyyy-MM-dd HH:mm:ss"
           input-class="form-control"
@@ -22,7 +22,7 @@
           zone="local"
         />
       </div>
-      <div class="col-2">
+      <div class="col-sm-12 col-md-2 mb-2">
         <datetime v-model="endDatetimeFilter" class="theme-orange"
           format="yyyy-MM-dd HH:mm:ss"
           input-class="form-control"
@@ -34,21 +34,22 @@
           zone="local"
         />
       </div>
-      <div class="col-6">
-        <button v-if="isGenerating" disabled class="btn btn-primary">Generating...{{isGenerating}}</button>
-        <button v-else :disabled="(terminal === 'local' || storeTerminalFilter * 1) ? false : true" @click="generate" class="btn btn-primary">Generate</button>
-        <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right"><fa icon="chart-line" /> Show Graph</button>
-        <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right"><fa icon="chart-line" /> Hide Graph</button>
+      <div class="col-md-4">
+        <button v-if="isGenerating" disabled class="btn btn-primary w-sm-100 mb-2">Generating...{{isGenerating}}</button>
+        <button v-else :disabled="(terminal === 'local' || storeTerminalFilter * 1) ? false : true" @click="generate" class="btn btn-primary w-sm-100 mb-2">Generate</button>
+
+        <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right w-sm-100"><fa icon="chart-line" /> Show Graph</button>
+        <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right w-sm-100"><fa icon="chart-line" /> Hide Graph</button>
       </div>
     </div>
     <div class="mb-2" v-show="graphType !== 'null'">
       <div class="card">
         <div class="card-body">
           <div class="form-row mb-2">
-             <div class="col-2 font-weight-bold">
+             <div class="col-sm-3 col-md-2 font-weight-bold">
                <label class="col-form-label">Graph Type </label>
              </div>
-             <div class="col-3">
+             <div class="col-sm-1 col-md-3">
                <select class="custom-select" v-model="graphType">
                 <option selected value="sales_per_day">Sales Per Day</option>
                 <option value="time_in_day">Time in Day Performance</option>
@@ -57,23 +58,28 @@
              </div>
           </div>
           <div v-show="graphType === 'time_in_day'">
-            <p class="mb-0">Time In Day Performance summarize the transaction data by hour. In this way, you can see which time of the day you have the most and least sales.</p>
+            <p >Time In Day Performance summarize the transaction data by hour. In this way, you can see which time of the day you have the most and least sales.</p>
+            <small class="text-info"><fa icon="info-circle"/> You can click the colors in the legend to hide or show the data</small>
             <time-in-day ref="timeInDay" :transactions="transactions" />
           </div>
           <div v-show="graphType === 'sales_per_day'">
-            <p class="mb-0">Sales per day shows the total sale each day. This is useful in determining which days have least and most sales in a month or in a given timeframe.</p>
+            <p class="">Sales per day shows the total sale each day. This is useful in determining which days have least and most sales in a month or in a given timeframe.</p>
+            <small class="text-info"><fa icon="info-circle"/> You can click the colors in the legend to hide or show the data</small>
             <sales-per-day ref="salesPerDay" :transactions="transactions" />
           </div>
           <div v-show="graphType === 'day_in_week'">
-            <p class="mb-0">Day In Week Performance Graph shows which day in a week has the most and least sales in the given time frame.</p>
+            <p >Day In Week Performance Graph shows which day in a week has the most and least sales in the given time frame.</p>
+            <small class="text-info"><fa icon="info-circle"/> You can click the colors in the legend to hide or show the data</small>
             <day-in-week ref="dayInWeek" :transactions="transactions" />
           </div>
         </div>
       </div>
     </div>
     <div class="row">
-      <div class="col-12">
+      <div class="col-12 table-responsive">
         <button class="btn btn-outline-primary mb-4" @click="toggleButtonState = !toggleButtonState">{{toggleButtonState === true ? 'View Product History' : 'View Transaction History' }}</button>
+      </div>
+      <div class="col-12 table-responsive">
         <vuetable
           v-show="toggleButtonState === false"
           ref="vuetable"
@@ -82,6 +88,7 @@
           :api-mode="false"
           :data-total="2"
           :fields="tableSetting.columns"
+          class=" w-100"
         >
           <template slot="actions" slot-scope="props">
             <button v-if="props.rowData['id']" @click="openTransaction(props.rowData['number'])" class="btn btn-sm btn-info"><fa icon="search" /></button>
@@ -142,7 +149,7 @@ export default {
       tableSetting: {
         columns: [{
           name: 'number',
-          title: 'Transaction Number',
+          title: 'Txn No.',
           titleClass: 'text-center',
           dataClass: 'text-center',
           callback: (value) => {

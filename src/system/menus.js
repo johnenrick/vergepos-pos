@@ -22,13 +22,25 @@ export default {
   side_menus: [{
     icon: 'box',
     name: 'Product',
-    has_offline: true
+    has_offline: true,
+    role_access_list: {
+      100: true, // Company Admin
+      102: true, // Manager
+    }
   }, {
     icon: 'boxes',
-    name: 'Category'
+    name: 'Category',
+    role_access_list: {
+      100: true, // Company Admin
+      102: true, // Manager
+    }
   }, {
     icon: 'percent',
-    name: 'Discount'
+    name: 'Discount',
+    role_access_list: {
+      100: true, // Company Admin
+      102: true, // Manager
+    }
   }, {
     icon: 'file-contract',
     name: 'Terminal Reports',
@@ -36,36 +48,72 @@ export default {
     sub_item: [{
       name: 'Transaction History',
       route: '/transaction-history',
-      has_offline: true
+      has_offline: true,
+      role_access_list: {
+        100: true, // Company Admin
+        102: true, // Manager
+      }
     }, {
       name: 'Product Performance',
       route: '/product-performance',
-      has_offline: true
+      has_offline: true,
+      role_access_list: {
+        100: true, // Company Admin
+        102: true, // Manager
+      }
     }, {
       name: 'X Reading',
-      has_offline: true
+      has_offline: true,
+      role_access_list: {
+        100: true, // Company Admin
+        101: true, // Cashier
+        102: true, // Manager
+      }
     }]
   }, {
     icon: 'file-contract',
     name: 'Reports',
     sub_item: [{
       name: 'Transaction History',
-      route: '/report/transaction-history'
+      route: '/report/transaction-history',
+
+      // role_access_list: {
+      //   100: true, // Company Admin
+      //   102: true, // Manager
+      // }
     // }, {
     //   name: 'Product Performance'
     // }, {
     //   name: 'Overall Z Reading'
-    }]
+    }],
+    role_access_list: {
+      100: true, // Company Admin
+      102: true, // Manager
+    }
   }, {
     icon: 'tools',
     name: 'Business',
     sub_item: [{
       icon: 'users',
       name: 'Users',
-      route: '/user-management'
+      route: '/user-management',
+
     }, {
       icon: 'store',
       name: 'Business Detail'
-    }]
-  }]
+    }, {
+      icon: 'desktop',
+      name: 'Terminal',
+      route: '/terminal',
+
+    }],
+    role_access_list: {
+      100: true, // Company Admin
+      102: true, // Manager
+    }
+  }, {
+    icon: 'headset',
+    name: 'Contact Us',
+    route: '/contact-us'
+  }],
 }

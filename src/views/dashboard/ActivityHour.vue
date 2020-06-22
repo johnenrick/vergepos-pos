@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="card border-info mb-3" >
-      <div class="card-header bg-info text-white">Activity</div>
+      <div class="card-header bg-info text-white">Activity Hour</div>
       <div class="card-body text-primary" >
         <p class="card-text"><fa icon="info-circle" /> Shows you which hours of the day you have most transactions. This is very helpful in anticipating busy hours so you can prepare or do other productive tasks on non busy hours</p>
         <div class="row">

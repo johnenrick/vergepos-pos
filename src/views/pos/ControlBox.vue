@@ -97,12 +97,12 @@ export default {
         this.runLiveTime()
       }, 60 - currentDate.getSeconds())
     },
-    checkConnectivity(){
-      let testStart = (new Date()).getTime()
-      this.apiRequest('test-connnection', { limit: 1 }, response => {
-        this.connectionSpeed = (new Date()).getTime() - testStart
-      })
-    }
+    // checkConnectivity(){
+    //   let testStart = (new Date()).getTime()
+    //   this.apiRequest('test-connnection', { limit: 1 }, response => {
+    //     this.connectionSpeed = (new Date()).getTime() - testStart
+    //   })
+    // }
   },
   computed: {
     isFullscreen2(){

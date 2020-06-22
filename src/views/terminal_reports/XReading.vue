@@ -9,7 +9,7 @@
             <datetime v-model="startDatetime" class="theme-orange"
               format="yyyy-MM-dd HH:mm:ss"
               input-class="form-control"
-              :minute-step="10"
+              :minute-step="1"
               :use12-hour="true"
               auto
               type="datetime"
@@ -24,7 +24,7 @@
             <datetime v-model="endDatetime" class="theme-orange"
               format="yyyy-MM-dd HH:mm:ss"
               input-class="form-control"
-              :minute-step="10"
+              :minute-step="1"
               :use12-hour="true"
               auto
               type="datetime"

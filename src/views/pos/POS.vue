@@ -89,7 +89,7 @@ export default {
       if(SyncStore.state.isSynching){
         return false
       }
-      if(!this.doneReSynching && UserSession.getters.mode === 'online'){
+      if(!this.doneReSynching && UserSession.getters.mode === 'online' && this.doneReSynching === false){
         SyncAll.downSync(null)
         this.doneReSynching = true
       }else{

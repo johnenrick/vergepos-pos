@@ -99,23 +99,29 @@
       <button @click="print" type="button" class="btn btn-outline-primary float-right"><fa :icon="'print'" /> Reprint</button>
     </div>
     <div v-if="toVoid">
-      <div class="pt-2 mt-2">
-        <input v-model="remarks" type="text" placeholder="Remarks" class="form-control" required>
-      </div>
-      <div class="input-group mt-2 pt-2">
-        <select class="form-control" v-model="selected">
-          <option :value="null" disabled selected>Select Manager</option>
-          <option v-for="user in users" :value="user" :key="user.id">
-            {{ user.email }}
-          </option>
-        </select>
-        <input v-model="pin" @keypress.enter="voidTransaction" type="password" class="form-control" placeholder="PIN" aria-describedby="basic-addon2">
-        <div class="input-group-append">
-          <button @click="voidTransaction"  class="btn btn-outline-danger" type="button">Void</button>
-          <button @click="toVoid = false" class="btn btn-outline-primary"><fa :icon="'times'" /> </button>
+      <div v-if="users.length">
+        <div class="pt-2 mt-2">
+          <input v-model="remarks" type="text" placeholder="Remarks" class="form-control" required>
         </div>
+        <div class="input-group mt-2 pt-2">
+          <select class="form-control" v-model="selected">
+            <option :value="null" disabled selected>Select Manager</option>
+            <option v-for="user in users" :value="user" :key="user.id">
+              {{ user.email }}
+            </option>
+          </select>
+          <input v-model="pin" @keypress.enter="voidTransaction" type="password" class="form-control" placeholder="PIN" aria-describedby="basic-addon2">
+          <div class="input-group-append">
+            <button @click="voidTransaction"  class="btn btn-outline-danger" type="button">Void</button>
+            <button @click="toVoid = false" class="btn btn-outline-primary"><fa :icon="'times'" /> </button>
+          </div>
+        </div>
+        <span class="text-danger" v-if="voidErrorMessage">&nbsp;<fa icon="exclamation-triangle"/>{{voidErrorMessage}}</span>
       </div>
-      <span class="text-danger" v-if="voidErrorMessage">&nbsp;<fa icon="exclamation-triangle"/>{{voidErrorMessage}}</span>
+      <div v-else>
+        <fa icon="times-circle" class="text-danger"/>
+        There are no Manager User Account. Go to <router-link :to="user-management" class="font-weight-bold">Bussiness > User Management</router-link> to modify your account or create a Manager Account
+      </div>
     </div>
   </div>
 </template>

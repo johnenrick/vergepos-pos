@@ -173,6 +173,14 @@ let routes = [
     }
   },
   {
+    path: '/terminal',
+    name: 'TerminalManagement',
+    component: require('@/views/terminal/Terminal.vue').default,
+    meta: {
+      auth_offline: true
+    }
+  },
+  {
     path: '/dev-config',
     name: 'DevConfig',
     component: require('@/views/dev-config/Config.vue').default,
@@ -219,6 +227,13 @@ let routes = [
   {
     path: '*',
     redirect: '/error/not-found'
+  },
+  {
+    path: '/contact-us',
+    name: 'ContactUs',
+    component: require('@/views/ContactUs.vue').default,
+    meta: {
+    }
   }
 ]
 for(let x = 0; x < routes.length; x++){
