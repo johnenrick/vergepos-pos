@@ -1,5 +1,5 @@
 <template>
-  <div class="row pb-3">
+  <div class="row pb-2">
     <modal ref="modal" size="lg">
       <template v-slot:body>
         <div class="p-4 text-center">
@@ -15,23 +15,15 @@
       </template>
     </modal>
     <div class="col-12 col-md-9">
-      <button @click="toggleFullscreen" class="btn btn-lg btn-outline-dark mr-1" :title="isFullscreen ? 'Minimize Screen' : 'Full Screen'"><fa :icon="!isFullscreen2 ? 'window-maximize' : 'window-minimize'" /></button>
-      <button @click="refreshApp" class="btn btn-lg btn-outline-dark mr-1" title="Refresh the app">
+      <button @click="toggleFullscreen" class="btn btn btn-outline-dark mr-1" :title="isFullscreen ? 'Minimize Screen' : 'Full Screen'"><fa :icon="!isFullscreen2 ? 'window-maximize' : 'window-minimize'" /></button>
+      <button @click="refreshApp" class="btn btn-outline-dark mr-1" title="Refresh the app">
         <fa :icon="'redo'" />
       </button>
-      <button @click="clearCart" class="btn btn-lg btn-outline-dark mr-1" title="Clear Cart">
-        <fa :icon="'trash'" />
-      </button>
-      <!-- <button class="btn btn-lg btn-outline-dark mx-1">
-        <fa :icon="'calculator'" />
-      </button> -->
-      <button @click="viewTransaction" class="btn btn-lg btn-outline-dark mr-1" title="Open Transaction"><fa :icon="'receipt'" /></button>
-      <!-- <button class="btn btn-lg btn-outline-dark mx-1" title="Parked Transactions">
-        <fa :icon="'parking'" />
-      </button> -->
-      <button @click="benchmark" class="btn btn-lg btn-outline-dark" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button>
+      <button @click="clearCart" class="btn  btn-outline-dark mr-1" title="Clear Cart"><fa :icon="'trash'" /></button>
+      <button @click="viewTransaction" class="btn  btn-outline-dark mr-1" title="Open Transaction"><fa :icon="'receipt'" /></button>
+      <button @click="benchmark" class="btn  btn-outline-dark" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button>
     </div>
-    <div class="col-12 col-md-3 pt-2 text-center text-md-right">
+    <div class="col-12 col-md-3 pt-2 text-center text-md-right d-none d-sm-block">
       {{liveTime}} <big v-bind:class="connectionSpeed ? 'text-success' : 'text-secondary'" class="ml-2 "><span v-bind:title="isSynching ? 'Synching Data' : 'Internet Availability'" v-bind:class="isSynching ? 'blink' : ''"><fa icon="wifi" /></span></big>
     </div>
     <transaction-viewer ref="TransactionViewer" />

@@ -7,7 +7,6 @@
           <div class="text-center">
             <button @click="openTerminalSelection" class="btn btn-primary"><fa icon="cash-register" /> Set As Terminal</button><br>
           </div>
-          <terminal-selection ref="terminalSelection" />
         </div>
       </div>
       <div v-else class=" text-center">
@@ -16,30 +15,34 @@
     </div>
     <modal ref="selectionModal" :closeable="true" title="Terminal Selection">
       <template slot="body">
+        <div v-if="errorMessage" class="alert alert-danger">
+          {{errorMessage}}
+        </div>
         <div class="">
           <label>Device Serial Number</label>
-          <input type="text" class="form-control" placeholder="XXXXXXXXXXXXXXX">
+          <input v-model="serialNumber" type="text" class="form-control" placeholder="XXXXXXXXXXXXXXX">
           <small class="form-text text-muted">
-            <div v-if="!showSerialNumberHelp" class="font-weight-bold text-info c-pointer" @click="showSerialNumberHelp = true"> How to find serial number <fa icon="question-circle" /> </div>
+            <div v-if="!showSerialNumberHelp" class=" text-info c-pointer" @click="showSerialNumberHelp = true"> How to find serial number <fa icon="question-circle" /> </div>
             <div v-else>
               <span @click="showSerialNumberHelp = false" class="text-info text-underline c-pointer">Hide</span> <br>
-              If you are using Android devices, you can the serial number in <strong>Settings > About Phone > Status > Serial Number</strong>. If you are using a computer, just open a <i>Command Prompt</i> and copy&paste the following code: <i>wmic bios get serialnumber</i>. If you can't find your serial number, don't hesitate to <router-link to="contact-us" class=text-primary>Contact Us</router-link>.
+              If you are using Android devices, you can the serial number in <strong>Settings > About Phone > Status > Serial Number</strong>. If you are using a computer, just open a <i>Command Prompt</i> and copy&paste the following code: <i class="font-weight-bold">wmic bios get serialnumber</i>. If you can't find your serial number, don't hesitate to <router-link to="contact-us" class=text-primary>Contact Us</router-link>.
             </div>
           </small>
         </div>
         <div v-if="newTerminalMode" class="mb-2">
           <label>Terminal Description</label>
-          <input class="form-control" placeholder="e.g. Cashier 1, Entrance Terminal, etc." />
+          <input v-model="terminalDescription" class="form-control" placeholder="e.g. Cashier 1, Entrance Terminal, etc." />
           <div class="text-right">
             <small @click="newTerminalMode = false" class="c-pointer text-underlined text-primary"><u> Choose from Existing Terminal</u></small>
           </div>
         </div>
         <div class="mb-2" v-else-if="stores.length && !newTerminalMode">
-          <label>Choose a Terminal</label>
-          <select type="text" class="form-control" >
-            <option>Select a Terminal</option>
-            <template v-for="storeTerminal in stores[0]['store_terminals']">
-              <option :value="storeTerminal['id']" :disabled="storeTerminal['serial_number'] !== ''" :class="storeTerminal['serial_number'] !== '' ? 'bg-secondary' : ''">{{storeTerminal['description']}}</option>
+          <label>Choose a Terminal </label>
+          <div v-if="selectedExistingTerminal !== 'null' && stores[0]['store_terminals'][selectedExistingTerminal]['serial_number'] !== ''" class="text-warning mb-2"> <small><fa icon="exclamation-triangle" /> The selected terminal has already been assigned. Make sure to unassigned the old device to avoid ruining the data</small></div>
+          <select v-model="selectedExistingTerminal" type="text" class="form-control" >
+            <option value="null">Select a Terminal</option>
+            <template v-for="(storeTerminal, index) in stores[0]['store_terminals']">
+              <option :value="index" :class="storeTerminal['serial_number'] !== '' ? 'bg-light' : ''">{{storeTerminal['description']}} {{(storeTerminal['serial_number'] !== '') ? 'assigned to ' + storeTerminal['serial_number'] : ''}}</option>
             </template>
           </select>
           <div class="text-right">
@@ -47,24 +50,22 @@
           </div>
         </div>
         <div class="text-center">
-          <button class="btn btn-primary"><fa icon="desktop"/> Set As Terminal</button>
+          <button v-if="!isConfuringTerminal" class="btn btn-primary" @click="setAsTerminal"><fa icon="desktop"/> Set As Terminal</button>
+          <span v-else>Configuring Terminal...</span>
         </div>
-        <hr>
         <div>
 
-          <router-link to="/terminal" class="btn btn-outline-secondary btn-sm float-right"><fa icon="desktop" /> Go to Terminal Management</router-link>
+          <!-- <router-link to="/terminal" class="btn btn-outline-secondary btn-sm float-right"><fa icon="desktop" /> Go to Terminal Management</router-link> -->
         </div>
       </template>
     </modal>
   </div>
 </template>
 <script>
-import TerminalSelection from './TerminalSelection'
 import UserStore from '@/vue-web-core/system/store'
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
 export default {
   components: {
-    TerminalSelection,
     Modal
   },
   data(){
@@ -74,7 +75,11 @@ export default {
       showSerialNumberHelp: false,
       stores: [],
       companyData: {},
-      newTerminalMode: true
+      newTerminalMode: true,
+      selectedExistingTerminal: 'null',
+      serialNumber: '',
+      terminalDescription: '',
+      errorMessage: null
     }
   },
   methods: {
@@ -101,25 +106,72 @@ export default {
           }
         }
       }
-
       this.apiRequest('company/retrieve', param, (response) => {
-        if(typeof response['data']['stores'] !== 'object'){
+        if(response['data'] && typeof response['data']['stores'] !== 'object'){
           console.error('No store has been retrieved', response)
           this.isConfuringTerminal = false
-        }else if(response['data'] && response['data']['stores'][0]['store_terminals'].length === 1){
-          console.log('here')
-          this.setTerminal(response['data']['stores'][0]['store_terminals'][0]['id'])
-        }else{
+        }else if(response['data']){
           this.stores = response['data']['stores']
           this.$refs.selectionModal._open()
           this.isConfuringTerminal = false
         }
       })
     },
-    setTerminal(storeTerminalID){
+    setAsTerminal(){
+      this.errorMessage = null
+      if(this.serialNumber === ''){
+        this.errorMessage = 'Please enter the serial number of this device.'
+        return false
+      }
+      if(this.newTerminalMode){
+        if(this.terminalDescription === ''){
+          this.errorMessage = 'Please enter terminal description'
+        }
+        let param = {
+          store_id: this.stores[0]['id'],
+          serial_number: this.serialNumber,
+          description: this.terminalDescription
+        }
+        this.isConfuringTerminal = true
+        this.apiRequest('store-terminal/create', param, (response) => {
+          if(response['data']){
+            let terminalDetails = {
+              serial_number: this.serialNumber,
+              description: this.terminalDescription
+            }
+            this.setTerminal(response['data']['id'], terminalDetails)
+          }else{
+            this.isConfuringTerminal = false
+          }
+        }, () => {
+          this.isConfuringTerminal = false
+        })
+      }else{
+        this.isConfuringTerminal = true
+        if(this.selectedExistingTerminal === 'null'){
+          this.errorMessage = 'Please select a terminal'
+          return false
+        }
+        let param = {
+          id: this.stores[0]['store_terminals'][this.selectedExistingTerminal]['id'],
+          store_id: this.stores[0]['id'],
+          serial_number: this.serialNumber
+        }
+        this.apiRequest('store-terminal/update', param, (response) => {
+          if(response['data']){
+            let terminalDetails = {
+              description: this.stores[0]['store_terminals'][this.selectedExistingTerminal]['description'],
+              serial_number: this.stores[0]['store_terminals'][this.selectedExistingTerminal]['this.serialNumber']
+            }
+            this.setTerminal(this.stores[0]['store_terminals'][this.selectedExistingTerminal]['id'], terminalDetails)
+          }
+        })
+      }
+    },
+    setTerminal(storeTerminalID, terminalDetails){
       localStorage.setItem('is_terminal', storeTerminalID)
+      localStorage.setItem('terminal_details', JSON.stringify(terminalDetails))
       let companyInformation = UserStore.getters.companyInformation
-      console.log('companyInformation', companyInformation)
       localStorage.setItem('company_detail', JSON.stringify(companyInformation))
       window.location = '/'
     }

@@ -1,10 +1,10 @@
 <template>
-  <div class="">
+  <div class="no-page-content-wrapper">
     <div v-show="isTerminal" class="row no-gutters">
-      <div v-show="currentView === 'order_list' || currentView === null" class="col-12 col-sm-12 col-md-5">
+      <div v-show="currentView === 'order_list' || currentView === null" class="col-12 col-sm-12 col-md-5 px-1">
         <order-list ref="orderList" @view-product-list="viewProductList" />
       </div>
-      <div v-show="currentView === 'product_list' || currentView === null" class="col-12 col-sm-12 col-md-7 pl-3">
+      <div v-show="currentView === 'product_list' || currentView === null" class="col-12 col-sm-12 col-md-7 px-1">
         <button class="btn btn-outline-success w-100 mb-2 d-md-none" @click="viewOrderList"><fa icon="list" /> View Orders</button>
         <control-box />
         <product-list ref="productList"/>
@@ -67,23 +67,24 @@ export default {
       }, 400)
     },
     draw(){
+      console.log('window.innerWidth', window.innerWidth)
       this.$nextTick(() => {
         if(typeof this.$refs.productList !== 'undefined' && typeof this.$refs.productList !== 'undefined'){
           this.$refs.productList._draw()
           this.$refs.orderList._draw()
+          if(window.innerWidth < 768){
+            if(this.currentView === null){
+              this.currentView = 'order_list'
+            }
+          }else{
+            this.currentView = null
+          }
         }else{
           setTimeout(() => {
             this.draw()
           }, 400)
         }
       })
-      if(window.innerWidth < 768){
-        if(this.currentView === null){
-          this.currentView = 'order_list'
-        }
-      }else{
-        this.currentView = null
-      }
     },
     postSync(){
       if(SyncStore.state.isSynching){
@@ -97,6 +98,7 @@ export default {
         this.$nextTick(() => {
           this.$refs.productList._initialize()
           this.$refs.orderList._initialize()
+          this.draw()
           window.addEventListener('resize', () => {
             this.draw()
           })
@@ -107,7 +109,4 @@ export default {
 }
 </script>
 <style>
-.page-content-wrapper{
-  background-color: whitesmoke
-}
 </style>

@@ -6,7 +6,7 @@
           <p class="lead mt-4">You are trying to log in a different company. This will clear the data of the previous company from this machine. Do you still want to continue?</p>
           <div class="row">
             <div class="col-1"></div>
-            <button class="col-4 btn btn-primary" @click="Proceed">Proceed</button>
+            <button class="col-4 btn btn-primary" @click="proceed">Proceed</button>
             <div class="col-2"></div>
             <button class="col-4 btn btn-outline-secondary" @click="Decline">Decline</button>
             <div class="col-1"></div>
@@ -150,8 +150,10 @@ export default {
         this.isLoading = false
       })
     },
-    Proceed(){
+    proceed(){
       localStorage.removeItem('is_terminal')
+      localStorage.removeItem('company_detail')
+      localStorage.removeItem('terminal_details')
       this.removeTerminal(() => {
         localStorage.setItem('company_id', this.authData.data.user.company_id)
         localStorage.setItem('user_id', this.authData.data.user.id)

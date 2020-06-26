@@ -10,7 +10,7 @@
       role="document"
     >
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header py-2">
           <h5 class="modal-title">
             <fa :icon="'shopping-cart'" /> Check Out
           </h5>
@@ -24,8 +24,8 @@
         </div>
         <div class="modal-body">
           <div class="row">
-            <label class="col-sm-6 col-form-label text-right font-weight-bold">Sub Total: </label>
-            <div class="col-sm-4">
+            <label class="col-7 col-sm-6 col-form-label text-right font-weight-bold">Sub Total: </label>
+            <div class="col-5 col-sm-4">
               <input
                 type="text"
                 readonly="readonly"
@@ -36,8 +36,8 @@
           </div>
 
           <div class=" row">
-            <label class="col-sm-6 col-form-label text-right ">VAT Sales: </label>
-            <div class="col-sm-4">
+            <label class="col-7 col-sm-6 col-form-label text-right ">VAT Sales: </label>
+            <div class="col-5 col-sm-4">
               <input
                 type="text"
                 readonly="readonly"
@@ -47,8 +47,8 @@
             </div>
           </div>
           <div class="row">
-            <label class="col-sm-6 col-form-label text-right ">VAT Exempt Sales: </label>
-            <div class="col-sm-4">
+            <label class="col-7 col-sm-6 col-form-label text-right ">VAT Exempt Sales: </label>
+            <div class="col-5 col-sm-4">
               <input
                 type="text"
                 readonly="readonly"
@@ -58,8 +58,8 @@
             </div>
           </div>
           <div class="row">
-            <label class="col-sm-6 col-form-label text-right ">VAT({{taxPercentage}}): </label>
-            <div class="col-sm-4">
+            <label class="col-7 col-sm-6 col-form-label text-right ">VAT({{taxPercentage}}): </label>
+            <div class="col-5 col-sm-4">
               <input
                 type="text"
                 readonly="readonly"
@@ -68,9 +68,9 @@
               >
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-6 col-form-label text-right">Total Discount: </label>
-            <div class="col-sm-4">
+          <div class="row">
+            <label class="col-7 col-sm-6 col-form-label text-right">Total Discount: </label>
+            <div class="col-5 col-sm-4">
               <input
                 type="text"
                 readonly="readonly"
@@ -79,9 +79,9 @@
               >
             </div>
           </div>
-          <div class="form-group row ">
-            <label class="col-sm-6 col-form-label form-control-lg text-right font-weight-bold">Total Payable: </label>
-            <div class="col-sm-4">
+          <div class="row ">
+            <label class="col-7 col-sm-6 col-form-label form-control-lg text-right font-weight-bold">Total Payable:</label>
+            <div class="col-5 col-sm-4">
               <input
                 type="text"
                 readonly="readonly"
@@ -90,15 +90,15 @@
               >
             </div>
           </div>
-          <div class="form-group row">
-            <label class="col-sm-6 col-form-label text-right font-weight-bold">Cash Payment: </label>
-            <div class="col-sm-4">
+          <div class="row">
+            <label class="col-7 col-sm-6 col-form-label text-right font-weight-bold">Cash Payment: </label>
+            <div class="col-5 col-sm-4">
               <number-input :default-value="0" :current-value="cashPayment" :is-decimal="true" @change="cashPayment = $event"/>
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-sm-6 col-form-label text-right font-weight-bold">Change: </label>
-            <div class="col-sm-4">
+            <label class="col-7 col-sm-6 col-form-label text-right font-weight-bold">Change: </label>
+            <div class="col-5 col-sm-4">
               <input
                 type="text"
                 readonly="readonly"

@@ -1,25 +1,22 @@
 <template>
-  <div class="border shadow bg-white">
+  <div class="border shadow1 bg-white" >
     <div
       ref="header"
-      class="row font-weight-bold text-center pb-2 mx-0"
+      class="row font-weight-bold text-center mx-0 pb-1"
     >
-      <div class="col-6 bg-primary text-white py-3">
+      <div class="col-5 col-md-6 bg-primary text-white py-2">
         Description
       </div>
-      <div class="col-2 bg-primary text-white py-3">
+      <div class="col-3 col-md-2 bg-primary text-white py-2">
         Qty
       </div>
-      <div class="col-4 bg-primary text-white py-3">
+      <div class="col-4 bg-primary text-white py-2">
         Price
       </div>
     </div>
     <div
       ref="container"
       class="orderListContainer"
-
-      :style="{'max-height': containerHeight , 'min-height': containerHeight }"
-      style=" overflow-y:scroll"
     >
       <div
         ref="itemContainer"
@@ -52,18 +49,18 @@
     </div>
     <div
       ref="footer"
-      class="py-2 border-top"
+      class="py-1 border-top"
     >
-      <div class="row mx-0 py-2 align-items-center">
-        <div class="col-8  pr-0">
+      <div class="row mx-0  align-items-center">
+        <div class="col-6 col-md-8 pr-0">
           <!-- <span class="badge badge-secondary mr-1">Has Parked Txn</span> -->
         </div>
-        <div class="col-4 text-right font-weight-bold pr-3">
+        <div class="col-6 col-md-4 text-right font-weight-bold pr-3">
           <big>{{ totalAmount | numberToMoney }}</big>
         </div>
       </div>
       <div class="row no-gutters mx-0 px-1 align-items-center">
-        <div class="col-5 mb-2">
+        <div class="col-7 mb-2">
           <div class="btn-group dropup">
             <button
               class="btn btn-outline-dark dropdown-toggle"
@@ -88,7 +85,7 @@
             </div>
           </div>
         </div>
-        <div v-show="totalDiscount" class="col-7 mb-2 text-right pr-3" style="line-height: 15px;">
+        <div v-show="totalDiscount" class="col-5 mb-2 text-right pr-3" style="line-height: 15px;">
           <table class="float-right">
             <!-- {{totalAmount}} {{totalDiscount}} {{totalAmount + totalDiscount}} {{subTotalAmount}} -->
             <tr>
@@ -100,7 +97,7 @@
               <td><small>{{totalAmount + totalDiscount | numberToMoney}}</small></td>
             </tr>
             <tr>
-              <td class="px-2"><small class="text-danger">Discount</small></td>
+              <td class="px-2"><small class="text-danger">Disc.</small></td>
               <td><small class="text-danger">({{totalDiscount | numberToMoney}})</small></td>
             </tr>
           </table>
@@ -223,10 +220,10 @@ export default {
       this.$refs.discountManagement._open()
     },
     _draw () {
-      let totalHeight = $(window).height()
-      let offset = 5
+      // let totalHeight = $(window).height()
+      // let offset = 5
       // totalheight - the space from the windows top until container top - the height of the footer
-      this.containerHeight = (totalHeight - $(this.$refs.container).position().top - $(this.$refs.footer).height() * 2 - offset) + 'px'
+      // this.containerHeight = (totalHeight - $(this.$refs.container).position().top - $(this.$refs.footer).height() * 2 - offset) + 'px'
     },
     transactionCreated(){
       this.$refs.discountManagement._reset()
@@ -340,5 +337,14 @@ export default {
   transition-property: background, color;
   transition-duration: 0.3s;
   transition-timing-function: linear;
+}
+.orderListContainer {
+  overflow-y:scroll;
+  height: calc(100vh - 66px - 30px - 41px - 128px); // header + 1, page-content-wrapper y padding, table header, options
+}
+@media(max-width:768px) {
+  .orderListContainer {
+    height: calc(100vh - 66px - 40px - 41px - 164px);
+  }
 }
 </style>

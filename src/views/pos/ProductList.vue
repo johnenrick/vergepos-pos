@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <div class="border no_selection">
       <div class="row mb-2 border-bottom py-2 mx-0 no-gutters">
       <div class="col-4 pl-2">
@@ -64,16 +63,13 @@
         </div>
     <div
       ref="container"
-      id="container"
-      :style="{'min-height': containerHeight, 'max-height' : containerHeight}"
-      style="min-height:235px; overflow-y:scroll"
-      class="pb-2"
+      class="productList"
     >
       <div class="row align-items-center mx-0 px-2">
         <template v-if="!categoryFilterID">
           <template  v-for="(category) in categoryList">
             <div
-              class="col-4 px-1 py-1 itemContainer"
+              class="col-6 col-sm-6 col-md-4 px-1 py-1 itemContainer"
               v-show="typeof category['show'] === 'undefined' || category['show']"
             >
               <div
@@ -88,7 +84,7 @@
         </template>
         <template v-for="(product, index) in productList">
           <div
-            class="col-4 px-1 py-1 itemContainer"
+            class="col-6 col-sm-6 col-md-4 px-1 py-1 itemContainer"
             v-show="typeof product['show'] === 'undefined' || product['show']"
           >
             <div
@@ -156,10 +152,10 @@ export default {
       this.listItems()
     },
     _draw () {
-      let totalHeight = $(window).height()
-      let offset = 35 + 150
-      // totalheight - the space from the windows top until container top - the height of the footer
-      this.containerHeight = (totalHeight - $(this.$refs.container).position().top - offset) + 'px'
+      // let totalHeight = $(window).height()
+      // let offset = 35 + 150
+      // // totalheight - the space from the windows top until container top - the height of the footer
+      // this.containerHeight = (totalHeight - $(this.$refs.container).position().top - offset) + 'px'
     },
     setCategoryFilter (id, description) {
       this.categoryFilterID = id
@@ -254,27 +250,27 @@ export default {
 <style scoped lang="scss">
 @import "@/assets/style/custom-theme.scss";
 
-#container{
-  min-height: 235px; overflow-y: scroll
+.productList{
+  overflow-y: scroll
 }
 /* width */
-#container::-webkit-scrollbar {
+.productList::-webkit-scrollbar {
   width: 5px;
   background: #550055;
 }
 
 /* Track */
-#container::-webkit-scrollbar-track {
+.productList::-webkit-scrollbar-track {
   background: #f1f1f1;
 }
 
 /* Handle */
-#container::-webkit-scrollbar-thumb {
+.productList::-webkit-scrollbar-thumb {
   background: gray;
 }
 
 /* Handle on hover */
-#container::-webkit-scrollbar-thumb:hover {
+.productList::-webkit-scrollbar-thumb:hover {
   background: #550055;
 }
 .itemContainer .border-primary:hover{
@@ -301,5 +297,13 @@ export default {
 
 .overlay {
   z-index: -1
+}
+.productList{
+  height: calc(100vh - 67px - 30px - 54px - 63px - 34px) /**header, page-content-wrapper, tools, search, breadcrumb*/
+}
+@media(max-width:768px) {
+  .productList {
+    height: calc(100vh - 67px - 40px - 46px - 46px - 64px - 34px)!important;
+  }
 }
 </style>

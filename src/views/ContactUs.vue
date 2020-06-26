@@ -8,7 +8,7 @@
         <div class="card">
           <div class="card-body">
             <h5>Help Us Improve VergePOS</h5>
-            <p>Help us improve VergePOS for you by answering this short survey. <a href="https://docs.google.com/forms/d/e/1FAIpQLScMhMLlnoPzb1QNzidpbLTlCR9G7y1IAAjTm3vIKSnI9EACUg/viewform?usp=sf_link" class="font-weight-bold">Take the Survey</a></p>
+            <p>Help us improve VergePOS for you by answering this short survey. <a href="https://docs.google.com/forms/d/e/1FAIpQLScMhMLlnoPzb1QNzidpbLTlCR9G7y1IAAjTm3vIKSnI9EACUg/viewform?usp=sf_link" target="_blank"  class="font-weight-bold">Take the Survey</a></p>
           </div>
         </div>
       </div>
