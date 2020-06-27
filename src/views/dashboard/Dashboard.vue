@@ -11,7 +11,7 @@
   </div>
 </template>
 <script>
-import QuickReportCard from './QuickReportCards.vue'
+import QuickReportCard from './quick-report-card/QuickReportCards.vue'
 import WeeklySaleGraph from './WeeklySaleGraph.vue'
 import ActivityHour from './ActivityHour'
 import QuickAction from './quick-action/QuickAction'

@@ -2,76 +2,32 @@
   <div class="row no-gutters mb-1">
     <div class="col-12 p-1 text"><h6 class="font-weight-bold text-uppercase">Today's Status on {{currentDate | formatDate('M d, yyyy hh:mm')}}</h6></div>
     <div class="col-12 col-md-4 px-1">
-      <div class="card text-white bg-success mb-3" >
-        <div class="card-body text-center; p-3">
-          <div style="width:50px';float:left"><h1><fa icon="money-bill"/></h1></div>
-          <div class="pl-2 text-center" style="width: calc(100% - 50px); float:left">
-            <h5 class="card-title  font-weight-bold mb-0">{{currentSales | numberToMoney}}</h5>
-            <p class="card-text p-0"><small>Current Sales</small></p>
-          </div>
-        </div>
-      </div>
+      <card icon="money-bill" description="Current Sales" :value="currentSales | numberToMoney" custom-class="bg-success" />
     </div>
     <div class="col-12 col-md-4 px-1">
-      <div class="card text-white bg-info mb-3" >
-        <div class="card-body text-center; p-3">
-          <div style="width:50px';float:left"><h1><fa icon="receipt"/></h1></div>
-          <div class="pl-2 text-center" style="width: calc(100% - 50px); float:left">
-            <h5 class="card-title  font-weight-bold mb-0">{{totalTransactions}}</h5>
-            <p class="card-text p-0"><small>Total Transactions</small></p>
-          </div>
-        </div>
-      </div>
+      <card icon="receipt" description="Total Transactions" :value="totalTransactions" custom-class="bg-info" />
     </div>
     <div class="col-12 col-md-4 px-1">
-      <div class="card text-white bg-warning mb-3" >
-        <div class="card-body text-center; p-3">
-          <div style="width:50px';float:left"><h1><fa icon="box"/></h1></div>
-          <div class="pl-2 text-center" style="width: calc(100% - 50px); float:left">
-            <h5 class="card-title  font-weight-bold mb-0">{{totalSold}}</h5>
-            <p class="card-text p-0"><small>Items Sold</small></p>
-          </div>
-        </div>
-      </div>
+      <card icon="box" description="Items Sold" :value="totalSold" custom-class="bg-warning" />
     </div>
     <div class="col-12 col-md-4 px-1">
-      <div class="card text-success border-success mb-3" >
-        <div class="card-body text-center; p-3">
-          <div style="width:50px';float:left"><h1><fa icon="money-bill"/></h1></div>
-          <div class="pl-2 text-center" style="width: calc(100% - 50px); float:left">
-            <h5 class="card-title  font-weight-bold mb-0">{{salesPerHour | numberToMoney}}</h5>
-            <p class="card-text p-0"><small>Sales per Hour</small></p>
-          </div>
-        </div>
-      </div>
+      <card icon="money-bill" description="Sales per Hour" :value="salesPerHour | numberToMoney" custom-class="text-success border-success" />
     </div>
     <div class="col-12 col-md-4 px-1">
-      <div class="card text-info border-info mb-3" >
-        <div class="card-body text-center; p-3">
-          <div style="width:50px';float:left"><h1><fa icon="dot-circle"/></h1></div>
-          <div class="pl-2 text-center" style="width: calc(100% - 50px); float:left">
-            <h5 class="card-title  font-weight-bold mb-0">{{timeOfFirstTransaction}}</h5>
-            <p class="card-text p-0"><small>Time of First Transaction</small></p>
-          </div>
-        </div>
-      </div>
+      <card icon="dot-circle" description="Time of First Transaction" :value="timeOfFirstTransaction" custom-class="text-info border-info" />
     </div>
     <div class="col-12 col-md-4 px-1">
-      <div class="card text-warning border-warning mb-3" >
-        <div class="card-body text-center; p-3">
-          <div style="width:50px';float:left"><h1><fa icon="flag-checkered"/></h1></div>
-          <div class="pl-2 text-center" style="width: calc(100% - 50px); float:left">
-            <h5 class="card-title  font-weight-bold mb-0">{{timeOfLastTransaction}}</h5>
-            <p class="card-text p-0"><small>Time of Last Transaction</small></p>
-          </div>
-        </div>
-      </div>
+      <card icon="flag-checkered" description="Time of Last Transaction" :value="timeOfLastTransaction" custom-class="text-warning border-warning" />
     </div>
   </div>
 </template>
 <script>
 import Transaction from '@/database/controller/transaction'
+import Card from './Card'
 export default {
+  components: {
+    Card
+  },
   data(){
     return{
       totalSold: 0,
