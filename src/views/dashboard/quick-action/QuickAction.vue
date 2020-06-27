@@ -1,7 +1,7 @@
 <template>
   <div class="mb-3">
     <h6 class="font-weight-bold text-uppercase">Quick Actions</h6>
-    <div class="row border px-1 pt-2 rounded mx-0">
+    <div class="row border px-1 pt-2 rounded mx-0 bg-primary">
       <div v-if="!isTerminal" class="col-sm-12 col-md-6 px-1 mb-2">
         <set-terminal  />
       </div>

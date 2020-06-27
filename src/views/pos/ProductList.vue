@@ -303,7 +303,7 @@ export default {
 }
 @media(max-width:768px) {
   .productList {
-    height: calc(100vh - 67px - 40px - 46px - 46px - 64px - 34px)!important;
+    height: calc(100vh - 67px - 20px - 46px - 46px - 64px - 34px)!important;
   }
 }
 </style>

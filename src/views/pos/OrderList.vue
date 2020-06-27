@@ -340,11 +340,11 @@ export default {
 }
 .orderListContainer {
   overflow-y:scroll;
-  height: calc(100vh - 66px - 30px - 41px - 128px); // header + 1, page-content-wrapper y padding, table header, options
+  height: calc(100vh - 66px - 30px - 41px - 131px); // header + 1, page-content-wrapper y padding, table header, options
 }
 @media(max-width:768px) {
   .orderListContainer {
-    height: calc(100vh - 66px - 40px - 41px - 164px);
+    height: calc(100vh - 66px - 30px - 41px - 164px);
   }
 }
 </style>
