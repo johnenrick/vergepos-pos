@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home p-3">
     <modal ref="modal" size="lg">
       <template v-slot:body>
         <div class="p-4 text-center">

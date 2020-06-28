@@ -1,5 +1,5 @@
 <template>
-  <div class="p-2">
+  <div class="p-3">
     <div class="text-center pt-4">
       <h3>Got questions, suggestions, problems?</h3> Contact us via our Facebook Page: <a href="https://fb.com" class="font-weight-bold">fb.com/verge</a>
     </div>

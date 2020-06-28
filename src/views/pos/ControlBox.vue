@@ -8,9 +8,9 @@
         <button @click="viewTransaction" class="btn btn-outline-dark mr-1" title="Open Transaction"><fa :icon="'receipt'" /></button>
         <button @click="benchmark" class="btn btn-outline-dark" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button>
       </div>
-      <!-- <div class="col-md-3 pt-2 text-right d-none d-sm-block pb-2">
+      <div class="col-md-3 pt-2 text-right d-none d-sm-block pb-2">
         {{liveTime}} <big v-bind:class="connectionSpeed ? 'text-success' : 'text-secondary'" class="ml-2 "><span v-bind:title="isSynching ? 'Synching Data' : 'Internet Availability'" v-bind:class="isSynching ? 'blink' : ''"><fa icon="wifi" /></span></big>
-      </div> -->
+      </div>
     </div>
     <transaction-viewer ref="TransactionViewer" />
     <benchmark ref="benchmark" />

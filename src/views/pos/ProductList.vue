@@ -299,11 +299,11 @@ export default {
   z-index: -1
 }
 .productList{
-  height: calc(100vh - 67px - 30px - 54px - 63px - 34px) /**header, page-content-wrapper, tools, search, breadcrumb*/
+  height: calc(100vh - 67px - 16px - 54px - 63px - 29px) /**header, page-content-wrapper, tools, search, breadcrumb*/
 }
 @media(max-width:768px) {
   .productList {
-    height: calc(100vh - 67px - 20px - 46px - 46px - 64px - 34px)!important;
+    height: calc(100vh - 67px - 16px - 46px - 46px - 64px - 34px)!important;
   }
 }
 </style>

@@ -28,7 +28,8 @@
 </template>
 <script>
 import 'bootstrap'
-import 'bootstrap/dist/css/bootstrap.min.css'
+
+// import 'bootstrap/dist/css/bootstrap.min.css'
 import '@/assets/style/custom-theme.scss'
 import '@/vue-web-core/assets/style/util.scss'
 import store from '@/vue-web-core/system/store'

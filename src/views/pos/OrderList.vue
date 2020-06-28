@@ -307,7 +307,7 @@ export default {
 /* width */
 .orderListContainer::-webkit-scrollbar {
   width: 5px;
-  background: #550055;
+  background: $primary;
 }
 
 /* Track */
@@ -322,10 +322,10 @@ export default {
 
 /* Handle on hover */
 .orderListContainer::-webkit-scrollbar-thumb:hover {
-  background: #550055;
+  background: $primary;
 }
 .itemContainer {
-  background: #550055;
+  background: $primary;
   color: white
 }
 .itemContainerEffect {
@@ -340,11 +340,11 @@ export default {
 }
 .orderListContainer {
   overflow-y:scroll;
-  height: calc(100vh - 66px - 30px - 41px - 131px); // header + 1, page-content-wrapper y padding, table header, options
+  height: calc(100vh - 66px - 16px - 41px - 131px); // header + 1, page-content-wrapper y padding, table header, options
 }
 @media(max-width:768px) {
   .orderListContainer {
-    height: calc(100vh - 66px - 30px - 41px - 164px);
+    height: calc(100vh - 66px - 16px - 41px - 170px);
   }
 }
 </style>

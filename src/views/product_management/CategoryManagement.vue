@@ -1,5 +1,5 @@
 <template>
-  <div class="section">
+  <div class="section p-3">
     <basic-module :config="config" />
   </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <div class="container pt-3">
+  <div class="container p-3">
 
     <form-component
       ref="form"

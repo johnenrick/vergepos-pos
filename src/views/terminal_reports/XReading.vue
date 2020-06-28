@@ -1,5 +1,5 @@
 <template>
-  <div class="section p-2">
+  <div class="section p-3">
     <h2>X Reading</h2>
     <div class="row mb-2 justify-content-center">
       <div class="col-12 col-md-6 col-lg-4 mb-3 ">

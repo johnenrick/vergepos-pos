@@ -1,5 +1,5 @@
 <template>
-  <div class="section">
+  <div class="section p-3">
     <basic-module :config="config" >
       <template ref="additionalFormInput" v-slot:additionalFormField="slotProps">
         <label class="font-weight-bold">Roles</label>

@@ -1,5 +1,5 @@
 <template>
-  <div class="section">
+  <div class="section p-3">
     <h2>Business Details</h2>
     <div class="row justify-content-center">
       <div class='col'>

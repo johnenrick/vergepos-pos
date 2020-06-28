@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="p-3">
     <h2>Transaction History</h2>
     <div class="row mb-4">
       <div v-if="terminal === 'all'" class="col-2">

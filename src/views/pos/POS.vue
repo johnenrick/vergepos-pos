@@ -1,5 +1,5 @@
 <template>
-  <div class="no-page-content-wrapper">
+  <div class="p-2">
     <div v-show="isTerminal" class="row no-gutters">
       <div v-show="currentView === 'order_list' || currentView === null" class="col-12 col-sm-12 col-md-5 px-1">
         <order-list ref="orderList" @view-product-list="viewProductList" />
