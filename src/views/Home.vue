@@ -1,14 +1,14 @@
 <template>
   <div class="home p-3">
-    <modal ref="modal" size="lg">
+    <modal ref="modal" size="">
       <template v-slot:body>
-        <div class="p-4 text-center">
-          <p class="lead mt-4">You are trying to log in a different company. This will clear the data of the previous company from this machine. Do you still want to continue?</p>
+        <div class="p- text-center">
+          <p class="">You are trying to log in a <strong>different company</strong>. This will clear the data of the previous company from this machine. Do you still want to continue?</p>
           <div class="row">
             <div class="col-1"></div>
             <button class="col-4 btn btn-primary" @click="proceed">Proceed</button>
             <div class="col-2"></div>
-            <button class="col-4 btn btn-outline-secondary" @click="Decline">Decline</button>
+            <button class="col-4 btn btn-outline-secondary" @click="decline">No</button>
             <div class="col-1"></div>
           </div>
         </div>
@@ -164,7 +164,7 @@ export default {
         this.$refs.modal._close()
       })
     },
-    Decline(){
+    decline(){
       this.isLoading = false
       this.$refs.modal._close()
     },

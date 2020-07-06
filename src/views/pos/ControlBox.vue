@@ -14,16 +14,13 @@
     </div>
     <transaction-viewer ref="TransactionViewer" />
     <benchmark ref="benchmark" />
-    <modal ref="modal" size="lg">
+    <modal ref="modal" size="sm">
       <template v-slot:body>
-        <div class="p-4 text-center">
-          <p class="lead mt-4">Are you sure you want to clear your cart?</p>
-          <div class="row">
-            <div class="col-1"></div>
-            <button class="col-4 btn btn-primary" @click="proceed">Proceed</button>
-            <div class="col-2"></div>
-            <button class="col-4 btn btn-outline-secondary" @click="decline">Decline</button>
-            <div class="col-1"></div>
+        <div class="text-center">
+          <p class="">Are you sure you want to clear your cart?</p>
+          <div class="">
+            <button class="btn btn-primary mr-3" @click="proceed"><fa icon="trash" /> Clear Cart</button>
+            <button class="btn btn-outline-secondary" @click="decline">No</button>
           </div>
         </div>
       </template>

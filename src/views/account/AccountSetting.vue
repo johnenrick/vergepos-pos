@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="p-3">
     <h2>Account Settings <small v-if="isConnected === false">(Offline <fa icon="wifi" class="text-secondary"/>)</small></h2>
     <div class="row justify-content-center">
       <div class="col">
@@ -82,6 +82,7 @@ export default {
     this.feedback = 'Loading... Please wait'
     this.prompt = 'alert-primary'
     let connection = UserStore.getters.sessionConnection
+    console.log(UserStore.getters.sessionConnection)
     if(localStorage.getItem('is_terminal')){
       if(connection === 'online'){
         this.isConnected = true

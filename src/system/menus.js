@@ -48,6 +48,7 @@ export default {
     sub_item: [{
       name: 'Transaction History',
       route: '/transaction-history',
+      not_terminal_link: 'terminal-report-not-terminal',
       has_offline: true,
       role_access_list: {
         100: true, // Company Admin

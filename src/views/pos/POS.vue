@@ -67,7 +67,6 @@ export default {
       }, 400)
     },
     draw(){
-      console.log('window.innerWidth', window.innerWidth)
       this.$nextTick(() => {
         if(typeof this.$refs.productList !== 'undefined' && typeof this.$refs.productList !== 'undefined'){
           this.$refs.productList._draw()

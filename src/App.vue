@@ -165,6 +165,7 @@ export default {
           UpSync.silentSync()
         }, 100)
       }
+      console.log('here')
       this.$refs.sideBar._initialize()
     }
   },

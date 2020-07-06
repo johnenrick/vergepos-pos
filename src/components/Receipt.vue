@@ -120,7 +120,7 @@
       </div>
       <div v-else>
         <fa icon="times-circle" class="text-danger"/>
-        There are no Manager User Account. Go to <router-link :to="user-management" class="font-weight-bold">Bussiness > User Management</router-link> to modify your account or create a Manager Account
+        There are no Manager User Account. Go to <router-link to="user-management" class="font-weight-bold">Bussiness > User Management</router-link> to modify your account or create a Manager Account
       </div>
     </div>
   </div>
