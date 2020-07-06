@@ -3,7 +3,7 @@
         <modal ref="exportOfflineData" :closeable="true">
           <template v-slot:body>
             <div class="text-center" v-if="status">
-              Please wait while we are backing up your datas .....
+              Please wait while we are backing up your datas ......
             </div>
             <div v-else>
               <div class="text-center">
