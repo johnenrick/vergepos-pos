@@ -6,12 +6,13 @@ module.exports = {
   pwa: {
     name: 'VergePOS by Verge Technologies',
     short_name: 'VergePOS',
-    themeColor: '#000000',
+    themeColor: '#fffff',
     workboxPluginMode: 'InjectManifest',
     workboxOptions: {
       swSrc: 'src/service-worker.js' // CHECK CORRECT PATH!
     }
   },
+
   // pwa: {
   //   themeColor: manifestJSON.theme_color,
   //   workboxOptions: {

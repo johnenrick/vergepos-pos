@@ -36,7 +36,12 @@ export default class ProductSync extends Sync{
         7: 'barcode',
         8: 'created_at'
       },
-      condition: [],
+      condition: [
+        {
+          column: 'categories.deleted_at',
+          value: null
+        }
+      ],
       with_trash: true
     }
     if(latestDate){

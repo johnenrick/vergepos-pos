@@ -44,7 +44,7 @@
         </div>
       </div>
     </div>
-    <div class="row mb-2 mx-0" v-show="isProductsAvailable === true">
+    <div class="row mb-2 mx-0" v-show="productList.length">
       <div class="col-12">
         <a
           href="#"
@@ -53,14 +53,14 @@
         >ALL &nbsp;</a> >
       </div>
     </div>
-    <div v-show="isProductsAvailable === false" class="alert text-center border-warning m-4">
-          <span v-if="isOnline === 'online'">
-            <fa icon="exclamation-triangle" class="text-warning"/> There are currently no product created. Go to <fa icon="list"/> <strong> Manage</strong> > <fa icon="box"/> <strong> Product</strong> to create products.
-          </span>
-          <span v-else-if="isOnline === 'offline'">
-            <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products saved. Try connecting to the internet, and re-login without using Offline Mode.
-          </span>
-        </div>
+    <div v-show="!productList.length" class="alert text-center border-warning m-4">
+        <span v-if="isOnline === 'online'">
+          <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products created. Go to <fa icon="list"/> <strong> Manage</strong> > <fa icon="box"/> <strong> Product</strong> to create products.
+        </span>
+        <span v-else-if="isOnline === 'offline'">
+          <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products saved. Try connecting to the internet, and re-login without using Offline Mode.
+        </span>
+      </div>
     <div
       ref="container"
       class="productList"
@@ -109,18 +109,16 @@ import Product from '@/database/controller/product.js'
 import Category from '@/database/controller/category.js'
 import Cart from './cart-store'
 
-import UserStore from '@/vue-web-core/system/store'
+// import UserStore from '@/vue-web-core/system/store'
 // import SyncStore from '@/database/sync/sync-store'
 export default {
   components: {
 
   },
   mounted () {
-    this.checkforProducts()
   },
   data () {
     return {
-      isProductsAvailable: Boolean,
       isOnline: '',
       defaultItemToShow: 'all',
       containerHeight: '0px',
@@ -133,20 +131,11 @@ export default {
       productList: {
       },
       isAdding: false,
-      pendingAddProduct: []
+      pendingAddProduct: [],
+      isLoading: false
     }
   },
   methods: {
-    checkforProducts(){
-      this.isOnline = UserStore.getters.sessionConnection;
-      (new Product()).getAll().then((response) => {
-        if(response.length > 0){
-          this.isProductsAvailable = true
-        } else{
-          this.isProductsAvailable = false
-        }
-      })
-    },
     _initialize(){
       this._draw()
       this.listItems()
@@ -162,13 +151,16 @@ export default {
       this.categoryFilterDescription = description
     },
     listItems () {
+      this.isLoading = true
       this.categoryFilterID = null
       if (this.defaultItemToShow === 'all') {
         (new Category()).getAll().then((response) => {
           this.categoryList = response || []
+          this.isLoading = false
         });
         (new Product()).getAll().then((response) => {
           this.productList = response || []
+          this.isLoading = false
         })
       } else {
         (new Category()).getAll().then((response) => {
@@ -177,6 +169,7 @@ export default {
       }
     },
     filterItemList () {
+      this.isLoading = true
       for (let x in this.categoryList) {
         let haystack = (this.categoryList[x]['description']).toLowerCase()
         if (haystack.indexOf((this.searchFilterValue).toLowerCase()) >= 0) {
@@ -201,6 +194,7 @@ export default {
           Vue.set(this.productList[x], 'show', false)
         }
       }
+      this.isLoading = false
     },
     addProduct (productID, productListIndex) {
       if(this.isAdding){

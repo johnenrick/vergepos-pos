@@ -1,16 +1,18 @@
 <template>
   <div class="p-3">
     <h2>Transaction History</h2>
-    <div class="row mb-4">
-      <div v-if="terminal === 'all'" class="col-2">
-        <select v-model='storeTerminalFilter' class="form-control">
-          <option value="0">Select Terminal</option>
-          <template v-for="storeTerminal in storeTerminals">
-            <option :value="storeTerminal['store_terminal_id']">{{storeTerminal['description']}}</option>
-          </template>
-        </select>
-      </div>
-      <div class="col-sm-12 col-md-2 mb-2">
+    <div class="row no-gutters mb-2">
+      <template v-if="terminal === 'all'">
+        <div  class="col-12 col-md-12 col-lg-3 px-1 mb-2">
+          <select v-model='storeTerminalFilter' class="form-control">
+            <option value="0">Select Terminal</option>
+            <template v-for="storeTerminal in storeTerminals">
+              <option :value="storeTerminal['store_terminal_id']">{{storeTerminal['description']}}</option>
+            </template>
+          </select>
+        </div>
+      </template>
+      <div class="col-sm-12 col-md-6 col-lg-2 px-1 mb-2">
         <datetime v-model="startDatetimeFilter" class="theme-orange"
           format="yyyy-MM-dd HH:mm:ss"
           input-class="form-control"
@@ -22,7 +24,7 @@
           zone="local"
         />
       </div>
-      <div class="col-sm-12 col-md-2 mb-2">
+      <div class="col-sm-12 col-md-6 col-lg-2 px-1 mb-2">
         <datetime v-model="endDatetimeFilter" class="theme-orange"
           format="yyyy-MM-dd HH:mm:ss"
           input-class="form-control"
@@ -34,22 +36,23 @@
           zone="local"
         />
       </div>
-      <div class="col-md-4">
-        <button v-if="isGenerating" disabled class="btn btn-primary w-sm-100 mb-2">Generating...{{isGenerating}}</button>
-        <button v-else :disabled="(terminal === 'local' || storeTerminalFilter * 1) ? false : true" @click="generate" class="btn btn-primary w-sm-100 mb-2">Generate</button>
-
-        <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right w-sm-100"><fa icon="chart-line" /> Show Graph</button>
-        <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right w-sm-100"><fa icon="chart-line" /> Hide Graph</button>
+      <div class="col-12 col-md-6 col-lg-2 px-1">
+        <button v-if="isGenerating" disabled class="btn btn-primary w-sm-100 mb-2 w-100 ">Generating...</button>
+        <button v-else :disabled="(terminal === 'local' || storeTerminalFilter * 1) ? false : true" @click="generate" class=" w-100 btn btn-primary w-sm-100 mb-2">Generate</button>
+      </div>
+      <div class="col-12 col-md-6 col-lg-2 px-1">
+        <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right w-sm-100 w-100"><fa icon="chart-line" /> Show Graph</button>
+        <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right w-sm-100 w-100"><fa icon="chart-line" /> Hide Graph</button>
       </div>
     </div>
-    <div class="mb-2" v-show="graphType !== 'null'">
+    <div class="mb-3" v-show="graphType !== 'null'">
       <div class="card">
         <div class="card-body">
           <div class="form-row mb-2">
              <div class="col-sm-3 col-md-2 font-weight-bold">
                <label class="col-form-label">Graph Type </label>
              </div>
-             <div class="col-sm-1 col-md-3">
+             <div class="col-sm-1 col-md-6 col-lg-4">
                <select class="custom-select" v-model="graphType">
                 <option selected value="sales_per_day">Sales Per Day</option>
                 <option value="time_in_day">Time in Day Performance</option>

@@ -17,8 +17,8 @@
         </div>
         <div class="modal-body">
           <div class="form-group row">
-            <label class="col-sm-4 col-form-label text-right font-weight-bold">Description: </label>
-            <div class="col-sm-8">
+            <label class="col-5 col-form-label text-right font-weight-bold">Description: </label>
+            <div class="col-7">
               <input
                 type="text"
                 readonly
@@ -28,8 +28,8 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-sm-4 col-form-label text-right font-weight-bold">Category: </label>
-            <div class="col-sm-8">
+            <label class="col-5 col-form-label text-right font-weight-bold">Category: </label>
+            <div class="col-7">
               <input
                 type="text"
                 readonly
@@ -39,8 +39,8 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-sm-4 col-form-label text-right font-weight-bold">Price: </label>
-            <div class="col-sm-8">
+            <label class="col-5 col-form-label text-right font-weight-bold">Price: </label>
+            <div class="col-7">
               <input
                 type="text"
                 readonly
@@ -50,14 +50,14 @@
             </div>
           </div>
           <div class="form-group row">
-            <label class="col-sm-4 col-form-label text-right font-weight-bold">Quantity: </label>
-            <div class="col-sm-8">
+            <label class="col-5 col-form-label text-right font-weight-bold">Quantity: </label>
+            <div class="col-7">
               <input
                 ref="quantityInput"
                 :placeholder="itemDetail['old_quantity']"
                 @click="itemDetail['old_quantity'] = itemDetail['quantity']; itemDetail['quantity'] = ''"
                 @blur="itemDetail['quantity'] === '' ? itemDetail['quantity'] = itemDetail['old_quantity'] * 1 : null"
-                @keyup="isTypingQuantity"
+                @keyup="blurOnEnter"
                 v-model="itemDetail['quantity']"
                 type="number"
                 class="form-control text-right"
@@ -72,7 +72,7 @@
             class="btn btn-outline-danger mr-auto ml-0"
             data-dismiss="modal"
           >
-            Remove Item
+            Remove
           </button>
           <button
             type="button"
@@ -86,7 +86,7 @@
             type="button"
             class="btn btn-primary"
           >
-            Save changes
+            Save
           </button>
         </div>
       </div>
@@ -125,11 +125,6 @@ export default {
         })
       }
       $(this.$refs.modal).modal('show')
-    },
-    isTypingQuantity(e){
-      if(e.code === 'Enter'){
-        this.$refs.quantityInput.blur()
-      }
     }
   }
 }

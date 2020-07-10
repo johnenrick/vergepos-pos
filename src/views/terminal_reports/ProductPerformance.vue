@@ -1,12 +1,12 @@
 <template>
   <div class="p-3">
     <h2>Product Performance</h2>
-    <div class="row mb-4">
-      <div class="col-12 pb-2">
+    <div class="row mb-4 no-gutters">
+      <div class="col-12 pb-2 px-1">
         <vue-select v-model="selectFilterValue" :options="selectFilterOption" label="description" :multiple="true" placeholder="Category and Product Filter" />
         <small><fa icon="info-circle" /> Type the products or product categories you want to generate report</small>
       </div>
-      <div class="col-sm-12 col-md-3 mb-2">
+      <div class="col-sm-12 col-md-3 mb-2 px-1">
         <select class="form-control" v-model="selectedReport">
           <option value="transaction">Transaction</option>
           <option value="hourly">Hourly</option>
@@ -15,7 +15,7 @@
           <option value="yearly">Yearly</option>
         </select>
       </div>
-      <div class="col-sm-12 col-md-3 mb-2">
+      <div class="col-sm-12 col-md-3 mb-2 px-1">
         <datetime v-model="startDatetimeFilter" class="theme-orange"
           format="yyyy-MM-dd HH:mm:ss"
           input-class="form-control"
@@ -27,7 +27,7 @@
           zone="utc"
         />
       </div>
-      <div class="col-sm-12 col-md-3 mb-2">
+      <div class="col-sm-12 col-md-3 mb-2 px-1">
         <datetime v-model="endDatetimeFilter" class="theme-orange"
           format="yyyy-MM-dd HH:mm:ss"
           input-class="form-control"
@@ -39,7 +39,7 @@
           zone="utc"
         />
       </div>
-      <div class="col-sm-12 col-md-3 mb-2">
+      <div class="col-sm-12 col-md-3 mb-2 px-1">
         <button @click="generate" class="btn btn-primary w-sm-100">Generate</button>
         <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right w-sm-100"><fa icon="chart-line" /> Show Graph</button>
         <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right w-sm-100"><fa icon="chart-line" /> Hide Graph</button>

@@ -5,7 +5,7 @@
       <card icon="money-bill" description="Current Sales" :value="currentSales | numberToMoney" custom-class="bg-success" />
     </div>
     <div class="col-12 col-md-4 px-1">
-      <card icon="receipt" description="Total Transactions" :value="totalTransactions" custom-class="bg-info" />
+      <card icon="receipt" description="Transactions" :value="totalTransactions" custom-class="bg-info" />
     </div>
     <div class="col-12 col-md-4 px-1">
       <card icon="box" description="Items Sold" :value="totalSold" custom-class="bg-warning" />
@@ -14,10 +14,10 @@
       <card icon="money-bill" description="Sales per Hour" :value="salesPerHour | numberToMoney" custom-class="text-success border-success" />
     </div>
     <div class="col-12 col-md-4 px-1">
-      <card icon="dot-circle" description="Time of First Transaction" :value="timeOfFirstTransaction" custom-class="text-info border-info" />
+      <card icon="dot-circle" description="First Txn Time" :value="timeOfFirstTransaction" custom-class="text-info border-info" />
     </div>
     <div class="col-12 col-md-4 px-1">
-      <card icon="flag-checkered" description="Time of Last Transaction" :value="timeOfLastTransaction" custom-class="text-warning border-warning" />
+      <card icon="flag-checkered" description="Last Txn Time" :value="timeOfLastTransaction" custom-class="text-warning border-warning" />
     </div>
   </div>
 </template>

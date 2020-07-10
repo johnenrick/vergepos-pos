@@ -1,6 +1,6 @@
 <template>
-  <div class="home p-3">
-    <modal ref="modal" size="">
+  <div class="home px-3">
+    <modal ref="modal" size="" :closeable="false">
       <template v-slot:body>
         <div class="p- text-center">
           <p class="">You are trying to log in a <strong>different company</strong>. This will clear the data of the previous company from this machine. Do you still want to continue?</p>
@@ -16,7 +16,7 @@
     </modal>
     <div class="row">
       <div class="col-sm-9 col-md-7 col-lg-4 ml-auto">
-        <div class="card card-signin my-5">
+        <div class="card card-signin my-3">
           <div v-if="isOffline" class="card-header text-white bg-secondary text-center text-uppercase font-weight-bold">Offline Mode <fa icon="wifi" /></div>
           <div v-bind:class="isOffline ? 'bg-light' : ''" class="card-body ">
             <!-- <div v-if="isOffline" class="alert alert-info mb-2"><fa icon="info-circle" /> You will be logging in using <strong>Offline Mode</strong>. Please use your <strong>PIN</strong> instead of password</div> -->
@@ -199,8 +199,13 @@ export default {
     },
     async removeTerminal(callback){
       const dbs = await window.indexedDB.databases()
-      for(let ctr = 0; ctr < dbs.length; ctr++){
-        await window.indexedDB.deleteDatabase(dbs[ctr]['name'])
+      if(typeof window.indexedDB.databases === 'undefined'){
+        alter('Please update your Google Chrome Browser to all the features of VergePOS')
+        // callback()
+      }else{
+        for(let ctr = 0; ctr < dbs.length; ctr++){
+          await window.indexedDB.deleteDatabase(dbs[ctr]['name'])
+        }
       }
       callback()
     },
@@ -227,7 +232,8 @@ export default {
       }
     },
     isTypingPassword(e){
-      if(e.code === 'Enter'){
+      if(e.which === 13){
+        e.target.blur()
         this.signIn()
       }
     }

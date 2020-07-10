@@ -20,6 +20,15 @@ export default {
   // }
   ],
   side_menus: [{
+    icon: 'tachometer-alt',
+    name: 'Dashboard',
+    link: '/',
+    has_offline: true,
+    role_access_list: {
+      100: true, // Company Admin
+      102: true, // Manager
+    }
+  }, {
     icon: 'box',
     name: 'Product',
     has_offline: true,
@@ -48,7 +57,6 @@ export default {
     sub_item: [{
       name: 'Transaction History',
       route: '/transaction-history',
-      not_terminal_link: 'terminal-report-not-terminal',
       has_offline: true,
       role_access_list: {
         100: true, // Company Admin

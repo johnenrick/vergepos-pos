@@ -67,6 +67,7 @@ export default {
     })
   },
   mounted(){
+    document.getElementById('loadingVueAppIndicator').style.display = 'none' // hide the loading indicator before the vue is loaded
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
     $('#app').show()
@@ -187,6 +188,7 @@ export default {
       return !navigationConfig.noSideBar && navigationConfig.sidebarToggled
     },
     isLoadingModule () {
+      console.log('zup', store.state.isModuleLoading)
       return store.state.isModuleLoading
     }
   }
