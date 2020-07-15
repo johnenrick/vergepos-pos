@@ -1,9 +1,9 @@
 <template>
   <div>
     <div class="text-center centered">
-      <img src="/img/loading.gif" width="100px">
+      <img src="/img/loading.gif" width="50px">
       <br>
-      <h5>{{loadingSMS}}</h5>
+      <p>{{loadingSMS}}</p>
     </div>
   </div>
 </template>
@@ -13,7 +13,7 @@
   flex-direction: column !important;
   align-items: center !important;
   display: flex !important;
-  height: 50vh;
+  height: 30vh;
 }
 </style>
 
