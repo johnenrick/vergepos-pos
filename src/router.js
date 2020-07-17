@@ -10,11 +10,12 @@ let routes = [
     name: 'home',
     component: require('./views/Home.vue').default,
     meta: {
-      no_sidebar: true,
+      no_sidebar: true
       // auth_offline: false,
       // auth: false
     }
-  }, {
+  },
+  {
     path: '/dashboard',
     name: 'dashboard',
     component: require('./views/dashboard/Dashboard.vue').default,
@@ -81,7 +82,8 @@ let routes = [
   {
     path: '/product',
     name: 'Product',
-    component: require('@/views/product_management/ProductManagement.vue').default,
+    component: require('@/views/product_management/ProductManagement.vue')
+      .default,
     meta: {
       auth_offline: true
     }
@@ -125,7 +127,8 @@ let routes = [
   {
     path: '/transaction-history',
     name: 'TransactionHistoryTerminalReport',
-    component: require('@/views/terminal_reports/TransactionHistory.vue').default,
+    component: require('@/views/terminal_reports/TransactionHistory.vue')
+      .default,
     meta: {
       auth_offline: true
     }
@@ -133,7 +136,8 @@ let routes = [
   {
     path: '/product-performance',
     name: 'productPerformance',
-    component: require('@/views/terminal_reports/ProductPerformance.vue').default,
+    component: require('@/views/terminal_reports/ProductPerformance.vue')
+      .default,
     meta: {
       auth_offline: true
     }
@@ -147,8 +151,7 @@ let routes = [
         component: import('@/views/terminal_reports/ZReading.vue')
       }
     },
-    meta: {
-    }
+    meta: {}
   },
   {
     path: '/product_performance',
@@ -207,8 +210,7 @@ let routes = [
     path: '/test',
     name: 'TestPage',
     component: require('@/views/dev-config/TestPage.vue').default,
-    meta: {
-    }
+    meta: {}
   },
   {
     path: '/terminal-report-not-terminal',
@@ -222,22 +224,19 @@ let routes = [
     path: '/error/online-only',
     name: 'OnlineOnlyPage',
     component: require('@/views/error/OnlineOnly.vue').default,
-    meta: {
-    }
+    meta: {}
   },
   {
     path: '/error/not-found',
     name: 'NotFoundPage',
     component: require('@/views/error/NotFound.vue').default,
-    meta: {
-    }
+    meta: {}
   },
   {
     path: '/error/cannot-access',
     name: 'CannotAccess',
     component: require('@/views/error/CannotAccess.vue').default,
-    meta: {
-    }
+    meta: {}
   },
   {
     path: '*',
@@ -247,11 +246,10 @@ let routes = [
     path: '/contact-us',
     name: 'ContactUs',
     component: require('@/views/ContactUs.vue').default,
-    meta: {
-    }
+    meta: {}
   }
 ]
-for(let x = 0; x < routes.length; x++){
+for (let x = 0; x < routes.length; x++) {
   routes[x]['beforeEnter'] = (to, from, next) => {
     // If this isn't an initial page load.
     if (to.name) {
@@ -259,39 +257,40 @@ for(let x = 0; x < routes.length; x++){
     }
     let toMeta = to.meta
     store.commit('isReady', () => {
-      if(to.path === '/' && store.getters.user){
-        if(typeof store.getters.userRoles['100'] !== 'undefined'){
+      if (to.path === '/' && store.getters.user) {
+        if (typeof store.getters.userRoles['100'] !== 'undefined') {
           next({ path: '/dashboard' })
           toMeta = routes[1]['meta']
-        }else if(typeof store.getters.userRoles['101'] !== 'undefined'){
+        } else if (typeof store.getters.userRoles['101'] !== 'undefined') {
           next({ path: '/pos' })
-        }else{
+        } else {
           next()
         }
-      }else if(from.path !== to.path){
-        if(typeof to.meta.auth_offline !== 'undefined'){
-          if(to.meta.auth_offline && store.getters.user){
+      } else if (from.path !== to.path) {
+        if (typeof to.meta.auth_offline !== 'undefined') {
+          if (to.meta.auth_offline && store.getters.user) {
             next()
-          }else{
+          } else {
             next('/')
             toMeta = routes[0]['meta']
           }
-        }else{
+        } else {
           next()
         }
-      }else{
+      } else {
         next()
       }
       store.commit('setModuleLoading', false)
-      if(typeof toMeta.no_sidebar !== 'undefined' && toMeta.no_sidebar){
+      if (typeof toMeta.no_sidebar !== 'undefined' && toMeta.no_sidebar) {
         navConfig.noSideBar = true
-      }else{
+      } else {
         navConfig.noSideBar = false
       }
     })
   }
 }
 let router = new Router({
+  mode: 'history',
   routes: routes
 })
 // router.beforeResolve()
