@@ -72,7 +72,6 @@ export default {
     $('#loadingApplicationMessage').hide()
     $('#app').show()
     this.migrateDB().finally(() => {
-      console.log('this.mode', this.mode)
       if(this.mode === 'offline'){
         store.dispatch('setUserInformationOffline')
       }else{
@@ -129,12 +128,10 @@ export default {
           store.commit('isReady', () => {
             if(this.userID && localStorage.getItem('is_terminal')){
               this.checkConnectivity().then((ping) => {
-                console.log('checkcon')
                 this.syncAll.downSync((progress) => {
                   this.dataSynced = progress
                   if(progress === 1){
                     setTimeout(() => {
-                      console.log('done sync 1')
                       this.doneSynching()
                       resolve(true)
                     }, 500)
@@ -142,13 +139,11 @@ export default {
                 })
               }).catch(() => {
                 SyncStore.commit('isNotSynching')
-                console.log('done sync 2')
                 this.doneSynching()
                 resolve(true)
               })
             }else{
               SyncStore.commit('isNotSynching')
-              console.log('done sync 3')
               this.doneSynching()
               resolve(true)
             }
@@ -166,7 +161,6 @@ export default {
           UpSync.silentSync()
         }, 100)
       }
-      console.log('here')
       this.$refs.sideBar._initialize()
     }
   },
@@ -188,7 +182,6 @@ export default {
       return !navigationConfig.noSideBar && navigationConfig.sidebarToggled
     },
     isLoadingModule () {
-      console.log('zup', store.state.isModuleLoading)
       return store.state.isModuleLoading
     }
   }

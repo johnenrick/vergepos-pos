@@ -10,7 +10,7 @@ class DBMigrate {
   async migrate (isReadyCallback) {
     this.prepareSchema()
     let isDbCreated = await connection.initDb(this.schema)
-    console.log('DB initialized', isDbCreated)
+    console.log('DB initialized', isDbCreated, this.schema)
     isReadyCallback(true)
   }
   prepareSchema(){

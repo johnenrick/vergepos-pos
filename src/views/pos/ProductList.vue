@@ -196,7 +196,7 @@ export default {
       }
       this.isLoading = false
     },
-    addProduct (productID, productListIndex) {
+    addProduct(productID, productListIndex) {
       if(this.isAdding){
         if(productID){
           this.pendingAddProduct.push(productID)

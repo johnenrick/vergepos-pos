@@ -118,7 +118,7 @@ export default {
       this.itemDetail = this.cloneObject(Cart.state.items[index])
       this.index = index
       if (typeof this.itemDetail['category_description'] === 'undefined') {
-        (new Category()).get({ id: this.itemDetail['category_id'] }).then((result) => {
+        (new Category()).get({ db_id: this.itemDetail['category_id'] }).then((result) => {
           if (result) {
             Vue.set(this.itemDetail, 'category_description', result['description'])
           }

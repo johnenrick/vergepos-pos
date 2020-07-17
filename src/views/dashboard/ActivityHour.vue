@@ -60,7 +60,6 @@ export default {
     }
   },
   mounted(){
-    this._initialize()
   },
   methods: {
     _initialize(){

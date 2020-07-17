@@ -118,7 +118,7 @@
             Close
           </button>
           <button
-            :disabled="selectedDiscountIndex !== null && discountList[selectedDiscountIndex]['require_identification_card'] !== 0 && discountRemarks.length < 5"
+            :disabled="selectedDiscountIndex !== null && discountList[selectedDiscountIndex]['require_identification_card'] !== 0 && discountRemarks.length < 3"
             @click="save"
             type="button"
             class="btn btn-primary"

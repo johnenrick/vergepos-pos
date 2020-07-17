@@ -17,6 +17,7 @@ class SyncAll {
   syncFailCount
   progressListener // needs to be changed to a list
   reSync = false
+  onSyncListeners = []
   constructor(){
     this.transactionSync = new TransactionSync()
     this.categorySync = new CategorySync()
@@ -24,6 +25,9 @@ class SyncAll {
     this.discountSync = new DiscountSync()
     this.customerSync = new CustomerSync()
     this.userSync = new UserSync()
+  }
+  addListener(listener){
+    this.onSyncListeners.push(listener)
   }
   downSync(progressListener){
     if(SyncStore.getters.isSynching){
@@ -60,8 +64,12 @@ class SyncAll {
       if(this.reSync){
         this.reSync = false
       }else{
+        this.onSyncListeners.forEach(listener => {
+          listener()
+        })
         this.downSync(this.progressListener)
       }
+
       SyncStore.commit('isNotSynching')
     }
     if(typeof this.progressListener === 'function' && this.reSync === false){

@@ -73,19 +73,19 @@ export default {
           name: {
             name: 'Company Name'
           },
-          code: {
-            name: 'Short Name',
-            placeholder: 'e.g. GMA, ABSCBN, SMC'
-          },
+          // code: {
+          //   name: 'Short Name',
+          //   placeholder: 'e.g. GMA, ABSCBN, SMC'
+          // },
           'company_detail.nature': {
             name: 'Nature of Business'
           },
           'company_detail.address': {
             name: 'Company Address'
           },
-          'company_detail.contact_number': {
-            name: 'Contact Number'
-          },
+          // 'company_detail.contact_number': {
+          //   name: 'Contact Number'
+          // },
           personal_information: {
             label_col_span: 12,
             label_style: 'text-center font-weight-bold text-uppercase pt-4',

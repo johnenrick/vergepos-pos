@@ -5,9 +5,9 @@
       <p>You dashboard will give you quick reports about your business. From number of transactions to daily sales report!. If you need help don't hesitate to <router-link to="contact-us" class="">contact us</router-link>.</p>
     </div>
     <quick-action />
-    <quick-report-card />
-    <activity-hour />
-    <weekly-sale-graph />
+    <quick-report-card ref="quickReportCard" />
+    <activity-hour ref="activityHour" />
+    <weekly-sale-graph ref="weeklySalesGraph" />
   </div>
 </template>
 <script>
@@ -15,7 +15,7 @@ import QuickReportCard from './quick-report-card/QuickReportCards.vue'
 import WeeklySaleGraph from './WeeklySaleGraph.vue'
 import ActivityHour from './ActivityHour'
 import QuickAction from './quick-action/QuickAction'
-
+import DownSync from '@/database/sync/sync-all'
 // import User from '@/database/controller/user'
 export default {
   components: {
@@ -25,7 +25,12 @@ export default {
     QuickAction
   },
   mounted(){
-    this.init()
+    this.$nextTick(() => {
+      this.init()
+      DownSync.addListener(() => {
+        this.init()
+      })
+    })
   },
   data(){
     return {
@@ -35,6 +40,15 @@ export default {
   methods: {
     init(){
       // TODO refresh the charts
+      if(typeof this.$refs.quickReportCard !== 'undefined' && typeof this.$refs.activityHour !== 'undefined' && typeof this.$refs.weeklySalesGraph !== 'undefined'){
+        this.$refs.quickReportCard._initialize()
+        this.$refs.activityHour._initialize()
+        this.$refs.weeklySalesGraph._initialize()
+      }else{
+        setTimeout(() => {
+          this.init()
+        }, 100)
+      }
     }
   }
 }

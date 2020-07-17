@@ -1,6 +1,6 @@
 export default {
   version: 1, // useless. Change the version on each table instead
-  dbName: 'Vue 1',
+  dbName: 'VergePOS',
   tables: [{
     name: 'categories',
     columns: {
@@ -10,7 +10,7 @@ export default {
     }
   }, {
     name: 'users',
-    version: 2,
+    version: 1,
     columns: {
       db_id: { unique: true, notNull: true, dataType: 'number' },
       first_name: { notNull: false, dataType: 'string' },
@@ -37,21 +37,24 @@ export default {
     columns: {
       db_id: { unique: true, notNull: true, dataType: 'number' },
       description: { notNull: true, dataType: 'string' },
-      type: { notNull: true, dataType: 'number' }, // 1 - percentage on receipt, 2 - percentage on items,  3 - exact value on receipt, 4 - exact value on  items1 - percentage on receipt, 2 - exact value on receipt, 3 percentage on items, 4 - exact value on  items
+      type: { notNull: true, dataType: 'number' }, // 0 - unspecified, 1 - percentage on receipt, 2 - percentage on items,  3 - exact value on receipt, 4 - exact value on  items1 - percentage on receipt, 2 - exact value on receipt, 3 percentage on items, 4 - exact value on  items
       value: { notNull: true, dataType: 'number' },
       is_vat_exempt: { notNull: true, dataType: 'number' },
       require_identification_card: { notNull: true, dataType: 'number' },
     }
   }, {
     name: 'customers',
+    version: 1,
     columns: {
       db_id: { notNull: false, dataType: 'number' },
       name: { notNull: true, dataType: 'string' },
-      birthdate: { notNull: true, dataType: 'number' }
+      gender: { notNull: false, dataType: 'number' }, // 1 - male, 2 - female, 3 - others
+      address: { notNull: false, dataType: 'string' },
+      birthdate: { notNull: false, dataType: 'number' }
     }
   }, {
     name: 'transaction_numbers',
-    version: 2,
+    version: 1,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       user_id: { notNull: true, dataType: 'number' },
@@ -81,7 +84,7 @@ export default {
     }
   }, {
     name: 'transaction_products',
-    version: 2,
+    version: 1,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       transaction_id: { notNull: true, dataType: 'number' },
@@ -129,7 +132,7 @@ export default {
     }
   }, {
     name: 'transaction_voids',
-    version: 4,
+    version: 1,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       transaction_number_id: { notNull: true, dataType: 'number', enableSearch: true }, // the parent transaction number id, not the voided transaction number id

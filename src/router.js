@@ -100,6 +100,21 @@ let routes = [
     }
   },
   {
+    path: '/customer',
+    name: 'CustomerManagement',
+    component: () => {
+      console.log('ayw')
+      store.commit('setModuleLoading', true)
+      return {
+        component: import('@/views/customer/Customer.vue')
+      }
+    },
+    meta: {
+      auth_offline: true,
+      // auth: true
+    }
+  },
+  {
     path: '/x-reading',
     name: 'XReading',
     component: require('@/views/terminal_reports/XReading.vue').default,

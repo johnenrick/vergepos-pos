@@ -72,11 +72,8 @@
               <fa :icon="'cog'" /> More Action
             </button>
             <div class="dropdown-menu">
-              <a
-                @click="openApplyDiscount"
-                class="dropdown-item"
-                href="javascript:void(0)"
-              ><fa icon="percent" /> Apply Discounts</a>
+              <!-- <a @click="openCustomerDetail" class="dropdown-item" href="javascript:void(0)"><fa icon="user" /> Customer</a> -->
+              <a @click="openApplyDiscount" class="dropdown-item" href="javascript:void(0)" ><fa icon="percent" /> Apply Discounts</a>
               <!-- <a
                 @click="parkTransaction"
                 class="dropdown-item"
@@ -126,6 +123,7 @@
         </div>
       </div>
     </div>
+    <customer-detail ref="customerDetail"></customer-detail>
     <discount-managent
       @discount_updated="discountUpdated"
       ref="discountManagement"
@@ -158,6 +156,7 @@
 import DiscountManagent from './order_list_components/DiscountManagement.vue'
 import OrderedItemDetail from './order_list_components/OrderedItemDetail.vue'
 import Checkout from './order_list_components/Checkout.vue'
+import CustomerDetail from './order_list_components/CustomerDetail.vue'
 import ParkTransaction from './order_list_components/ParkTransaction'
 import Cart from './cart-store'
 export default {
@@ -165,7 +164,8 @@ export default {
     DiscountManagent,
     OrderedItemDetail,
     Checkout,
-    ParkTransaction
+    ParkTransaction,
+    CustomerDetail
   },
   mounted () {
     this.$nextTick(() => {
@@ -200,6 +200,9 @@ export default {
     },
     deletedOrderedItem (index) {
     },
+    openCustomerDetail(){
+      this.$refs.customerDetail._open()
+    },
     openOrder (index) {
       if (this.changeQuantityClicked) {
         this.changeQuantityClicked = false
@@ -233,10 +236,16 @@ export default {
     },
     addItemContainerEffect(index = null){
       if(index !== null){
-        (this.$refs.itemContainer[index]).classList.remove('itemContainerEffect')
-        setTimeout(() => {
-          (this.$refs.itemContainer[index]).classList.add('itemContainerEffect')
-        }, 100)
+        if(typeof this.$refs.itemContainer !== 'undefined' && typeof this.$refs.itemContainer[index] !== 'undefined'){
+          (this.$refs.itemContainer[index]).classList.remove('itemContainerEffect')
+          setTimeout(() => {
+            (this.$refs.itemContainer[index]).classList.add('itemContainerEffect')
+          }, 100)
+        }else{
+          setTimeout(() => {
+            this.addItemContainerEffect(index)
+          }, 150)
+        }
       }else{
         if(this.orderList.length){
           for(let x = 0; x < this.orderList.length; x++){
@@ -283,10 +292,12 @@ export default {
         }, 100)
       }else if(newData['description'] === 'added_existing_item'){
         setTimeout(() => {
-          let index = newData['details']['item_index'];
-          (this.$refs.itemContainer[index]).scrollIntoView()
+          let index = newData['details']['item_index']
+          if(typeof this.$refs.itemContainer !== 'undefined'){
+            (this.$refs.itemContainer[index]).scrollIntoView()
+          }
           this.addItemContainerEffect(index)
-        }, 100)
+        }, 200)
       }else if(newData['description'] === 'cache_restored'){
         (this.$refs.itemContainer).classList.add('itemContainerEffect')
       }

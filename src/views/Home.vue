@@ -42,7 +42,6 @@
                   <span v-if="!isOffline" @click="switchLoginMode" class="c-pointer"><big><fa icon="wifi" class=""  /></big> Sign in using <strong class="">Offline Mode</strong></span>
                   <span v-else @click="switchLoginMode" class="c-pointer text-primary"><big><fa icon="wifi"  class="text-primary" /></big> Sign In without using <strong>Offline Mode</strong></span>
                 </div>
-
                 <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" v-bind:class="isOffline ? 'btn-secondary' : 'btn-primary'" class="btn btn-lg btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Signing In' : 'Sign In'}}</button>
                 <p :hidden="isOffline === false ? false : true" class="text-center">Don't have an account?<router-link :hidden="isOffline === false ? false : true" to="/company-registration"><b> Sign Up</b></router-link></p>
               </form>

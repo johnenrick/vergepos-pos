@@ -50,6 +50,14 @@ export default {
       100: true, // Company Admin
       102: true, // Manager
     }
+  // }, {
+  //   icon: 'user-friends',
+  //   has_offline: true,
+  //   name: 'Customer',
+  //   role_access_list: {
+  //     100: true, // Company Admin
+  //     102: true, // Manager
+  //   }
   }, {
     icon: 'file-contract',
     name: 'Terminal Reports',

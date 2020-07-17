@@ -165,6 +165,7 @@ export default {
             }
             this.setTerminal(this.stores[0]['store_terminals'][this.selectedExistingTerminal]['id'], terminalDetails)
           }
+          this.isConfuringTerminal = false
         })
       }
     },

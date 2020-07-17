@@ -9,13 +9,13 @@
         <button @click="openProduct(props.rowIndex)" class="btn btn-sm btn-info"><fa icon="search" /></button>
       </template>
     </Vuetable>
-    <modal ref="modal" size="sm" title="Product Details">
+    <modal ref="modal"  title="Product Details">
       <template v-slot:body>
         <div v-if="activeProductIndex !== null">
           <div>
             <div class="form-group row">
               <div class="col-5 col-form-label">
-                Description:
+                <label>Description:</label>
               </div>
               <div class="col-7">
                 <span class="form-control-plaintext">
@@ -25,7 +25,7 @@
               </div>
             <div class="form-group row">
               <div class="col-5 col-form-label">
-                Category:
+                <label>Category:</label>
               </div>
               <div class="col-7">
                 <span class="form-control-plaintext">
@@ -125,12 +125,18 @@ export default {
     },
     listItems () {
       let listDirectory = {};
-      (new Category()).getAll().then((response) => {
+      (new Category()).get().then((response) => {
         this.categoryList = response || []
         for(let x in this.categoryList){
           listDirectory[this.categoryList[x]['db_id']] = (x, this.categoryList[x]['description'])
+        }
+        let param = {
+          order: {
+            by: 'description',
+            type: 'asc'
+          }
         };
-        (new Product()).getAll().then((response) => {
+        (new Product()).get(param).then((response) => {
           this.productList = response || []
           for(let productListIndex in this.productList){
             let catId = this.productList[productListIndex].category_id

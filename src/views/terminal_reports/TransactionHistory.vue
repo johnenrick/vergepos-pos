@@ -91,7 +91,7 @@
           :api-mode="false"
           :data-total="2"
           :fields="tableSetting.columns"
-          class=" w-100"
+          class="w-100"
         >
           <template slot="actions" slot-scope="props">
             <button v-if="props.rowData['id']" @click="openTransaction(props.rowData['number'])" class="btn btn-sm btn-info"><fa icon="search" /></button>
@@ -433,6 +433,12 @@ export default {
           clause: '<=',
           value: this.serverDatetimeFormat(endDatetime, true)
         }]
+      }
+      if(this.storeTerminalFilter){
+        param['condition'].push({
+          column: 'store_terminal_id',
+          value: this.storeTerminalFilter
+        })
       }
       this.reset()
       return new Promise((resolve, reject) => {

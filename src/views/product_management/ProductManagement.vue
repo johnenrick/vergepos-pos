@@ -69,13 +69,13 @@ let ModuleDefault = {
             api_option_text: 'description'
           }
         },
-        description: {
-        },
-        barcode: {
-        },
+        description: {},
+        barcode: {},
         cost: {
+          help_text: 'The cost of each product when purchased'
         },
         price: {
+          placeholder: 'Selling Price'
         }
       }
     }

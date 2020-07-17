@@ -202,7 +202,7 @@ export default {
       }
     },
     companyCode: function (val){
-      if((this.companyCode.length) >= 4){
+      if(this.companyCode && (this.companyCode.length) >= 4){
         this.companyCodeClass = 'is-valid'
         this.ccValid = 1
       }else{
@@ -210,19 +210,19 @@ export default {
         this.ccValid = 0
         this.companyCodeError = 'Must have at least 4 characters'
       }
-      if(!this.companyCode.length){
+      if(this.companyCode && !this.companyCode.length){
         this.companyCodeClass = 'is-invalid'
         this.ccValid = 0
         this.companyCodeError = 'This is required'
       }
-      if((this.companyCode.length) > 20){
+      if(this.companyCode && (this.companyCode.length) > 20){
         this.companyCodeClass = 'is-invalid'
         this.ccValid = 0
         this.companyCodeError = 'Maximum character exceeded'
       }
     },
     companyNumber: function (val){
-      if((this.companyNumber.length) >= 4){
+      if(this.companyNumber && (this.companyNumber.length) >= 4){
         this.companyNumberClass = 'is-valid'
         this.cnumValid = 1
       }else{
@@ -230,7 +230,7 @@ export default {
         this.cnumValid = 0
         this.companyNumberError = 'Must have at least 4 characters'
       }
-      if(!this.companyNumber.length){
+      if(this.companyNumber && !this.companyNumber.length){
         this.companyNumberClass = 'is-invalid'
         this.cnumValid = 0
         this.companyNumberError = 'This is required'

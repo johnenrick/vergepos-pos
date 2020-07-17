@@ -3,10 +3,15 @@
     <div class="card border-primary mb-3" >
       <h6 class="card-header bg-primary text-white"><fa icon="chart-line" /> Weekly Sales</h6>
       <div class="card-body" >
-        <p class="card-text">The graph below shows the sales performance in the last 7 days. From {{pastSevenDayDate | formatDate}} to {{new Date() | formatDate}}. <router-link to="/transaction-history" >View Transactions</router-link></p>
-        <line-chart v-if="!noData" :chart-data="datacollection" :options="chartConfig"></line-chart>
-        <div v-else class='text-center p-1 pt-2 border bg-light text-primary p-2 rounded'>
-          <span class="">No Transactions found :(</span>
+        <div v-show="isTerminal">
+          <p class="card-text">The graph below shows the sales performance in the last 7 days. From {{pastSevenDayDate | formatDate}} to {{new Date() | formatDate}}. <router-link to="/transaction-history" >View Transactions</router-link></p>
+          <line-chart v-if="!noData" :chart-data="datacollection" :options="chartConfig"></line-chart>
+          <div v-else class='text-center p-1 pt-2 border bg-light text-primary p-2 rounded'>
+            <span class="">No Transactions found :(</span>
+          </div>
+        </div>
+        <div v-show="!isTerminal">
+          <fa icon="info-circle" /> You need to set this device as a terminal to be able to see the weekly graph on this terminal. You can do this by clicking the <strong class="text-primaryx p-1">Set As Terminal</strong> at Quick Actions (top of this page).
         </div>
       </div>
     </div>
@@ -36,13 +41,20 @@ export default {
         title: {
           display: true,
         }
-      }
+      },
+      isTerminal: false
     }
   },
   mounted () {
     this.retrieveData()
   },
   methods: {
+    _initialize(){
+      this.isTerminal = localStorage.getItem('is_terminal')
+      if(this.isTerminal){
+        this.retrieveData()
+      }
+    },
     retrieveData(){
       this.isLoading = true
       let pastSevenDayDate = new Date()

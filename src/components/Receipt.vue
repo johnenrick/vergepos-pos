@@ -16,7 +16,7 @@
             <tr>
               <td class="text-uppercase  text-center text-danger" colspan="2" v-if="transactionDetail.status === 2">
                 <span class="font-weight-bold" >Voided Transaction</span> <br>
-                Txn# {{transactionDetail.voidedTransactionNumber}}
+                By Txn# {{transactionDetail.voidedTransactionNumber}}
               </td>
             </tr>
             <tr class="">
@@ -193,7 +193,8 @@ export default {
         datetime: '0/0/0',
         status: 1,
         voidable: false,
-        voidedTransactionNumber: null
+        voidedTransactionNumber: null,
+
       },
       isPrinting: false
     }
@@ -234,7 +235,7 @@ export default {
               }
             },
           },
-          join: {
+          join: [{
             with: 'transaction_voids',
             on: 'transaction_numbers.number=transaction_voids.voided_transaction_number',
             type: 'left',
@@ -244,10 +245,23 @@ export default {
               'created_at': 'transaction_void_created_at',
               'updated_at': 'transaction_void_updated_at',
               'deleted_at': 'transaction_void_deleted_at'
-            }
-          }
+            },
+          }, {
+            with: 'transaction_numbers',
+            on: 'transaction_voids.transaction_number_id=transaction_numbers.id',
+            type: 'left',
+            as: {
+              'id': 'voided_transaction_number_id',
+              'db_id': 'voided_transaction_number_db_id',
+              'number': 'voided_transaction_number_number',
+              'created_at': 'voided_transaction_number_created_at',
+              'updated_at': 'voided_transaction_number_updated_at',
+              'deleted_at': 'voided_transaction_number_deleted_at'
+            },
+          }]
         }).then((result) => {
           if(result.length){
+            console.log(result)
             result = result[0]
             this.transactionDetail.id = result['transaction']['id']
             this.transactionDetail.transaction_number = result['number']
@@ -265,7 +279,7 @@ export default {
             let currentDate = new Date()
             this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate() && result['transaction_void_id'] === null
             if(result['transaction_void_id']){
-              this.transactionDetail.voidedTransactionNumber = result['voided_transaction_number']
+              this.transactionDetail.voidedTransactionNumber = result['voided_transaction_number_number']
             }
             this.transactionProduct = result['transaction']['transaction_products']
             setTimeout(() => {
@@ -325,9 +339,9 @@ export default {
 
               this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
                 let transactionvoidEntry = {
-                  transaction_id: this.transactionDetail.id,
-                  transaction_number_id: transactionNumberResult['id'] * 1,
-                  voided_transaction_number: this.transactionDetail.transaction_number,
+                  transaction_id: this.transactionDetail.id, // the transaction id of the voided transaction
+                  transaction_number_id: transactionNumberResult['id'] * 1, // the transaction number id
+                  voided_transaction_number: this.transactionDetail.transaction_number, // the transaction number of the voided transaction. This is relevant for transactions that has not been uploaded yet, therefore no transaction id yet
                   db_id: 0,
                   remarks: this.remarks
                 }

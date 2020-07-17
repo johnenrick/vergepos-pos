@@ -38,6 +38,7 @@ let store = new Vuex.Store({
   state: {
     latestTransactionNumber: null,
     discountId: null,
+    customers: [],
     items: [],
     itemLookUp: {},
     modifiedItems: {},

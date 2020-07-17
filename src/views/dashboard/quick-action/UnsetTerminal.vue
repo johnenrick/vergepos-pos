@@ -13,17 +13,17 @@
     </div>
     <modal ref="removeTerminalModal" title="Terminal" icon="desktop" :closeable="false">
       <template v-slot:body>
-        <template v-if="terminalDetails && typeof terminalDetails['description'] !== 'undefined' && typeof terminalDetails['serial_number'] !== 'undefined'">
+        <template>
           <div class="row">
             <label class="col-sm-4 col-form-label">Description: </label>
             <div class="col-sm-8">
-              <input type="text" v-model="terminalDetails['description']" class="form-control-plaintext" placeholder="Description">
+              <input type="text" v-if="typeof terminalDetails['description'] !== 'undefined'" v-model="terminalDetails['description']" class="form-control-plaintext" placeholder="Description">
             </div>
           </div>
           <div class="row">
             <label class="col-sm-4 col-form-label">Serial Number</label>
             <div class="col-sm-8">
-              <input type="text" v-model="terminalDetails['serial_number']" class="form-control-plaintext" placeholder="Serial Number">
+              <input type="text" v-if="typeof terminalDetails['serial_number'] !== 'undefined'" v-model="terminalDetails['serial_number']" class="form-control-plaintext" placeholder="Serial Number">
             </div>
           </div>
           <hr>
