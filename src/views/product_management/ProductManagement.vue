@@ -45,6 +45,10 @@ let ModuleDefault = {
   },
   data () {
     let tableSettingRetrieveParameter = {
+      sort: [{
+        column: 'description',
+        order: 'asc',
+      }]
     }
     let tableColumnSetting = {
       description: {},
