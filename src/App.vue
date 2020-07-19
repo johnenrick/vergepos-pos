@@ -24,7 +24,6 @@
         <div v-if="!isLoadingModule" class="container-fluid-none">
           <router-view/>
         </div>
-
         <div v-else class="text-center">
           <img src="/img/loading.gif" width="100px">
           <br>Loading components...
@@ -87,28 +86,30 @@ export default {
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
     $('#app').show()
-    this.migrateDB().finally(() => {
-      if(this.mode === 'offline'){
-        store.dispatch('setUserInformationOffline')
-      } else {
-        this.checkConnectivity()
-          .then(ping => {
-            // Online
-            if (this.$auth.check()) {
-              // Online and logged in
-              // TODO Diri ang problema kay dili siya ready
-              store.dispatch('setUserInformation')
-            } else {
-              // Online but not logged in
-              store.dispatch('setUserInformation')
-            }
-          })
-          .catch(status => {
-            // Offline
-            store.dispatch('setUserInformationOffline')
-          })
-      }
-    })
+    setTimeout(() => {
+      this.migrateDB().finally(() => {
+        if(this.mode === 'offline'){
+          store.dispatch('setUserInformationOffline')
+        } else {
+          this.checkConnectivity()
+            .then(ping => {
+              // Online
+              if (this.$auth.check()) {
+                // Online and logged in
+                // TODO Diri ang problema kay dili siya ready
+                store.dispatch('setUserInformation')
+              } else {
+                // Online but not logged in
+                store.dispatch('setUserInformation')
+              }
+            })
+            .catch(status => {
+              // Offline
+              store.dispatch('setUserInformationOffline')
+            })
+        }
+      })
+    }, 200)
   },
   data() {
     return {

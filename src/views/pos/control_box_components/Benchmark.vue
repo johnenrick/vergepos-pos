@@ -91,7 +91,7 @@ export default {
       this.isTesting = true
       setTimeout(this.populateTransaction, 2000)
     },
-    populateTransaction(){
+    async populateTransaction(){
       this.isTesting = true
       let maxTransactionPerDay = this.maxTransactionPerDay * 1
       let minTransactionPerDay = this.minTransactionPerDay * 1
@@ -119,7 +119,9 @@ export default {
         }
       }
       for(let x = 0; x < transactions.length; x++){
-        this.createTransaction(transactions[x])
+        console.log('a', x)
+        await this.createTransaction(transactions[x], x)
+        console.log('c', x)
         setTimeout(() => {
           this.totalTransactionCreated++
           this.checkIfComplete()
@@ -142,28 +144,33 @@ export default {
       }
       return transaction
     },
-    async createTransaction(transaction){
+    async createTransaction(transaction, x){
       Cart.commit('reset')
       for(let x = 0; x < transaction['order_list'].length; x++){
         Cart.commit('addItem', transaction['order_list'][x])
       }
-      let result = await this.transaction.transact({
-        customer: 'Guest',
-        total_amount: Cart.state.totalAmount,
-        total_vat_sales: Cart.state.totalVatSales,
-        total_vat_exempt_sales: Cart.state.totalVatExemptSales,
-        total_vat_zero_rated_sales: Cart.state.totalVatZeroRatedSales,
-        total_vat_amount: Cart.state.totalVatAmount,
-        total_discount_amount: Cart.state.totalDiscountAmount,
-        sub_total_amount: Cart.state.subTotalAmount,
-        cash_tendered: Cart.state.totalAmount,
-        cash_amount_paid: Cart.state.totalAmount,
-        discount_id: Cart.state.discountId,
-        discount_remarks: Cart.state.discountRemarks,
-        created_at: transaction['created_at'],
-      }, Cart.state.items)
-      Cart.commit('setLatestTransactionNUmber', result['number'])
-      Cart.commit('reset')
+      return new Promise((resolve, reject) => {
+        this.transaction.transact({
+          customer: 'Guest',
+          total_amount: Cart.state.totalAmount,
+          total_vat_sales: Cart.state.totalVatSales,
+          total_vat_exempt_sales: Cart.state.totalVatExemptSales,
+          total_vat_zero_rated_sales: Cart.state.totalVatZeroRatedSales,
+          total_vat_amount: Cart.state.totalVatAmount,
+          total_discount_amount: Cart.state.totalDiscountAmount,
+          sub_total_amount: Cart.state.subTotalAmount,
+          cash_tendered: Cart.state.totalAmount,
+          cash_amount_paid: Cart.state.totalAmount,
+          discount_id: Cart.state.discountId,
+          discount_remarks: Cart.state.discountRemarks,
+          created_at: transaction['created_at'],
+        }, Cart.state.items).then(result => {
+          Cart.commit('setLatestTransactionNUmber', result['number'])
+          Cart.commit('reset')
+          console.log('b', x)
+          resolve(result['number'])
+        })
+      })
     },
     checkIfComplete(){
       clearTimeout(this.checkerTimeout)

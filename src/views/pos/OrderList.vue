@@ -237,9 +237,11 @@ export default {
     addItemContainerEffect(index = null){
       if(index !== null){
         if(typeof this.$refs.itemContainer !== 'undefined' && typeof this.$refs.itemContainer[index] !== 'undefined'){
-          (this.$refs.itemContainer[index]).classList.remove('itemContainerEffect')
+          this.$refs.itemContainer[index].classList.remove('itemContainerEffect')
           setTimeout(() => {
-            (this.$refs.itemContainer[index]).classList.add('itemContainerEffect')
+            if(typeof this.$refs.itemContainer !== 'undefined' && typeof this.$refs.itemContainer[index] !== 'undefined'){
+              this.$refs.itemContainer[index].classList.add('itemContainerEffect')
+            }
           }, 100)
         }else{
           setTimeout(() => {
@@ -293,7 +295,7 @@ export default {
       }else if(newData['description'] === 'added_existing_item'){
         setTimeout(() => {
           let index = newData['details']['item_index']
-          if(typeof this.$refs.itemContainer !== 'undefined'){
+          if(typeof this.$refs.itemContainer !== 'undefined' && typeof this.$refs.itemContainer[index] !== 'undefined'){
             (this.$refs.itemContainer[index]).scrollIntoView()
           }
           this.addItemContainerEffect(index)

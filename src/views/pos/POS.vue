@@ -19,15 +19,15 @@
       </div>
     </div>
     <div v-show="!isTerminal" class="text-center pt-4">
-      <big class="border rounded p-3 border-warning">
-        <fa class="text-warning" icon="exclamation-triangle"/>This device is not a terminal. Just go back to the
-        <router-link to="/" class="font-weight-bold">Dashboard</router-link>and click
+      <div class="border rounded p-3 border-warning" style="display: inline-block">
+        <fa class="text-warning" icon="exclamation-triangle"/> This device is not a terminal. Just go back to the
+        <router-link to="/" class="font-weight-bold">Dashboard</router-link> and click
         <strong class="badge badge-secondary badge-lg p-2">
           <big>
             <fa icon="cash-register"/>Set As Terminal
           </big>
-        </strong> button
-      </big>
+        </strong>
+      </div>
     </div>
   </div>
 </template>

@@ -7,6 +7,7 @@ module.exports = {
     name: 'VergePOS by Verge Technologies',
     short_name: 'VergePOS',
     themeColor: '#fffff',
+    display: 'fullscreen',
     workboxPluginMode: 'InjectManifest',
     workboxOptions: {
       swSrc: 'src/service-worker.js' // CHECK CORRECT PATH!

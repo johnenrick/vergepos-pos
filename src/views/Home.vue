@@ -3,7 +3,7 @@
     <modal ref="modal" size="" :closeable="false">
       <template v-slot:body>
         <div class="p- text-center">
-          <p class="">You are trying to log in a <strong>different company</strong>. This will clear the data of the previous company from this machine. Do you still want to continue?</p>
+          <p class="">You are trying to log in a <strong>different company</strong>. This will clear the data of the previous company on this machine. Do you still want to continue?</p>
           <div class="row">
             <div class="col-1"></div>
             <button class="col-4 btn btn-primary" @click="proceed">Proceed</button>
