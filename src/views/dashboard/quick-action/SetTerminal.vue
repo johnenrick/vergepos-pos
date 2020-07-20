@@ -120,6 +120,7 @@ export default {
     setAsTerminal(){
       this.errorMessage = null
       if(this.serialNumber === ''){
+        this.isConfuringTerminal = false
         this.errorMessage = 'Please enter the serial number of this device.'
         return false
       }
@@ -150,6 +151,7 @@ export default {
         this.isConfuringTerminal = true
         if(this.selectedExistingTerminal === 'null'){
           this.errorMessage = 'Please select a terminal'
+          this.isConfuringTerminal = false
           return false
         }
         let param = {

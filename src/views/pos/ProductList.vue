@@ -47,16 +47,16 @@
           >ALL &nbsp;</a> >
         </div>
       </div>
-      <div v-show="!productList.length" class="alert text-center border-warning m-4">
-        <span v-if="isOnline === 'online'">
-          <fa icon="exclamation-triangle" class="text-warning"/>There are currently no Products created. Go to
+      <div v-show="!productList.length && !isLoading" class="alert text-center border-warning m-4">
+        <span v-if="isOnline">
+          <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products created. Go to
           <fa icon="list"/>
           <strong>Manage</strong> >
           <fa icon="box"/>
           <strong>Product</strong> to create products.
         </span>
-        <span v-else-if="isOnline === 'offline'">
-          <fa icon="exclamation-triangle" class="text-warning"/>There are currently no Products saved. Try connecting to the internet, and re-login without using Offline Mode.
+        <span v-else>
+          <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products saved. Try connecting to the internet, and re-login without using <em>Offline Mode</em>.
         </span>
       </div>
       <div ref="container" class="productList">
@@ -109,6 +109,7 @@ import Product from '@/database/controller/product.js'
 import Category from '@/database/controller/category.js'
 import Cart from './cart-store'
 import Loading from '@/components/Loading.vue'
+import UserStore from '@/vue-web-core/system/store'
 // import UserStore from '@/vue-web-core/system/store'
 // import SyncStore from '@/database/sync/sync-store'
 export default {
@@ -117,7 +118,6 @@ export default {
   data() {
     return {
       loadingSMS: 'Loading products...',
-      isOnline: '',
       defaultItemToShow: 'all',
       containerHeight: '0px',
       searchFilterValue: '',
@@ -222,6 +222,11 @@ export default {
         }
       }
       Cart.commit('addItem', param)
+    }
+  },
+  computed: {
+    isOnline(){
+      return UserStore.getters.mode === 'online'
     }
   },
   watch: {

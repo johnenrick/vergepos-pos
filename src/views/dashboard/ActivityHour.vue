@@ -47,6 +47,13 @@ export default {
       endDateFilter: new Date(),
       datacollection: {},
       chartConfig: {
+        scales: {
+          yAxes: [{
+            ticks: {
+              stepSize: 1
+            }
+          }]
+        },
         maintainAspectRatio: false,
         elements: {
           line: {

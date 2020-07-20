@@ -17,6 +17,7 @@
         </div>
       </template>
     </modal>
+
     <header-menu :menu="headerMenu" :default-company-name="'VergePOS Terminal'"/>
     <div id="wrapper" v-bind:class="(noSidebar) ? 'toggled' : ''">
       <side-bar ref="sideBar" :menu="sidebarMenu"/>
@@ -72,10 +73,7 @@ export default {
     })
     window.addEventListener('beforeunload', event => {
       if (!this.isMouseOnPage) {
-        if (
-          localStorage.getItem('is_terminal') &&
-          localStorage.getItem('user_id')
-        ) {
+        if (localStorage.getItem('is_terminal') && localStorage.getItem('user_id')){
           event.returnValue = 'Are you sure you want to close Verge POS?'
         }
       }

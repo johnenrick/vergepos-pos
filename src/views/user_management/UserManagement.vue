@@ -60,7 +60,6 @@ let ModuleDefault = {
         type: 'html',
         value_function: (rowData) => {
           let roles = ''
-          console.log(rowData, rowData['user_roles.array_key_list'], rowData['id'])
           if(typeof rowData['user_roles.array_key_list'] !== 'undefined' && (rowData['user_roles.array_key_list']).length){
             for(let x in rowData['user_roles.array_key_list']){
               let key = rowData['user_roles.array_key_list'][x]

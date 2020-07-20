@@ -38,12 +38,12 @@
                   <label class="w-100"><fa icon="lock" />  {{isOffline === false ? 'Password' : 'PIN'}} <router-link v-if="!isOffline" to="/password-reset" tabindex="-1" class="float-right text-info"><small class="">Forgot Password?</small></router-link></label>
                   <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" v-bind:placeholder="isOffline === false ? 'Password' : 'PIN'" required autocomplete="current-password">
                 </div>
-                <div v-if="loginSwitch" class="text-hover-underline text-center">
+                <div v-if="loginSwitch && !isLoading" class="text-hover-underline text-center">
                   <span v-if="!isOffline" @click="switchLoginMode" class="c-pointer"><big><fa icon="wifi" class=""  /></big> Sign in using <strong class="">Offline Mode</strong></span>
                   <span v-else @click="switchLoginMode" class="c-pointer text-primary"><big><fa icon="wifi"  class="text-primary" /></big> Sign In without using <strong>Offline Mode</strong></span>
                 </div>
                 <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" v-bind:class="isOffline ? 'btn-secondary' : 'btn-primary'" class="btn btn-lg btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Signing In' : 'Sign In'}}</button>
-                <p :hidden="isOffline === false ? false : true" class="text-center">Don't have an account?<router-link :hidden="isOffline === false ? false : true" to="/company-registration"><b> Sign Up</b></router-link></p>
+                <p :hidden="!(isOffline === false) && !isLoading" class="text-center">Don't have an account?<router-link to="/company-registration"><b> Sign Up</b></router-link></p>
               </form>
             </template>
           </div>

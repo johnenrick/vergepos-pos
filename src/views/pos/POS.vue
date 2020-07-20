@@ -50,6 +50,7 @@ export default {
     this.$store.dispatch('SET_SMS', 'Loading Products...')
   },
   mounted() {
+    this.draw()
     this.postSync()
   },
   beforeDestroy() {},

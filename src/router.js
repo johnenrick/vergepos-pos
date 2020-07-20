@@ -82,8 +82,7 @@ let routes = [
   {
     path: '/product',
     name: 'Product',
-    component: require('@/views/product_management/ProductManagement.vue')
-      .default,
+    component: require('@/views/product_management/ProductManagement.vue').default,
     meta: {
       auth_offline: true
     }
@@ -127,8 +126,7 @@ let routes = [
   {
     path: '/transaction-history',
     name: 'TransactionHistoryTerminalReport',
-    component: require('@/views/terminal_reports/TransactionHistory.vue')
-      .default,
+    component: require('@/views/terminal_reports/TransactionHistory.vue').default,
     meta: {
       auth_offline: true
     }
@@ -136,8 +134,7 @@ let routes = [
   {
     path: '/product-performance',
     name: 'productPerformance',
-    component: require('@/views/terminal_reports/ProductPerformance.vue')
-      .default,
+    component: require('@/views/terminal_reports/ProductPerformance.vue').default,
     meta: {
       auth_offline: true
     }
