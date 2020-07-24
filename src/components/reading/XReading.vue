@@ -222,8 +222,8 @@ export default {
         })
       })
     },
-    printXReading(){
-      this.$refs.ReadingTemplate.printXReading()
+    printXReading(callback = null){
+      this.$refs.ReadingTemplate.printXReading(callback)
     },
     getTransactionNumberId(transactionNumbers){
       let ids = []

@@ -298,9 +298,8 @@ export default {
     print(){
       this.isPrinting = true
       setTimeout(() => {
-        this.$htmlToPaper(this.randomId, () => {
-          this.isPrinting = false
-        })
+        this.$htmlToPaper(this.randomId)
+        this.isPrinting = false
       }, 1000)
     },
     triggerVoid(){

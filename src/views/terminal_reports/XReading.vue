@@ -54,7 +54,7 @@
       <div class="col-12 col-md-6 col-lg-4 border rounded py-2">
         <x-reading ref="xReading"  />
         <div class="w-100 text-right pb-2">
-          <button class="btn btn-success" @click="printXReading()"><fa icon="print"/> Print Reading</button>
+          <button :disabled="isPrinting" class="btn btn-success" @click="printXReading"><fa icon="print"/> Print Reading</button>
         </div>
       </div>
     </div>
@@ -94,12 +94,16 @@ export default {
       reprintTransactionCount: 0,
       salesTransactionCount: 0,
       initialTransactionNumber: 0,
-      finalTransactionNumber: 0
+      finalTransactionNumber: 0,
+      isPrinting: false
     }
   },
   methods: {
     printXReading(){
-      this.$refs.xReading.printXReading()
+      this.isPrinting = true
+      this.$refs.xReading.printXReading(() => {
+        this.isPrinting = false
+      })
     },
     init(){
       let currentDate = new Date()

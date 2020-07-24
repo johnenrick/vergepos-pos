@@ -1,5 +1,6 @@
 <template>
   <div class="" style="">
+    {{isPrinting + ''}}
     <div :id="randomId">
       <div class="text-center">
         <p :style="isPrinting ? printingStyle : ''">
@@ -108,10 +109,10 @@ const options = {
     'titlebar=yes',
     'scrollbars=yes'
   ],
-  styles: [
-    'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css',
-    'https://unpkg.com/kidlat-css/css/kidlat.css'
-  ]
+  // styles: [
+  //   'https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css',
+  //   'https://unpkg.com/kidlat-css/css/kidlat.css'
+  // ]
 }
 Vue.use(VueHtmlToPaper, options)
 export default {
@@ -154,14 +155,18 @@ export default {
   methods: {
     init(){
     },
-    printXReading(){
+    printXReading(callback){
       this.isPrinting = true
       setTimeout(() => {
-        this.$htmlToPaper(this.randomId, () => {
+        this.$htmlToPaper(this.randomId)
+        setTimeout(() => {
           this.isPrinting = false
-        })
+          if(typeof callback === 'function'){
+            callback()
+          }
+        }, 1000)
       }, 1000)
-    },
+    }
   },
   computed: {
     totalSales(){
