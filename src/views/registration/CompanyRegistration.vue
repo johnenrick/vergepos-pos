@@ -8,25 +8,31 @@
     />
 
     <div class="text-center">
-      <img
+      <div v-if="isLoading" >
+        <big>
+          <fa class="text-primary" icon="circle-notch" spin />
+        </big>
+        Talking to server. Please wait...
+      </div>
+      <!-- <img
         v-if="isLoading"
         src="/loading-circle.gif"
         width="70px"
-      >
+      > -->
       <button
         v-else
         @click="register"
         type="button"
         class="btn btn-primary btn-lg"
       >
-        Join the Future
+        Register Now!
       </button>
     </div>
     <modal ref="modal" size="lg">
       <template v-slot:body>
         <div class="p-4 text-center">
           <h1 class="display-5 font-weight-bold">
-            Congratulation, {{username}}!
+            Congratulations, {{username}}!
           </h1>
           <p class="lead mt-4">Your account has been successfully created! You can now start exploring VergePOS and transform your business!</p>
           <button v-if="isTerminal === false" @click="logIn" class="btn btn-success btn-lg">Proceed To My Account <fa :icon="'arrow-right'"  /></button>

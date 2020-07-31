@@ -36,8 +36,7 @@ import OrderList from './OrderList.vue'
 import ProductList from './ProductList.vue'
 import ControlBox from './ControlBox.vue'
 import SyncStore from '@/database/sync/sync-store'
-import SyncAll from '@/database/sync/sync-all'
-import UserSession from '@/vue-web-core/system/store'
+// import UserSession from '@/vue-web-core/system/store'
 
 export default {
   components: {
@@ -110,24 +109,14 @@ export default {
       if (SyncStore.state.isSynching) {
         return false
       }
-      if (
-        !this.doneReSynching &&
-        UserSession.getters.mode === 'online' &&
-        this.doneReSynching === false
-      ) {
-        SyncAll.downSync(null)
-        this.doneReSynching = true
-      } else {
-        this.doneReSynching = true
-        this.$nextTick(() => {
-          this.$refs.productList._initialize()
-          this.$refs.orderList._initialize()
+      this.$nextTick(() => {
+        this.$refs.productList._initialize()
+        this.$refs.orderList._initialize()
+        this.draw()
+        window.addEventListener('resize', () => {
           this.draw()
-          window.addEventListener('resize', () => {
-            this.draw()
-          })
         })
-      }
+      })
     }
   }
 }

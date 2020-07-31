@@ -1,7 +1,7 @@
 <template>
   <div class="mb-3">
     <h6 class="font-weight-bold text-uppercase">Quick Actions</h6>
-    <div class="row border px-1 pt-3 rounded mx-0 bg-primary">
+    <div class="row border px-1 pt-2 rounded mx-0 bg-primary">
       <div v-if="quickActionCardVisibility['set_terminal']" class="col-sm-12 col-md-6 px-1 mb-2">
         <set-terminal  />
       </div>
@@ -12,7 +12,7 @@
         <back-up-database/>
       </div>
       <div v-if="quickActionCardVisibility['install']" class="col-sm-12 col-md-6 px-1 mb-2">
-        <install />
+        <install /> hey
       </div>
       <div v-if="quickActionCardVisibility['unset_terminal']" class="col-sm-12 col-md-6 px-1 mb-2">
         <unset-terminal />
@@ -61,7 +61,7 @@ export default {
       Vue.set(this.quickActionCardVisibility, 'set_terminal', false)
       Vue.set(this.quickActionCardVisibility, 'manage_master_list', false)
       Vue.set(this.quickActionCardVisibility, 'back_up_database', false)
-      Vue.set(this.quickActionCardVisibility, 'install', true)
+      Vue.set(this.quickActionCardVisibility, 'install', this.canInstall)
       Vue.set(this.quickActionCardVisibility, 'unset_terminal', false)
       if(this.isTerminal){
         Vue.set(this.quickActionCardVisibility, 'back_up_database', true)
@@ -92,6 +92,11 @@ export default {
       }else{
         this.quickActionCardVisibility[card] = false
       }
+    }
+  },
+  watch: {
+    canInstall(newData){
+      this.toggleQuickActionCard('install', newData)
     }
   },
   computed: {

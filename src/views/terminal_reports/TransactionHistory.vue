@@ -1,6 +1,7 @@
 <template>
   <div class="p-3">
     <h2>Transaction History</h2>
+    <p>Transaction History will show all the transactions that has been made. Just specify the <em>start</em> and <em>end</em> date & time. You can also <em>Show Graph</em> after generating the report to gave you an idea on how your business is doing against time</p>
     <div class="row no-gutters mb-2">
       <template v-if="terminal === 'all'">
         <div  class="col-12 col-md-12 col-lg-3 px-1 mb-2">

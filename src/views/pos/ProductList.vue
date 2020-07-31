@@ -59,7 +59,7 @@
           <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products saved. Try connecting to the internet, and re-login without using <em>Offline Mode</em>.
         </span>
       </div>
-      <div ref="container" class="productList">
+      <div ref="container" class="productList slim-scrollbar">
         <div v-if="isLoading" class="text-center pt-5">
           <Loading :loadingSMS="loadingSMS"/>
         </div>
@@ -81,6 +81,8 @@
                 </div>
               </template>
             </template>
+          </div>
+          <div class="row align-items-center mx-0 px-2">
             <template v-for="(product, index) in productList">
               <div
                 class="col-6 col-sm-6 col-md-4 px-1 py-1 itemContainer"
@@ -253,26 +255,6 @@ export default {
 
 .productList {
   overflow-y: scroll;
-}
-/* width */
-.productList::-webkit-scrollbar {
-  width: 5px;
-  background: #550055;
-}
-
-/* Track */
-.productList::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-/* Handle */
-.productList::-webkit-scrollbar-thumb {
-  background: gray;
-}
-
-/* Handle on hover */
-.productList::-webkit-scrollbar-thumb:hover {
-  background: #550055;
 }
 .itemContainer .border-primary:hover {
   cursor: pointer;

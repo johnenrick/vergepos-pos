@@ -16,7 +16,7 @@
     </div>
     <div
       ref="container"
-      class="orderListContainer"
+      class="orderListContainer slim-scrollbar"
     >
       <div
         ref="itemContainer"
@@ -316,26 +316,6 @@ export default {
 
 .orderListContainer{
   min-height: 185px; overflow-y: scroll
-}
-/* width */
-.orderListContainer::-webkit-scrollbar {
-  width: 5px;
-  background: $primary;
-}
-
-/* Track */
-.orderListContainer::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-/* Handle */
-.orderListContainer::-webkit-scrollbar-thumb {
-  background: gray;
-}
-
-/* Handle on hover */
-.orderListContainer::-webkit-scrollbar-thumb:hover {
-  background: $primary;
 }
 .itemContainer {
   background: $primary;

@@ -287,7 +287,7 @@ for (let x = 0; x < routes.length; x++) {
   }
 }
 let router = new Router({
-  mode: 'history',
+  // mode: 'history',
   routes: routes
 })
 // router.beforeResolve()

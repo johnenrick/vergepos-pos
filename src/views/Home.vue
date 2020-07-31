@@ -21,7 +21,7 @@
           <div v-bind:class="isOffline ? 'bg-light' : ''" class="card-body ">
             <!-- <div v-if="isOffline" class="alert alert-info mb-2"><fa icon="info-circle" /> You will be logging in using <strong>Offline Mode</strong>. Please use your <strong>PIN</strong> instead of password</div> -->
             <h5 v-bind:class="isOffline ? 'text-secondary' : 'text-primary'" class="card-title text-center font-weight-bold">Welcome to VergePOS </h5>
-            <p>Empowering your business and become more</p>
+            <p>Empower your business and be more!</p>
             <div v-if="isOffline === null" class="text-center">
               Checking Connectivity...
             </div>
@@ -40,10 +40,10 @@
                 </div>
                 <div v-if="loginSwitch && !isLoading" class="text-hover-underline text-center">
                   <span v-if="!isOffline" @click="switchLoginMode" class="c-pointer"><big><fa icon="wifi" class=""  /></big> Sign in using <strong class="">Offline Mode</strong></span>
-                  <span v-else @click="switchLoginMode" class="c-pointer text-primary"><big><fa icon="wifi"  class="text-primary" /></big> Sign In without using <strong>Offline Mode</strong></span>
+                  <span v-else @click="switchLoginMode" class="c-pointer text-primary"><big><fa icon="wifi"  class="text-primary" /></big> Exit <strong>Offline Mode</strong></span>
                 </div>
-                <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" v-bind:class="isOffline ? 'btn-secondary' : 'btn-primary'" class="btn btn-lg btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Signing In' : 'Sign In'}}</button>
-                <p :hidden="!(isOffline === false) && !isLoading" class="text-center">Don't have an account?<router-link to="/company-registration"><b> Sign Up</b></router-link></p>
+                <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" v-bind:class="isOffline ? 'btn-secondary' : 'btn-primary'" class="btn btn-lg btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Logging In' : 'Log In'}}</button>
+                <p :hidden="!(isOffline === false) && !isLoading" class="text-center pt-1">Don't have an account?<router-link to="/company-registration"><b> Sign Up</b></router-link></p>
               </form>
             </template>
           </div>
@@ -153,6 +153,7 @@ export default {
       localStorage.removeItem('is_terminal')
       localStorage.removeItem('company_detail')
       localStorage.removeItem('terminal_details')
+      localStorage.removeItem('cart-cache')
       this.removeTerminal(() => {
         localStorage.setItem('company_id', this.authData.data.user.company_id)
         localStorage.setItem('user_id', this.authData.data.user.id)

@@ -1,11 +1,13 @@
 <template>
   <div class="section p-3">
-    <basic-module :config="config" />
+    <basic-module :config="config" @form-update="formUpdateListener" @form-delete="formDeleteListener" />
   </div>
 </template>
 
 <script>
 import BasicModule from '@/vue-web-core/components/basic-module/BasicModule'
+import DiscountDB from '@/database/controller/discount'
+
 let ModuleDefault = {
   name: 'discount',
   components: {
@@ -22,13 +24,22 @@ let ModuleDefault = {
     }
     let tableColumnSetting = {
       description: {},
-      type: {},
-      value: {
+      type: {
         value_function: (data) => {
-          return data['vaue']
+          switch(data['type'] * 1){
+            case 1: return 'Percentage on Receipt'
+            case 2: return 'Percentage on Items'
+          }
+        }
+      },
+      value: {
+        type: 'number',
+        value_function: (data) => {
+          return data['value']
         }
       },
       is_vat_exempt: {
+        type: 'yesno',
         name: 'Vat Exempted'
       }
     }
@@ -118,7 +129,33 @@ let ModuleDefault = {
     }
   },
   methods: {
-
+    formUpdateListener(data){
+      if(localStorage.getItem('is_terminal')){
+        let discountDB = new DiscountDB()
+        discountDB.get({ db_id: data['id'] }).then((discountData) => {
+          data['db_id'] = data['id']
+          data['is_vat_exempt'] = data['is_vat_exempt'] * 1
+          data['require_identification_card'] = data['require_identification_card'] * 1
+          data['type'] = data['type'] * 1
+          data['value'] = data['value'] * 1
+          console.log(data)
+          delete data['id']
+          if(discountData){
+            discountDB.update(data)
+          }else{
+            discountDB.add(data)
+          }
+        })
+      }
+    },
+    formDeleteListener(id){
+      if(localStorage.getItem('is_terminal')){
+        let discountDB = new DiscountDB()
+        discountDB.delete({ where: { db_id: id } }).then((result) => {
+          console.log(result)
+        })
+      }
+    }
   }
 }
 

@@ -80,6 +80,7 @@ export default {
     })
   },
   mounted() {
+    console.log($(window).height(), $(window).width())
     document.getElementById('loadingVueAppIndicator').style.display = 'none' // hide the loading indicator before the vue is loaded
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()

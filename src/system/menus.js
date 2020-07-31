@@ -93,7 +93,6 @@ export default {
     sub_item: [{
       name: 'Transaction History',
       route: '/report/transaction-history',
-
       // role_access_list: {
       //   100: true, // Company Admin
       //   102: true, // Manager
@@ -117,7 +116,8 @@ export default {
 
     }, {
       icon: 'store',
-      name: 'Business Detail'
+      name: 'Business Detail',
+      has_offline: true,
     }, {
       icon: 'desktop',
       name: 'Terminal',

@@ -2,7 +2,7 @@
   <div class="p-3">
     <div class="mb-3">
       <h2 class="font-weight-bold mb-4">Welcome to your VergePOS Dashboard!</h2>
-      <p>You dashboard will give you quick reports about your business. From number of transactions to daily sales report!. If you need help don't hesitate to <router-link to="contact-us" class="">contact us</router-link>.</p>
+      <p>Your dashboard will give you quick reports about your business  from number of transactions to daily sales report! If you need help, don't hesitate to <router-link to="contact-us" class=""><u>contact us</u></router-link>.</p>
     </div>
     <quick-action />
     <quick-report-card ref="quickReportCard" />

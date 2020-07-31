@@ -30,7 +30,8 @@ export default {
           }
         },
         serial_number: {
-          help_text: 'Use the serial number of the device. If you are using computer, use the cpu or system unit\'s serial'
+          read_only: true,
+          help_text: 'This is can only be changed in the terminal'
         },
         // permit_number: {},
         // machine_indentification_number: {},

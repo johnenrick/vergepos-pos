@@ -25,7 +25,7 @@
             <div v-if="!showSerialNumberHelp" class=" text-info c-pointer" @click="showSerialNumberHelp = true"> How to find serial number <fa icon="question-circle" /> </div>
             <div v-else>
               <span @click="showSerialNumberHelp = false" class="text-info text-underline c-pointer">Hide</span> <br>
-              If you are using Android devices, you can the serial number in <strong>Settings > About Phone > Status > Serial Number</strong>. If you are using a computer, just open a <i>Command Prompt</i> and copy&paste the following code: <i class="font-weight-bold">wmic bios get serialnumber</i>. If you can't find your serial number, don't hesitate to <router-link to="contact-us" class=text-primary>Contact Us</router-link>.
+              If you are using Android devices, you can get the serial number in <strong>Settings > About Phone(or Tablet) > Status > Serial Number</strong>. If you are using a computer, just open a <i>Command Prompt</i> and copy&paste the following code: <i class="font-weight-bold">wmic bios get serialnumber</i>. If you can't find your serial number, don't hesitate to <router-link to="contact-us" class=text-primary>Contact Us</router-link>.
             </div>
           </small>
         </div>
@@ -42,7 +42,7 @@
           <select v-model="selectedExistingTerminal" type="text" class="form-control" >
             <option value="null">Select a Terminal</option>
             <template v-for="(storeTerminal, index) in stores[0]['store_terminals']">
-              <option :value="index" :class="storeTerminal['serial_number'] !== '' ? 'bg-light' : ''">{{storeTerminal['description']}} {{(storeTerminal['serial_number'] !== '') ? 'assigned to ' + storeTerminal['serial_number'] : ''}}</option>
+              <option :value="index" :class="storeTerminal['serial_number'] !== '' ? 'bg-light' : ''">{{storeTerminal['description']}} <span class="text-uppercase">{{(storeTerminal['serial_number'] !== '') ? ' [SN: ' + storeTerminal['serial_number'] + ']': ''}}</span></option>
             </template>
           </select>
           <div class="text-right">
@@ -77,9 +77,10 @@ export default {
       companyData: {},
       newTerminalMode: true,
       selectedExistingTerminal: 'null',
+      previousSelectedExistingTerminal: 'null',
       serialNumber: '',
       terminalDescription: '',
-      errorMessage: null
+      errorMessage: null,
     }
   },
   methods: {
@@ -182,6 +183,17 @@ export default {
   computed: {
     mode(){
       return UserStore.getters.mode
+    }
+  },
+  watch: {
+    selectedExistingTerminal(index, oldIndex){
+      console.log(index, oldIndex, this.serialNumber)
+      if(index !== 'null' && (this.serialNumber === '' || oldIndex !== 'null')){
+        this.serialNumber = this.stores[0]['store_terminals'][index]['serial_number']
+      }
+    },
+    newTerminalMode(){
+      this.selectedExistingTerminal = 'null'
     }
   }
 }

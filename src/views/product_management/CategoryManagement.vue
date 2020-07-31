@@ -1,11 +1,12 @@
 <template>
   <div class="section p-3">
-    <basic-module :config="config" />
+    <basic-module :config="config" @form-update="formUpdateListener" @form-delete="formDeleteListener" />
   </div>
 </template>
 
 <script>
 import BasicModule from '@/vue-web-core/components/basic-module/BasicModule'
+import CategoryDB from '@/database/controller/category'
 let ModuleDefault = {
   name: 'dashboard',
   components: {
@@ -29,6 +30,7 @@ let ModuleDefault = {
     let formFieldSetting = {
       fields: {
         description: {
+          help_text: 'Category Name or Group Name of products. Example: Shirts, Appliances, Beverages, etc.'
         }
         // category_id: {
         //   name: 'Parent',
@@ -42,6 +44,7 @@ let ModuleDefault = {
       config: {
         // module_name: 'Variable Management',
         api: 'category',
+        description: 'A Product Category or simply a Category refers to the groupings of products. You need to create a Category first before you can create a Product. You can also create Categories such as "All Product" if you do not want to categorize your products or "Others" for products that do not have specific category.',
         table_setting: {
           retrieve_parameter: tableSettingRetrieveParameter,
           table_column_setting: tableColumnSetting
@@ -56,7 +59,29 @@ let ModuleDefault = {
     }
   },
   methods: {
-
+    formUpdateListener(data){
+      if(localStorage.getItem('is_terminal')){
+        let categoryDB = new CategoryDB()
+        categoryDB.get({ db_id: data['id'] }).then((categoryData) => {
+          data['db_id'] = data['id']
+          console.log(data)
+          delete data['id']
+          if(categoryData){
+            categoryDB.update(data)
+          }else{
+            categoryDB.add(data)
+          }
+        })
+      }
+    },
+    formDeleteListener(id){
+      if(localStorage.getItem('is_terminal')){
+        let categoryDB = new CategoryDB()
+        categoryDB.delete({ where: { db_id: id } }).then((result) => {
+          console.log(result)
+        })
+      }
+    }
   }
 }
 
