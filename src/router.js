@@ -10,7 +10,7 @@ let routes = [
     name: 'home',
     component: require('./views/Home.vue').default,
     meta: {
-      no_sidebar: true
+      no_sidebar: true,
       // auth_offline: false,
       // auth: false
     }
@@ -104,7 +104,6 @@ let routes = [
     path: '/customer',
     name: 'CustomerManagement',
     component: () => {
-      console.log('ayw')
       store.commit('setModuleLoading', true)
       return {
         component: import('@/views/customer/Customer.vue')

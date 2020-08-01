@@ -1,3 +1,4 @@
+console.log('self.__precacheManifest', self.__precacheManifest)
 if (workbox) {
   // adjust log level for displaying workbox logs
   // workbox.core.setLogLevel(workbox.core.LOG_LEVELS.debug)
@@ -11,7 +12,8 @@ if (workbox) {
   // Since we have a SPA here, this should be index.html always.
   // https://stackoverflow.com/questions/49963982/vue-router-history-mode-with-pwa-in-offline-mode
   workbox.routing.registerNavigationRoute('/index.html')
-
+  workbox.skipWaiting()
+  workbox.clientsClaim()
   // Setup cache strategy for Google Fonts. They consist of two parts, a static one
   // coming from fonts.gstatic.com (strategy CacheFirst) and a more ferquently updated on
   // from fonts.googleapis.com. Hence, split in two registerroutes

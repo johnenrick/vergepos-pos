@@ -22,6 +22,7 @@
     <div id="wrapper" v-bind:class="(noSidebar) ? 'toggled' : ''">
       <side-bar ref="sideBar" :menu="sidebarMenu"/>
       <div id="page-content-wrapper" style="overflow-wrap: break-word;">
+        <NoInternetError v-if="noInternetConnectionMessage" />
         <div v-if="!isLoadingModule" class="container-fluid-none">
           <router-view/>
         </div>
@@ -56,6 +57,7 @@ import Migrate from '@/database/migrate'
 import UpSync from '@/database/up-sync/up-sync'
 import Menu from '@/system/menus'
 import PWAInstall from '@/vue-web-core/helper/pwa-install-store'
+import NoInternetError from '@/components/NoInternetError'
 window.$ = require('jquery')
 window.jQuery = window.$
 export default {
@@ -63,7 +65,8 @@ export default {
   components: {
     SideBar,
     HeaderMenu,
-    Modal
+    Modal,
+    NoInternetError
   },
   beforeCreate() {
     window.addEventListener('beforeinstallprompt', e => {
@@ -104,6 +107,10 @@ export default {
             })
             .catch(status => {
               // Offline
+              if(localStorage.getItem('default_auth_token')){
+                console.error('no internet')
+                this.noInternetConnectionMessage = true
+              }
               store.dispatch('setUserInformationOffline')
             })
         }
@@ -119,7 +126,8 @@ export default {
       navConfig: navigationConfig,
       sidebarMenu: Menu.side_menus,
       headerMenu: Menu.header_menus,
-      isMouseOnPage: false
+      isMouseOnPage: false,
+      noInternetConnectionMessage: false
     }
   },
   methods: {

@@ -42,10 +42,6 @@ export default {
   },
   mounted(){
     this.runLiveTime()
-    this.checkConnectivity()
-    // setInterval(() => {
-    //   this.checkConnectivity()
-    // }, 10000)
   },
   props: {
   },

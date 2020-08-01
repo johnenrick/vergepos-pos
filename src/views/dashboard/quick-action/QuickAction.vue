@@ -2,17 +2,17 @@
   <div class="mb-3">
     <h6 class="font-weight-bold text-uppercase">Quick Actions</h6>
     <div class="row border px-1 pt-2 rounded mx-0 bg-primary">
-      <div v-if="quickActionCardVisibility['set_terminal']" class="col-sm-12 col-md-6 px-1 mb-2">
-        <set-terminal  />
-      </div>
       <div v-show="quickActionCardVisibility['manage_master_list']" class="col-sm-12 col-md-6 px-1 mb-2">
         <manage-master-list @toggle="toggleQuickActionCard('manage_master_list', $event)" />
       </div>
-      <div v-if="quickActionCardVisibility['back_up_database']" class="col-sm-12 col-md-6 px-1 mb-2">
-        <back-up-database/>
+      <div v-if="quickActionCardVisibility['set_terminal']" class="col-sm-12 col-md-6 px-1 mb-2">
+        <set-terminal  />
       </div>
       <div v-if="quickActionCardVisibility['install']" class="col-sm-12 col-md-6 px-1 mb-2">
         <install /> hey
+      </div>
+      <div v-if="quickActionCardVisibility['back_up_database']" class="col-sm-12 col-md-6 px-1 mb-2">
+        <back-up-database/>
       </div>
       <div v-if="quickActionCardVisibility['unset_terminal']" class="col-sm-12 col-md-6 px-1 mb-2">
         <unset-terminal />

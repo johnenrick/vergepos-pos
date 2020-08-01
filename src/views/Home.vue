@@ -42,7 +42,8 @@
                   <span v-if="!isOffline" @click="switchLoginMode" class="c-pointer"><big><fa icon="wifi" class=""  /></big> Sign in using <strong class="">Offline Mode</strong></span>
                   <span v-else @click="switchLoginMode" class="c-pointer text-primary"><big><fa icon="wifi"  class="text-primary" /></big> Exit <strong>Offline Mode</strong></span>
                 </div>
-                <button @click="isOffline ? offlineSignIn(): signIn()" v-bind:disabled="isLoading" v-bind:class="isOffline ? 'btn-secondary' : 'btn-primary'" class="btn btn-lg btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Logging In' : 'Log In'}}</button>
+                <button v-if="isOffline" @click="offlineSignIn" v-bind:disabled="isLoading" class="btn btn-lg btn-secondary btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Logging In' : 'Log In'}}</button>
+                <button v-else @click="signIn" v-bind:disabled="isLoading" class="btn btn-lg btn-block btn-primary text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Logging In' : 'Log In'}}</button>
                 <p :hidden="!(isOffline === false) && !isLoading" class="text-center pt-1">Don't have an account?<router-link to="/company-registration"><b> Sign Up</b></router-link></p>
               </form>
             </template>
@@ -106,11 +107,14 @@ export default {
   methods: {
     checkIfOnline(callback){
       // return this.isOffline = true
+      console.log('home')
       this.checkConnectivity().then((ping) => {
         this.isOffline = false
       }).catch((status) => {
+        console.log('error')
         this.isOffline = true
       }).finally(() => {
+        console.log('hey')
         if(typeof callback === 'function'){
           callback()
         }
@@ -234,7 +238,11 @@ export default {
     isTypingPassword(e){
       if(e.which === 13){
         e.target.blur()
-        this.signIn()
+        if(this.isOffline){
+          this.offlineSignIn()
+        }else{
+          this.signIn()
+        }
       }
     }
   },

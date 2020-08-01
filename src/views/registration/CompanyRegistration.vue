@@ -154,8 +154,10 @@ export default {
           },
           'user.pin': {
             name: 'PIN',
+            placeholder: '4 Character PIN Code',
+            help_text: 'PIN code will be used for the Offline Mode Log In. It can be a combination of Numbers and Alphabet',
             config: {
-              maxlength: 10
+              maxlength: 4
             }
           },
         }

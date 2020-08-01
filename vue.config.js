@@ -1,11 +1,15 @@
-// const manifestJSON = require('./public/manifest.json')
+const manifestJSON = require('./public/manifest.json')
 
 module.exports = {
   publicPath: '',
 
   pwa: {
-    name: 'VergePOS',
-    short_name: 'VergePOS',
+    name: manifestJSON.name,
+    short_name: manifestJSON.short_name,
+    msTileColor: manifestJSON.background_color,
+    appleMobileWebAppCapable: 'yes',
+    appleMobileWebAppStatusBarStyle: manifestJSON.theme_color,
+
     workboxPluginMode: 'InjectManifest',
     workboxOptions: {
       swSrc: 'src/service-worker.js', // CHECK CORRECT PATH!
