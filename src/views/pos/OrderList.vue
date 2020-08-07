@@ -18,33 +18,40 @@
       ref="container"
       class="orderListContainer slim-scrollbar"
     >
-      <div
-        ref="itemContainer"
-        v-for="(order, index) in orderList"
-        @click="openOrder(index)"
-        class="row border-bottom mb-0 py-2 mx-0 itemContainer"
-      >
-        <div class="col-6 px-2">
-          {{ order['description'] }}
-        </div>
+      <template v-if="orderList.length">
         <div
-          class="col-2 text-right p-0"
-          @click1="changeQuantity"
+          ref="itemContainer"
+          v-for="(order, index) in orderList"
+          @click="openOrder(index)"
+          class="row border-bottom mb-0 py-2 mx-0 itemContainer"
         >
-          {{orderList[index]['quantity']}}
-          <!-- <input
-            :placeholder="orderList[index]['old_quantity'] * 1"
-            @click="orderList[index]['old_quantity'] = orderList[index]['quantity']; orderList[index]['quantity'] = ''"
-            @blur="orderList[index]['quantity'] === '' ? orderList[index]['quantitsy'] = orderList[index]['old_quantity'] * 1 : null; calculateTotal()"
-            v-model="orderList[index]['quantity']"
-            type="number"
-            class="form-control text-right"
-          > -->
-        <!-- <span class="form-control text-right">{{orderList[index]['quantity']}}</span> -->
+          <div class="col-6 px-2">
+            {{ order['description'] }}
+          </div>
+          <div
+            class="col-2 text-right p-0"
+            @click1="changeQuantity"
+          >
+            {{orderList[index]['quantity']}}
+            <!-- <input
+              :placeholder="orderList[index]['old_quantity'] * 1"
+              @click="orderList[index]['old_quantity'] = orderList[index]['quantity']; orderList[index]['quantity'] = ''"
+              @blur="orderList[index]['quantity'] === '' ? orderList[index]['quantitsy'] = orderList[index]['old_quantity'] * 1 : null; calculateTotal()"
+              v-model="orderList[index]['quantity']"
+              type="number"
+              class="form-control text-right"
+            > -->
+          <!-- <span class="form-control text-right">{{orderList[index]['quantity']}}</span> -->
+          </div>
+          <div class="col-4 text-right px-2">
+            {{ (order['quantity'] * order['price']) | numberToMoney }}
+          </div>
         </div>
-        <div class="col-4 text-right px-2">
-          {{ (order['quantity'] * order['price']) | numberToMoney }}
-        </div>
+      </template>
+      <div v-else-if="rotateDeviceMessage" class="text-center pt-3 text-secondary">
+        <big><RotateAnimation icon="tablet-alt" :angles="[0, 270]" :doAnimate="rotateDeviceMessage" /></big>
+        <br>
+        Rotate your device for better experience
       </div>
     </div>
     <div
@@ -159,13 +166,15 @@ import Checkout from './order_list_components/Checkout.vue'
 import CustomerDetail from './order_list_components/CustomerDetail.vue'
 import ParkTransaction from './order_list_components/ParkTransaction'
 import Cart from './cart-store'
+import RotateAnimation from '@/vue-web-core/components/fontawesome/RotateAnimation'
 export default {
   components: {
     DiscountManagent,
     OrderedItemDetail,
     Checkout,
     ParkTransaction,
-    CustomerDetail
+    CustomerDetail,
+    RotateAnimation
   },
   mounted () {
     this.$nextTick(() => {
@@ -185,7 +194,9 @@ export default {
       totalVatExempt: 0,
       appliedDiscountID: null,
       containerHeight: '0px',
-      changeQuantityClicked: false
+      changeQuantityClicked: false,
+      rotateDeviceMessage: false,
+      rotateDeviceMessageIconAnimationFlag: 1, // used to determine the animation of the tablet icon from portrait to landscape
     }
   },
   methods: {
@@ -222,7 +233,15 @@ export default {
     openApplyDiscount(){
       this.$refs.discountManagement._open()
     },
-    _draw () {
+    _draw() {
+      let width = window.innerWidth
+      let height = window.innerHeight
+      if(width < height && height > 768 && width <= 768){
+        console.log('drawing', width, height)
+        this.rotateDeviceMessage = true
+      }else{
+        this.rotateDeviceMessage = false
+      }
       // let totalHeight = $(window).height()
       // let offset = 5
       // totalheight - the space from the windows top until container top - the height of the footer

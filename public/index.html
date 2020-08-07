@@ -8,25 +8,32 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="VergePOS">
+    <script src="js/wisdom-qoutes.js"></script>
     <title>VergePOS</title>
   </head>
   <body>
     <noscript>
       <strong>We're sorry but pos doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
-    <div id="loadingVueAppIndicator" style="text-align: center; padding-top: 20vh; color: #550055;d">Loading <strong>VergePOS</strong>. Please wait...</div>
+    <div id="loadingVueAppIndicator" style="text-align: center; padding-top: 20vh; color: #550055; font-family:monospace; font-size:1.3em">
+      Loading <strong>VergePOS</strong>, this may take a while. Please wait...
+      <div id="wisdomeQoutes" style="margin-top: 20px"></div>
+    </div>
     <div id="app"></div>
     <!-- built files will be auto injected -->
   </body>
   <script>
-    if(window.navigator && navigator.serviceWorker) {
-      navigator.serviceWorker.getRegistrations()
-      .then(function(registrations) {
-        for(let registration of registrations) {
-          registration.unregister();
-        }
-      });
-    }
+    // if(window.navigator && navigator.serviceWorker) {
+    //   navigator.serviceWorker.getRegistrations()
+    //   .then(function(registrations) {
+    //     console.log(registrations)
+    //     for(let registration of registrations) {
+    //       console.log('unregistering', registrations)
+    //       registration.unregister();
+    //     }
+    //   });
+    // }
+    
   </script>
 </html>
 <style>

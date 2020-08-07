@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="p-3">
     <div class="text-center">
     <h2><fa class="text-secondary mt-3" icon="search" /></h2>
     </div>

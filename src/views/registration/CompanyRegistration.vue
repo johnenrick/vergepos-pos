@@ -114,7 +114,8 @@ export default {
             col: 4
           },
           'user.email': {
-            name: 'Your Email'
+            name: 'Your Email',
+            type: 'email'
           },
           'user.password': {
             name: 'Your Password',

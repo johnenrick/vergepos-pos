@@ -1,5 +1,9 @@
 console.log('self.__precacheManifest', self.__precacheManifest)
 if (workbox) {
+  workbox.setConfig({
+    debug: true,
+  })
+
   // adjust log level for displaying workbox logs
   // workbox.core.setLogLevel(workbox.core.LOG_LEVELS.debug)
 
@@ -23,7 +27,6 @@ if (workbox) {
   //     cacheName: 'google-fonts-stylesheets',
   //   })
   // )
-
   // workbox.routing.registerRoute(
   //   /^https:\/\/fonts\.gstatic\.com/,
   //   new workbox.strategies.CacheFirst({

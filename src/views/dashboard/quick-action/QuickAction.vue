@@ -1,7 +1,7 @@
 <template>
   <div class="mb-3">
     <h6 class="font-weight-bold text-uppercase">Quick Actions</h6>
-    <div class="row border px-1 pt-2 rounded mx-0 bg-primary">
+    <div v-show="isReady" class="row border px-1 pt-2 rounded mx-0 bg-primary">
       <div v-show="quickActionCardVisibility['manage_master_list']" class="col-sm-12 col-md-6 px-1 mb-2">
         <manage-master-list @toggle="toggleQuickActionCard('manage_master_list', $event)" />
       </div>
@@ -18,6 +18,7 @@
         <unset-terminal />
       </div>
     </div>
+    <div v-show="!isReady"><fa icon="circle-notch" spin /> Please wait...</div>
   </div>
 </template>
 <script>
@@ -43,6 +44,7 @@ export default {
   data(){
     return {
       isTerminal: localStorage.getItem('is_terminal'),
+      isReady: false,
       quickActionCardVisibility: {
         set_terminal: false,
         manage_master_list: false,
@@ -80,6 +82,10 @@ export default {
       if(show){
         switch(card){
           case 'manage_master_list':
+            setTimeout(() => {
+              console.log('yawa')
+              this.isReady = true
+            }, 500)
             if(this.isAdmin || this.isManager){
               this.quickActionCardVisibility[card] = true
             }else{

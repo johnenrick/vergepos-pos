@@ -3,7 +3,7 @@
     <span v-if="messageType === 1">Manage your Product Categories and Products first before you can make any transaction.</span>
     <span v-else-if="messageType === 2">Manage your products first before you can make any transactions</span>
     <span v-else-if="messageType === 3">You have not managed your products and categories yet. You need to be online and log in without using the Offline Mode to manage it.</span>
-    <span v-else-if="messageType === 4">Looks like everything is set up! Start selling now.</span>
+    <span v-else-if="messageType === 4">Looks like everything is set up! Start selling now at your Terminal.</span>
     <div class="text-center mt-1">
       <template v-if="messageType <= 2">
         <router-link to="/category" class="btn btn-outline-success btn-sm mx-1"><fa icon="boxes" /> Manage Product Category</router-link>

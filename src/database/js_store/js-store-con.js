@@ -13,4 +13,6 @@ const getWorkerPath = () => {
 
 const workerPath = getWorkerPath()
 export const connection = new JsStore.Connection(new Worker(workerPath))
-connection.setLogStatus(true)
+if (process.env.NODE_ENV === 'development'){
+  connection.setLogStatus(true)
+}

@@ -1,6 +1,7 @@
 <template>
   <div class="p-3">
     <h2>Product Performance</h2>
+    <p>Product Performance Report will show you what products are the best base on the quantity sold, total sales, and profit made.</p>
     <div class="row mb-4 no-gutters">
       <div class="col-12 pb-2 px-1">
         <vue-select v-model="selectFilterValue" :options="selectFilterOption" label="description" :multiple="true" placeholder="Category and Product Filter" />

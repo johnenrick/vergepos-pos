@@ -6,9 +6,9 @@
           <p class="">You are trying to log in a <strong>different company</strong>. This will clear the data of the previous company on this machine. Do you still want to continue?</p>
           <div class="row">
             <div class="col-1"></div>
-            <button class="col-4 btn btn-primary" @click="proceed">Proceed</button>
+            <button :disabled="!isLoading" class="col-4 btn btn-primary" @click="proceed">Proceed</button>
             <div class="col-2"></div>
-            <button class="col-4 btn btn-outline-secondary" @click="decline">No</button>
+            <button :disabled="!isLoading" class="col-4 btn btn-outline-secondary" @click="decline">No</button>
             <div class="col-1"></div>
           </div>
         </div>
@@ -35,8 +35,10 @@
                   <input @keyup="isTypingUsername" v-model="username" type="email" class="form-control" placeholder="Email address" required autofocus autocomplete="username">
                 </div>
                 <div class="form-group">
-                  <label class="w-100"><fa icon="lock" />  {{isOffline === false ? 'Password' : 'PIN'}} <router-link v-if="!isOffline" to="/password-reset" tabindex="-1" class="float-right text-info"><small class="">Forgot Password?</small></router-link></label>
-                  <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" v-bind:placeholder="isOffline === false ? 'Password' : 'PIN'" required autocomplete="current-password">
+                  <label class="w-100"><fa icon="lock" />  {{isOffline === false ? 'Password' : 'PIN'}}
+                    <!-- <router-link v-if="!isOffline" to="/password-reset" tabindex="-1" class="float-right text-info"><small class="">Forgot Password?</small></router-link> -->
+                  </label>
+                  <input ref="passwordInput" @keyup="isTypingPassword" v-model="password" type="password" id="inputPassword" class="form-control" v-bind:placeholder="isOffline === false ? 'Password' : 'PIN'" required autocomplete="current-password" :maxlength="isOffline ? 4 : null">
                 </div>
                 <div v-if="loginSwitch && !isLoading" class="text-hover-underline text-center">
                   <span v-if="!isOffline" @click="switchLoginMode" class="c-pointer"><big><fa icon="wifi" class=""  /></big> Sign in using <strong class="">Offline Mode</strong></span>
@@ -80,7 +82,6 @@ export default {
         if(localStorage.getItem('is_terminal') && this.isOffline === false){
           this.loginSwitch = true
           if(localStorage.getItem('selected_login_mode') !== null){
-            console.log(localStorage.getItem('selected_login_mode'))
             this.isOffline = localStorage.getItem('selected_login_mode') === 'true'
           }
         }
@@ -107,14 +108,11 @@ export default {
   methods: {
     checkIfOnline(callback){
       // return this.isOffline = true
-      console.log('home')
       this.checkConnectivity().then((ping) => {
         this.isOffline = false
       }).catch((status) => {
-        console.log('error')
         this.isOffline = true
       }).finally(() => {
-        console.log('hey')
         if(typeof callback === 'function'){
           callback()
         }
@@ -164,8 +162,11 @@ export default {
         localStorage.setItem('roles', JSON.stringify(this.authData.data.user.roles))
         // store.commit('setAuthToken', response.data.access_token)
         VueCoreStore.dispatch('setUserInformation')
-        this.isLoading = false
+        // store.commit('isReady', () => {
+
+        // })
         this.$refs.modal._close()
+        this.isLoading = true
       })
     },
     decline(){

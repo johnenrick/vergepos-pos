@@ -23,12 +23,12 @@
       <side-bar ref="sideBar" :menu="sidebarMenu"/>
       <div id="page-content-wrapper" style="overflow-wrap: break-word;">
         <NoInternetError v-if="noInternetConnectionMessage" />
+        <div ref="loadingComponentMessage" class="text-center" style="padding-top: 10vh">
+          <h1 class="mb-1 display-3"><fa icon="circle-notch" spin /></h1>
+          Loading components...
+        </div>
         <div v-if="!isLoadingModule" class="container-fluid-none">
           <router-view/>
-        </div>
-        <div v-else class="text-center">
-          <img src="/img/loading.gif" width="100px">
-          <br>Loading components...
         </div>
       </div>
     </div>
@@ -83,7 +83,7 @@ export default {
     })
   },
   mounted() {
-    console.log($(window).height(), $(window).width())
+    console.info('Device Dimension', $(window).height(), $(window).width())
     document.getElementById('loadingVueAppIndicator').style.display = 'none' // hide the loading indicator before the vue is loaded
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
@@ -110,6 +110,7 @@ export default {
               if(localStorage.getItem('default_auth_token')){
                 console.error('no internet')
                 this.noInternetConnectionMessage = true
+                this.$refs.loadingComponentMessage.style.display = 'none'
               }
               store.dispatch('setUserInformationOffline')
             })
@@ -198,6 +199,13 @@ export default {
     userID(newData) {
       if (newData) {
         this.sync()
+      }
+    },
+    isLoadingModule(newData){
+      if(newData){
+        this.$refs.loadingComponentMessage.style.display = null
+      }else{
+        this.$refs.loadingComponentMessage.style.display = 'none'
       }
     }
   },

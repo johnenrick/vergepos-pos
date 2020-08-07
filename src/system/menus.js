@@ -117,7 +117,7 @@ export default {
     }, {
       icon: 'store',
       name: 'Business Detail',
-      has_offline: true,
+      has_offline: false,
     }, {
       icon: 'desktop',
       name: 'Terminal',
