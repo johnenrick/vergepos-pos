@@ -299,7 +299,6 @@ export default {
             }
             this.$refs.graph._plotData(this.transactionProducts)
           }else if(this.selectedReport === 'daily'){
-            console.log(dailyProductSummary)
             this.$refs.lineGraph._plotData(dailyProductSummary, this.startDatetimeFilter, this.endDatetimeFilter)
           }
           this.toDisplay = this.selectedReport

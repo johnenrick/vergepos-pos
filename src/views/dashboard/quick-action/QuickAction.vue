@@ -17,8 +17,13 @@
       <div v-if="quickActionCardVisibility['unset_terminal']" class="col-sm-12 col-md-6 px-1 mb-2">
         <unset-terminal />
       </div>
+
     </div>
-    <div v-show="!isReady"><fa icon="circle-notch" spin /> Please wait...</div>
+    <div v-show="!isReady" class="row border px-1 pt-2 rounded mx-0 bg-primary justify-content-center">
+      <div class="col-sm-11 col-md-6 bg-white mb-2 rounded py-2 text-center border">
+        <fa icon="circle-notch" spin /> Please wait...
+      </div>
+    </div>
   </div>
 </template>
 <script>
@@ -83,7 +88,6 @@ export default {
         switch(card){
           case 'manage_master_list':
             setTimeout(() => {
-              console.log('yawa')
               this.isReady = true
             }, 500)
             if(this.isAdmin || this.isManager){
