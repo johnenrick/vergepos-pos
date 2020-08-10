@@ -16,7 +16,7 @@
             <tr>
               <td class="text-uppercase  text-center text-danger" colspan="2" v-if="transactionDetail.status === 2">
                 <span class="font-weight-bold" >Voided Transaction</span> <br>
-                By Txn# {{transactionDetail.voidedTransactionNumber}}
+                Ref. Txn# {{transactionDetail.voidedTransactionNumber}}
               </td>
             </tr>
             <tr class="">
@@ -345,6 +345,7 @@ export default {
                   remarks: this.remarks
                 }
                 this.transactionVoidDB.add(transactionvoidEntry).then((response) => {
+                  this.transactionDetail.voidedTransactionNumber = transactionNumberResult['number']
                   this.transactionDetail.status = 2
                   this.voidErrorMessage = null
                   this.toVoid = false
