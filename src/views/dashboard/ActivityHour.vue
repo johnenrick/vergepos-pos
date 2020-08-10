@@ -3,23 +3,28 @@
     <div class="card border-info mb-3" >
       <h6 class="card-header bg-info text-white"><fa icon="clock" /> Activity Hour</h6>
       <div class="card-body" >
-        <p class="card-text">Shows you which hours of the day you have most transactions. This is very helpful in anticipating busy hours so you can prepare or do other productive tasks on non busy hours</p>
-        <div class="row">
-          <div class="col-12">
-            <p v-if="isLoading === false" class="mb-0">Showing data on <strong>{{curDate | formatDate('M d, yyyy')}}</strong></p>
-            <p v-else class="mb-0"><fa icon="hourglass-half" /> Loading...</p>
+        <div v-show="isTerminal">
+          <p class="card-text">Shows you which hours of the day you have most transactions. This is very helpful in anticipating busy hours so you can prepare or do other productive tasks on non busy hours</p>
+          <div class="row">
+            <div class="col-12">
+              <p v-if="isLoading === false" class="mb-0">Showing data on <strong>{{curDate | formatDate('M d, yyyy')}}</strong></p>
+              <p v-else class="mb-0"><fa icon="hourglass-half" /> Loading...</p>
+            </div>
+          </div>
+          <div>
+            <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig"></line-chart>
+          </div>
+          <div class="row">
+            <div class="col-6">
+            <button class="btn" :disabled="isPreviousDisabled" :class="isPreviousLast" @click="getTimeStartAndEnd('previous')">Previous Day</button>
+            </div>
+            <div class="col-6">
+              <button class="btn" :disabled="isNextDisabled" :class="isNextLast" @click="getTimeStartAndEnd('next')">Next Day</button>
+            </div>
           </div>
         </div>
-        <div>
-          <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig"></line-chart>
-        </div>
-        <div class="row">
-          <div class="col-6">
-          <button class="btn" :disabled="isPreviousDisabled" :class="isPreviousLast" @click="getTimeStartAndEnd('previous')">Previous Day</button>
-          </div>
-          <div class="col-6">
-            <button class="btn" :disabled="isNextDisabled" :class="isNextLast" @click="getTimeStartAndEnd('next')">Next Day</button>
-          </div>
+        <div v-show="!isTerminal">
+          <fa icon="info-circle" /> You need to set this device as a terminal to be able to see the weekly graph on this terminal. You can do this by clicking the <strong class="text-primaryx p-1">Set As Terminal</strong> at Quick Actions (top of this page).
         </div>
       </div>
     </div>
@@ -46,6 +51,7 @@ export default {
       startDateFilter: new Date(),
       endDateFilter: new Date(),
       datacollection: {},
+      isTerminal: false,
       chartConfig: {
         scales: {
           yAxes: [{
@@ -70,8 +76,11 @@ export default {
   },
   methods: {
     _initialize(){
-      this.getFirstTransaction()
-      this.groupTransactions()
+      this.isTerminal = localStorage.getItem('is_terminal')
+      if(this.isTerminal){
+        this.getFirstTransaction()
+        this.groupTransactions()
+      }
     },
     groupTransactions(){
       this.curDate = this.startDateFilter

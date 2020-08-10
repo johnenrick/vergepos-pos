@@ -6,7 +6,7 @@
         <button @click="refreshApp" class="btn btn-outline-dark mr-1" title="Refresh the app"><fa :icon="'redo'" /></button>
         <button @click="clearCart" class="btn btn-outline-dark mr-1" title="Clear Cart"><fa :icon="'trash'" /></button>
         <button @click="viewTransaction" class="btn btn-outline-dark mr-1" title="Open Transaction"><fa :icon="'receipt'" /></button>
-        <button @click="benchmark" class="btn btn-outline-dark" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button>
+        <button v-if="inDevMode" @click="benchmark" class="btn btn-outline-dark" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button>
       </div>
       <div class="col-md-3 pt-2 text-right d-none d-sm-block pb-2">
         {{liveTime}} <big v-bind:class="connectionSpeed ? 'text-success' : 'text-secondary'" class="ml-2 "><span v-bind:title="isSynching ? 'Synching Data' : 'Internet Availability'" v-bind:class="isSynching ? 'blink' : ''"><fa icon="wifi" /></span></big>
@@ -14,17 +14,7 @@
     </div>
     <transaction-viewer ref="TransactionViewer" />
     <benchmark ref="benchmark" />
-    <modal ref="modal" size="sm">
-      <template v-slot:body>
-        <div class="text-center">
-          <p class="">Are you sure you want to clear your cart?</p>
-          <div class="">
-            <button class="btn btn-primary mr-3" @click="proceed"><fa icon="trash" /> Clear Cart</button>
-            <button class="btn btn-outline-secondary" @click="decline">No</button>
-          </div>
-        </div>
-      </template>
-    </modal>
+    <DialogBox ref="dialogBox" />
   </div>
 </template>
 <script>
@@ -32,13 +22,13 @@ import TransactionViewer from './control_box_components/TransactionViewer'
 import Benchmark from './control_box_components/Benchmark'
 import ToggleFullscreen from '@/helpers/toggle-fullscreen'
 import Cart from './cart-store'
-import Modal from '@/vue-web-core/components/bootstrap/Modal.vue'
 import SyncStore from '@/database/sync/sync-store'
+import DialogBox from '@/vue-web-core/components/DialogBox'
 export default {
   components: {
     TransactionViewer,
     Benchmark,
-    Modal
+    DialogBox
   },
   mounted(){
     this.runLiveTime()
@@ -49,25 +39,33 @@ export default {
     return {
       liveTime: null,
       connectionSpeed: 0,
-      isFullscreen: false
+      isFullscreen: false,
+      inDevMode: process.env.NODE_ENV === 'development' || localStorage.getItem('in_development_mode')
     }
   },
   methods: {
-    proceed(){
-      Cart.commit('reset')
-      this.$refs.modal._close()
-    },
-    decline(){
-      this.$refs.modal._close()
-    },
     toggleFullscreen(){
       this.isFullscreen = ToggleFullscreen.toggle()
     },
     clearCart(){
-      this.$refs.modal._open()
+      this.$refs.dialogBox._open('Do you want to clear the orders?', {
+        yes_icon: 'trash',
+        yes_label: 'Clear Orders',
+      }).then((answer) => {
+        if(answer === 'yes'){
+          Cart.commit('reset')
+        }
+      })
     },
     refreshApp(){
-      location.reload()
+      this.$refs.dialogBox._open('Are you sure you want to clear your cart?', {
+        yes_icon: 'redo',
+        yes_label: 'Refresh',
+      }).then((answer) => {
+        if(answer === 'yes'){
+          location.reload()
+        }
+      })
     },
     viewTransaction(){
       this.$refs.TransactionViewer._open(Cart.state.latestTransactionNumber ? Cart.state.latestTransactionNumber : null)
