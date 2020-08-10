@@ -12,14 +12,12 @@
     </div>
     <div class="row">
       <div class="col ml-4 mt-2">
-        <h5>Hourly</h5>
+        <h5>Hourly Product Trend</h5>
       </div>
     </div>
     <div class="row">
       <div class="col mt-2 ml-4">
-        <p>This graph shows all the transactions made for every hour within the selected timeframe.
-          It identifies which products are sold the most in specific time of the day.
-          </p>
+        <p>The graph shows the total item sold on each time of the day. This would help you determine which item is sold best or least on specific time</p>
       </div>
     </div>
     <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></line-chart>

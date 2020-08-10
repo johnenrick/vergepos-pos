@@ -304,7 +304,21 @@ export default {
               transaction: {
                 is_parent: true,
                 with: {
-                  transaction_products: {}
+                  transaction_products: {
+                    join: {
+                      with: 'products',
+                      on: 'products.db_id=transaction_products.product_id',
+                      type: 'inner',
+                      as: {
+                        'id': 'product_id',
+                        'db_id': 'product_db_id',
+                        'created_at': 'product_created_at',
+                        'updated_at': 'product_updated_at',
+                        'deleted_at': 'product_deleted_at',
+                        'cost': 'cost'
+                      }
+                    }
+                  }
                 }
               }
             }

@@ -14,7 +14,7 @@
     </div>
     <div class="row">
       <div class="col ml-4 mt-2">
-        <h5>Monthly</h5>
+        <h5>Monthly Product Summary</h5>
       </div>
     </div>
     <div class="row">
@@ -25,6 +25,7 @@
       </div>
     </div>
     <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></line-chart>
+    <small class="text-muted"><strong>*Note:</strong> Months with no data are automatically removed</small>
   </div>
 </template>
 <script>
@@ -40,6 +41,7 @@ export default {
       passedData: {},
       newStart: '',
       newEnd: '',
+      monthNames: ['Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec'],
       datacollection: null,
       chartConfig: {
         maintainAspectRatio: false,
@@ -60,7 +62,7 @@ export default {
       this.datacollection = null
       this.plotData()
     },
-    _prepData(data, start, end){
+    _plotData(data, start, end){
       this.passedData = data
       this.newStart = start.slice(0, 10)
       let temp = this.newStart.split('-')
@@ -76,11 +78,8 @@ export default {
       } else{
         this.isEmpty = false
       }
-      let dateLabel = this.createDateLabels()
-      let qty = []
-      let amt = []
-      let discAmt = []
-      let prft = []
+
+      let dataSets = []
       let products = []
       for(let element in this.passedData){
         if(!products.includes(this.passedData[element]['description'])){
@@ -89,28 +88,7 @@ export default {
       }
       products.forEach(element => {
         let color = '#' + Math.floor(Math.random() * 16777215).toString(16)
-        qty.push({
-          label: element,
-          fill: false,
-          borderColor: color,
-          backgroundColor: color,
-          data: []
-        })
-        amt.push({
-          label: element,
-          fill: false,
-          borderColor: color,
-          backgroundColor: color,
-          data: []
-        })
-        discAmt.push({
-          label: element,
-          fill: false,
-          borderColor: color,
-          backgroundColor: color,
-          data: []
-        })
-        prft.push({
+        dataSets.push({
           label: element,
           fill: false,
           borderColor: color,
@@ -118,50 +96,49 @@ export default {
           data: []
         })
       })
+      let xLabels = []
       for(let x in this.passedData){
-        for(let y in this.passedData[x]['data']){
-          qty[products.indexOf(this.passedData[x]['description'])]['data'].push({
-            x: this.passedData[x]['data'][y]['x'],
-            y: this.passedData[x]['data'][y]['y']
-          })
-          amt[products.indexOf(this.passedData[x]['description'])]['data'].push({
-            x: this.passedData[x]['data'][y]['x'],
-            y: this.passedData[x]['data'][y]['y'] * this.passedData[x]['price']
-          })
-          discAmt[products.indexOf(this.passedData[x]['description'])]['data'].push({
-            x: this.passedData[x]['data'][y]['x'],
-            y: (this.passedData[x]['data'][y]['y'] * this.passedData[x]['price']) - (this.passedData[x]['data'][y]['y'] * this.passedData[x]['discount_amt'])
-          })
-          prft[products.indexOf(this.passedData[x]['description'])]['data'].push({
-            x: this.passedData[x]['data'][y]['x'],
-            y: (this.passedData[x]['data'][y]['y'] * this.passedData[x]['price']) - (this.passedData[x]['data'][y]['y'] * this.passedData[x]['cost'])
+        for(let dataKey in this.passedData[x]['data']){
+          let xValue = dataKey
+          if(xLabels.indexOf(xValue) === -1){
+            xLabels.push(xValue)
+          }
+          let yValue = 0
+          switch(this.view * 1){
+            case 1: yValue = this.passedData[x]['data'][dataKey]['quantity']; break
+            case 2: yValue = this.passedData[x]['data'][dataKey]['amount']; break
+            case 3: yValue = this.passedData[x]['data'][dataKey]['discount_amount']; break
+            case 4: yValue = this.passedData[x]['data'][dataKey]['profit']; break
+          }
+          dataSets[products.indexOf(this.passedData[x]['description'])]['data'].push({
+            x: xValue,
+            y: yValue
           })
         }
       }
-      if(this.view * 1 === 1){
-        this.datacollection = {
-          labels: dateLabel,
-          bezierCurve: false,
-          datasets: qty
+      xLabels.sort((a, b) => {
+        return (new Date(a.x)).getTime() < (new Date(b.x)).getTime() ? -1 : 0
+      })
+      xLabels.forEach((xLabel) => {
+        for(let x in this.passedData){
+          if(typeof this.passedData[x]['data'][xLabel] === 'undefined'){
+            dataSets[products.indexOf(this.passedData[x]['description'])]['data'].push({
+              x: xLabel,
+              y: 0
+            })
+          }
         }
-      } else if(this.view * 1 === 2){
-        this.datacollection = {
-          labels: dateLabel,
-          bezierCurve: false,
-          datasets: amt
-        }
-      } if(this.view * 1 === 3){
-        this.datacollection = {
-          labels: dateLabel,
-          bezierCurve: false,
-          datasets: discAmt
-        }
-      } if(this.view * 1 === 4){
-        this.datacollection = {
-          labels: dateLabel,
-          bezierCurve: false,
-          datasets: prft
-        }
+      })
+      for(let index in this.passedData){
+        let productIndex = products.indexOf(this.passedData[index]['description'])
+        dataSets[productIndex]['data'].sort((a, b) => {
+          return (new Date(a.x)).getTime() < (new Date(b.x)).getTime() ? -1 : 0
+        })
+      }
+      this.datacollection = {
+        labels: xLabels,
+        bezierCurve: false,
+        datasets: dataSets
       }
     },
     formatDate(date){
@@ -170,14 +147,6 @@ export default {
       temp['month'] = new Date(date).getMonth()
       temp['day'] = new Date(date).getDate()
       return temp['year'] + '-' + temp['month'] + '-' + temp['day']
-    },
-    createDateLabels(){
-      let months = ['Jan', 'Feb', 'Mar', 'April', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec']
-      let labels = []
-      for(let ctr = this.newStart.getMonth(); ctr <= this.newEnd.getMonth(); ctr++){
-        labels.push(months[ctr])
-      }
-      return labels
     }
   }
 }

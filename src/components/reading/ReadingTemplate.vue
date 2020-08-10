@@ -1,6 +1,5 @@
 <template>
   <div class="" style="">
-    {{isPrinting + ''}}
     <div :id="randomId">
       <div class="text-center">
         <p :style="isPrinting ? printingStyle : ''">

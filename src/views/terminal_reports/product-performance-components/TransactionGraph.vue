@@ -12,12 +12,12 @@
     </div>
     <div class="row">
       <div class="col ml-4 mt-2">
-        <h5>Transactions</h5>
+        <h5>Product Summary</h5>
       </div>
     </div>
     <div class="row">
       <div class="col mt-2 ml-4">
-        <p>This graph shows all the transactions made for every hour within the selected timeframe.</p>
+        <p>This graphs compares each products sold in terms of quantity. amount, profit, and discount</p>
       </div>
     </div>
     <bar-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></bar-chart>

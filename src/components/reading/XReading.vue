@@ -84,8 +84,9 @@ export default {
         '>': this.startDatetime.getTime()
       }
       if(this.endDatetime){
-        createdAtCondition['<'] = this.endDatetime.getTime()
+        createdAtCondition['<='] = this.endDatetime.getTime()
       }
+      console.log(this.startDatetime, this.endDatetime)
       let query = {
         where: {
           created_at: createdAtCondition
@@ -117,6 +118,7 @@ export default {
       return new Promise((resolve, reject) => {
         let transactionNumberDB = new TransactionNumber()
         transactionNumberDB.get(query).then(transactionNumbers => {
+          console.log(transactionNumbers)
           if(!transactionNumbers.length){
             resolve(null)
           }else{
@@ -260,6 +262,7 @@ export default {
       this.salesTransactionCount = 0
       this.firstTransactionNumber = 0
       this.lastTransactionNumber = 0
+      this.totalVoidedAmount = 0
       for(let x in this.discountAmounts){
         Vue.set(this.discountAmounts, x, {
           description: this.discountAmounts[x]['description'],

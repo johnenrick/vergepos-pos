@@ -9,7 +9,7 @@
         <set-terminal  />
       </div>
       <div v-if="quickActionCardVisibility['install']" class="col-sm-12 col-md-6 px-1 mb-2">
-        <install /> hey
+        <install />
       </div>
       <div v-if="quickActionCardVisibility['back_up_database']" class="col-sm-12 col-md-6 px-1 mb-2">
         <back-up-database/>

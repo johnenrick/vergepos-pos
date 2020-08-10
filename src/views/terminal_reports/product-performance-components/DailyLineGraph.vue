@@ -12,7 +12,7 @@
     </div>
     <div class="row">
       <div class="col ml-4 mt-2">
-        <h5>Product Daily Summary</h5>
+        <h5>Daily Product Summary</h5>
       </div>
     </div>
     <div class="row">
@@ -156,14 +156,31 @@ export default {
               x: date,
               y: 0
             })
+            amount[productIndex]['data'].push({
+              x: date,
+              y: 0
+            })
+            discountAmount[productIndex]['data'].push({
+              x: date,
+              y: 0
+            })
+            profit[productIndex]['data'].push({
+              x: date,
+              y: 0
+            })
           }
         })
         quantity[productIndex]['data'].sort((a, b) => {
-          if((new Date(a.x)).getTime() < (new Date(b.x)).getTime()){
-            return -1
-          }else{
-            return 0
-          }
+          return (new Date(a.x)).getTime() < (new Date(b.x)).getTime() ? -1 : 0
+        })
+        amount[productIndex]['data'].sort((a, b) => {
+          return (new Date(a.x)).getTime() < (new Date(b.x)).getTime() ? -1 : 0
+        })
+        discountAmount[productIndex]['data'].sort((a, b) => {
+          return (new Date(a.x)).getTime() < (new Date(b.x)).getTime() ? -1 : 0
+        })
+        profit[productIndex]['data'].sort((a, b) => {
+          return (new Date(a.x)).getTime() < (new Date(b.x)).getTime() ? -1 : 0
         })
       }
       if(this.view * 1 === 1){
