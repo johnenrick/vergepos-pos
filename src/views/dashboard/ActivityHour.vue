@@ -7,7 +7,7 @@
           <p class="card-text">Shows you which hours of the day you have most transactions. This is very helpful in anticipating busy hours so you can prepare or do other productive tasks on non busy hours</p>
           <div class="row">
             <div class="col-12">
-              <p v-if="isLoading === false" class="mb-0">Showing data on <strong>{{curDate | formatDate('M d, yyyy')}}</strong></p>
+              <p v-if="isLoading === false" class="mb-0">Showing data on <strong>{{curDate | formatDate('M d, yyyy (Day)')}}</strong></p>
               <p v-else class="mb-0"><fa icon="hourglass-half" /> Loading...</p>
             </div>
           </div>
