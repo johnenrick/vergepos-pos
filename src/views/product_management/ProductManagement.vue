@@ -2,7 +2,9 @@
   <div class="section p-3">
     <div v-if="isCategoryAvailable === true">
     </div>
-    <basic-module v-if="isOffline === false && isOffline !== null && isCategoryAvailable === true" :config="config" @form-update="formUpdateListener" @form-delete="formDeleteListener"/>
+    <basic-module v-if="isOffline === false && isOffline !== null && isCategoryAvailable === true" :config="config" @form-update="formUpdateListener" @form-delete="formDeleteListener">
+      <template slot="customSection1"><FAQ /></template>
+    </basic-module>
     <div v-else-if="(isOffline === false || isOffline === true) && isOffline !== null && isCategoryAvailable === false">
       <h2 class="mb-4">Product List</h2>
       <div class="text-center alert border-warning m-4">
@@ -10,6 +12,7 @@
           <fa icon="exclamation-triangle" class="text-warning"/> You need to create a Product Category first before you can create a <strong> Product</strong>. You can do this by clicking <fa icon="boxes" /><strong> Category</strong> in the side menu.
         </span>
       </div>
+      <FAQ />
     </div>
     <template v-else-if="isOffline === true && isOffline !== null && isCategoryAvailable === true">
       <h2>Product List<small>(Offline)</small></h2>
@@ -28,11 +31,13 @@ import ProductListOffline from './ProductListOffline.vue'
 import UserStore from '@/vue-web-core/system/store'
 import Category from '@/database/controller/category.js'
 import ProductDB from '@/database/controller/product'
+import FAQ from './product-management-components/FAQ'
 let ModuleDefault = {
   name: 'dashboard',
   components: {
     BasicModule,
-    ProductListOffline
+    ProductListOffline,
+    FAQ
   },
   mounted () {
     this.isTerminal = localStorage.getItem('is_terminal')
@@ -44,6 +49,28 @@ let ModuleDefault = {
         column: 'description',
         order: 'asc',
       }]
+    }
+    const tableFilterSetting = {
+      form_field_setting: {
+        fields: {
+          description: {
+            clause: 'like',
+            label_col_span: 0,
+            col: 6,
+          },
+          category_id: {
+            label_col_span: 0,
+            col: 6,
+            name: 'Category',
+            type: 'select',
+            is_retained_on_create: true,
+            config: {
+              api_link: 'category/retrieve',
+              api_option_text: 'description'
+            }
+          },
+        }
+      }
     }
     let tableColumnSetting = {
       description: {},
@@ -73,7 +100,9 @@ let ModuleDefault = {
           help_text: 'Name of the product. Example: Palmolive 5ml, Large Onion, Egg',
           placeholder: 'Product Description or Product Name'
         },
-        barcode: {},
+        barcode: {
+          help_text: 'This is optional'
+        },
         cost: {
           help_text: 'How much you spent to buy each item. Also known as Cost of Goods.'
         },
@@ -93,6 +122,7 @@ let ModuleDefault = {
         api: 'product',
         has_create_more: true,
         table_setting: {
+          filter_setting: tableFilterSetting,
           retrieve_parameter: tableSettingRetrieveParameter,
           table_column_setting: tableColumnSetting
         },

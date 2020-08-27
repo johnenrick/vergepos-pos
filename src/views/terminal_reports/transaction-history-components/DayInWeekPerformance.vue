@@ -10,7 +10,6 @@ export default {
     LineChart
   },
   props: {
-    transactions: Array
   },
   mounted(){
     // this._generate()
@@ -32,23 +31,22 @@ export default {
     }
   },
   methods: {
-    _generate(){
+    _generate(transactions){
       let transactionGroupByDay = {}
-      for(let x = 0; x < this.transactions.length; x++){
-        if(this.transactions[x]['status'] !== 1){
+      for(let x = 0; x < transactions.length; x++){
+        if(transactions[x]['status'] !== 1){
           continue
         }
-        let day = (new Date(this.transactions[x]['created_at'])).getDay()
+        let day = (new Date(transactions[x]['created_at'])).getDay()
         if(typeof transactionGroupByDay[day] === 'undefined'){
           transactionGroupByDay[day] = {
             amount: 0,
             discount_amount: 0
           }
         }
-        transactionGroupByDay[day]['amount'] += (this.transactions[x]['total_amount'] * 1).toFixed(2) * 1
-        transactionGroupByDay[day]['discount_amount'] += (this.transactions[x]['total_discount_amount'] * 1).toFixed(2) * 1
+        transactionGroupByDay[day]['amount'] += (transactions[x]['total_amount'] * 1).toFixed(2) * 1
+        transactionGroupByDay[day]['discount_amount'] += (transactions[x]['total_discount_amount'] * 1).toFixed(2) * 1
       }
-      console.log(transactionGroupByDay)
       this.plotData(transactionGroupByDay)
     },
     plotData(transactionGroupByDay){
@@ -67,7 +65,6 @@ export default {
           y: (transactionGroupByDay[day]['discount_amount']).toFixed(2)
         })
       }
-      console.log('transactionAmountTrend', transactionAmountTrend)
       this.datacollection = {
         labels: dayLabel,
         bezierCurve: false,

@@ -16,7 +16,7 @@
             <tr>
               <td class="text-uppercase  text-center text-danger" colspan="2" v-if="transactionDetail.status === 2">
                 <span class="font-weight-bold" >Voided Transaction</span> <br>
-                Ref. Txn# {{transactionDetail.voidedTransactionNumber}}
+                Ref. Txn# {{transactionDetail.voidTransactionNumber}}
               </td>
             </tr>
             <tr class="">
@@ -25,64 +25,73 @@
             </tr>
           </tbody>
         </table>
-        <table class="table table-sm mb-1" style="width:100%">
-          <thead>
-            <tr class="text-center">
-              <th>Description</th>
-              <th>Qty</th>
-              <th>Price</th>
-            </tr>
-          </thead>
-          <tbody>
-            <template v-for="(product, index) in transactionProduct">
-              <tr :key="index">
-                <td class="">{{product['description']}}</td>
-                <td class="text-right" style="text-align: right">{{product['quantity']}}</td>
-                <td class="text-right" style="text-align: right">{{product['price'] | numberFormat}}</td>
+        <div v-if="transactionOperation === 2" class="text-center">
+          <p>This Void Transaction has voided transaction</p>
+          <p class="font-weight-bold">{{transactionDetail.voidedTransactionNumber}}</p>
+          <p>due to the reason of</p>
+          <p><em>{{transactionDetail.voidTransactionReason}}</em></p>
+          <hr>
+        </div>
+        <div v-else>
+          <table class="table table-sm mb-1" style="width:100%">
+            <thead>
+              <tr class="text-center">
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Price</th>
               </tr>
-            </template>
-          </tbody>
-        </table>
-        <table class="table table-sm topDivider mb-0 w-100" style="width:100%">
-          <tbody>
-            <tr class="font-weight-bold" >
-              <td>Sub Total</td>
-              <td style="text-align: right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
-            </tr>
-            <tr>
-              <td>VAT Sales</td>
-              <td style="text-align: right">{{transactionDetail.vatSales | numberFormat}}</td>
-            </tr>
-            <tr>
-              <td>VAT Exempt Sales</td>
-              <td style="text-align: right">{{transactionDetail.vatExemptSales | numberFormat}}</td>
-            </tr>
-            <tr>
-              <td>ZR Sales</td>
-              <td style="text-align: right">{{transactionDetail.vatZeroRatedSales | numberFormat}}</td>
-            </tr>
-            <tr>
-              <td>VAT Amount</td>
-              <td style="text-align: right">{{transactionDetail.vatAmount | numberFormat}}</td>
-            </tr>
-            <tr>
-              <td>Discount</td>
-              <td style="text-align: right">{{transactionDetail.discountAmount | numberFormat}}</td>
-            </tr>
-            <tr class="font-weight-bold text-uppercase">
-              <td>Total</td>
-              <td style="text-align: right">{{transactionDetail.totalAmount | numberFormat}}</td>
-            </tr>
-            <tr>
-              <td>Cash</td>
-              <td style="text-align: right">{{transactionDetail.cashTendered | numberFormat}}</td>
-            </tr>
-            <tr>
-              <td>Change</td>
-              <td style="text-align: right">{{(transactionDetail.cashTendered - transactionDetail.totalAmount) | numberFormat}}</td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <template v-for="(product, index) in transactionProduct">
+                <tr :key="index">
+                  <td class="">{{product['description']}}</td>
+                  <td class="text-right" style="text-align: right">{{product['quantity']}}</td>
+                  <td class="text-right" style="text-align: right">{{product['price'] | numberFormat}}</td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+          <table class="table table-sm topDivider mb-0 w-100" style="width:100%">
+            <tbody>
+              <tr class="font-weight-bold" >
+                <td>Sub Total</td>
+                <td style="text-align: right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
+              </tr>
+              <tr>
+                <td>VAT Sales</td>
+                <td style="text-align: right">{{transactionDetail.vatSales | numberFormat}}</td>
+              </tr>
+              <tr>
+                <td>VAT Exempt Sales</td>
+                <td style="text-align: right">{{transactionDetail.vatExemptSales | numberFormat}}</td>
+              </tr>
+              <tr>
+                <td>ZR Sales</td>
+                <td style="text-align: right">{{transactionDetail.vatZeroRatedSales | numberFormat}}</td>
+              </tr>
+              <tr>
+                <td>VAT Amount</td>
+                <td style="text-align: right">{{transactionDetail.vatAmount | numberFormat}}</td>
+              </tr>
+              <tr>
+                <td>Discount</td>
+                <td style="text-align: right">{{transactionDetail.discountAmount | numberFormat}}</td>
+              </tr>
+              <tr class="font-weight-bold text-uppercase">
+                <td>Total</td>
+                <td style="text-align: right">{{transactionDetail.totalAmount | numberFormat}}</td>
+              </tr>
+              <tr>
+                <td>Cash</td>
+                <td style="text-align: right">{{transactionDetail.cashTendered | numberFormat}}</td>
+              </tr>
+              <tr>
+                <td>Change</td>
+                <td style="text-align: right">{{(transactionDetail.cashTendered - transactionDetail.totalAmount) | numberFormat}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <br>
         <div class="text-center">
           <p>
@@ -167,6 +176,7 @@ export default {
       transactionNumberDB: new TransactionNumber(),
       userDB: new User(),
       transactionNumber: null,
+      transactionOperation: 1,
       transactionProduct: [],
       toVoid: false,
       users: [],
@@ -193,7 +203,8 @@ export default {
         datetime: '0/0/0',
         status: 1,
         voidable: false,
-        voidedTransactionNumber: null,
+        voidTransactionNumber: null, // the transaction number used to void
+        voidedTransactionNumber: null // the transaction number being voided
 
       },
       isPrinting: false
@@ -209,10 +220,10 @@ export default {
         return false
       }
       return new Promise((resolve, reject) => {
+        console.log('this.transactionNumber', this.transactionNumber)
         this.transactionNumberDB.get({
           where: {
             number: this.transactionNumber * 1,
-            operation: 1
           },
           with: {
             transaction: {
@@ -234,6 +245,7 @@ export default {
                 }
               }
             },
+            transaction_void: {}
           },
           join: [{
             with: 'transaction_voids',
@@ -253,6 +265,7 @@ export default {
             as: {
               'id': 'voided_transaction_number_id',
               'db_id': 'voided_transaction_number_db_id',
+              'operation': 'voided_transaction_number_operation',
               'number': 'voided_transaction_number_number',
               'created_at': 'voided_transaction_number_created_at',
               'updated_at': 'voided_transaction_number_updated_at',
@@ -261,27 +274,38 @@ export default {
           }]
         }).then((result) => {
           if(result.length){
-            console.log(result)
             result = result[0]
-            this.transactionDetail.id = result['transaction']['id']
-            this.transactionDetail.transaction_number = result['number']
-            this.transactionDetail.vatSales = result['transaction']['total_vat_sales']
-            this.transactionDetail.vatExemptSales = result['transaction']['total_vat_exempt_sales']
-            this.transactionDetail.vatZeroRatedSales = result['transaction']['total_vat_zero_rated_sales']
-            this.transactionDetail.vatAmount = result['transaction']['total_vat_amount']
-            this.transactionDetail.discountAmount = result['transaction']['total_discount_amount']
-            this.transactionDetail.totalAmount = result['transaction']['total_amount']
-            this.transactionDetail.subTotalAmount = result['transaction']['sub_total_amount']
-            this.transactionDetail.cashTendered = result['transaction']['cash_tendered']
-            this.transactionDetail.datetime = result['created_at']
-            this.transactionDetail.status = result['transaction_void_id'] === null ? 1 : 2
-            let dateCreated = new Date(this.transactionDetail.datetime)
-            let currentDate = new Date()
-            this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate() && result['transaction_void_id'] === null
-            if(result['transaction_void_id']){
-              this.transactionDetail.voidedTransactionNumber = result['voided_transaction_number_number']
+            console.log(result)
+            if(result['operation'] === 2){
+              this.transactionOperation = 2
+              this.transactionDetail.datetime = result['created_at']
+              this.transactionDetail.transactionNumber = result['number']
+              if(result['transaction_void']){
+                this.transactionDetail.voidedTransactionNumber = result['transaction_void']['voided_transaction_number']
+                this.transactionDetail.voidTransactionReason = result['transaction_void']['remarks']
+              }
+            }else{
+              this.transactionOperation = 1
+              this.transactionDetail.id = result['transaction']['id']
+              this.transactionDetail.transactionNumber = result['number']
+              this.transactionDetail.vatSales = result['transaction']['total_vat_sales']
+              this.transactionDetail.vatExemptSales = result['transaction']['total_vat_exempt_sales']
+              this.transactionDetail.vatZeroRatedSales = result['transaction']['total_vat_zero_rated_sales']
+              this.transactionDetail.vatAmount = result['transaction']['total_vat_amount']
+              this.transactionDetail.discountAmount = result['transaction']['total_discount_amount']
+              this.transactionDetail.totalAmount = result['transaction']['total_amount']
+              this.transactionDetail.subTotalAmount = result['transaction']['sub_total_amount']
+              this.transactionDetail.cashTendered = result['transaction']['cash_tendered']
+              this.transactionDetail.datetime = result['created_at']
+              this.transactionDetail.status = result['transaction_void_id'] === null ? 1 : 2
+              let dateCreated = new Date(this.transactionDetail.datetime)
+              let currentDate = new Date()
+              this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate() && result['transaction_void_id'] === null
+              if(result['transaction_void_id']){
+                this.transactionDetail.voidTransactionNumber = result['voided_transaction_number_number']
+              }
+              this.transactionProduct = result['transaction']['transaction_products']
             }
-            this.transactionProduct = result['transaction']['transaction_products']
             setTimeout(() => {
               this.isLoading = false
               resolve()
@@ -340,12 +364,12 @@ export default {
                 let transactionvoidEntry = {
                   transaction_id: this.transactionDetail.id, // the transaction id of the voided transaction
                   transaction_number_id: transactionNumberResult['id'] * 1, // the transaction number id
-                  voided_transaction_number: this.transactionDetail.transaction_number, // the transaction number of the voided transaction. This is relevant for transactions that has not been uploaded yet, therefore no transaction id yet
+                  voided_transaction_number: this.transactionDetail.transactionNumber, // the transaction number of the voided transaction. This is relevant for transactions that has not been uploaded yet, therefore no transaction id yet
                   db_id: 0,
                   remarks: this.remarks
                 }
                 this.transactionVoidDB.add(transactionvoidEntry).then((response) => {
-                  this.transactionDetail.voidedTransactionNumber = transactionNumberResult['number']
+                  this.transactionDetail.voidTransactionNumber = transactionNumberResult['number']
                   this.transactionDetail.status = 2
                   this.voidErrorMessage = null
                   this.toVoid = false

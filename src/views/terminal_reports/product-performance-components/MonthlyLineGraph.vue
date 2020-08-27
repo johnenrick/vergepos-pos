@@ -19,9 +19,7 @@
     </div>
     <div class="row">
       <div class="col mt-2 ml-4">
-        <p>This graph shows all the transactions made for every hour within the selected timeframe.
-          It identifies which products are sold the most in every month.
-          </p>
+        <p class="mb-0">This graph shows all the transactions made for every hour within the selected timeframe. It identifies which products are sold the most in every month.</p>
       </div>
     </div>
     <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></line-chart>

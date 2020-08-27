@@ -19,7 +19,7 @@
 </template>
 <script>
 import LineChart from '@/vue-web-core/components/chart/LineChart.js'
-import Transaction from '@/database/controller/transaction'
+import TransactionNumber from '@/database/controller/transaction-number'
 // import Transaction from '@/database/controller/transaction'
 export default {
   components: {
@@ -46,7 +46,6 @@ export default {
     }
   },
   mounted () {
-    this.retrieveData()
   },
   methods: {
     _initialize(){
@@ -72,26 +71,35 @@ export default {
         order: {
           by: 'created_at',
           type: 'asc'
+        },
+        with: {
+          transaction: {},
+          transaction_void: {
+            with: {
+              transaction: {
+                is_parent: true
+              }
+            }
+          }
         }
       }
-      let transactionDB = new Transaction()
-      transactionDB.get(query).then(transactions => {
+      let transactionNumberDB = new TransactionNumber()
+      transactionNumberDB.get(query).then(transactionNumbers => {
         let transactionGroup = {}
-        for(let x = 0; x < transactions.length; x++){
-          if(transactions[x]['status'] !== 1){
-            continue
-          }
-          let transactionDate = new Date(transactions[x]['created_at'])
-          let date = this.padNumber(transactionDate.getDate()) + '-' + this.padNumber(transactionDate.getMonth() + 1) + '-' + this.padNumber(transactionDate.getFullYear())
+        transactionNumbers.forEach(transactionNumber => {
+          const transactionDate = new Date(transactionNumber['created_at'])
+          const date = this.padNumber(transactionDate.getDate()) + '-' + this.padNumber(transactionDate.getMonth() + 1) + '-' + this.padNumber(transactionDate.getFullYear())
           if(typeof transactionGroup[date] === 'undefined'){
             transactionGroup[date] = {
               amount: 0,
               discount_amount: 0
             }
           }
-          transactionGroup[date]['amount'] += (transactions[x]['total_amount'] * 1).toFixed(2) * 1
-          transactionGroup[date]['discount_amount'] += (transactions[x]['total_discount_amount'] * 1).toFixed(2) * 1
-        }
+          const transaction = transactionNumber['operation'] === 2 ? transactionNumber['transaction_void']['transaction'] : transactionNumber['transaction']
+          const negativeMultiplier = transactionNumber['operation'] === 2 ? -1 : 1
+          transactionGroup[date]['amount'] += (transaction['total_amount'] * 1).toFixed(2) * negativeMultiplier
+          transactionGroup[date]['discount_amount'] += (transaction['total_discount_amount'] * 1).toFixed(2) * negativeMultiplier
+        })
         this.plotData(transactionGroup)
       })
     },

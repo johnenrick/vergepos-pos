@@ -29,8 +29,7 @@ export default {
             callback: (value) => {
               return this.padNumber(value, 7)
             }
-          },
-          {
+          }, {
             name: 'dateAndTime',
             title: 'Date And Time',
             titleClass: 'text-center',
@@ -38,27 +37,44 @@ export default {
             callback: (value) => {
               return this.formatDate(value, 'mm/dd/yy hh:mm')
             }
-          },
-          {
+          }, {
             name: 'transactionProd.description',
             title: 'Description',
             titleClass: 'text-center',
             dataClass: 'text-justify',
-          },
-          {
-            name: 'transactionProd.price',
+          }, {
+            name: 'price',
             title: 'Price',
             titleClass: 'text-center',
             dataClass: 'text-right',
             callback: (value) => {
-              if(value * 1 > 0){
-                return (this.numberToMoney(value))
-              }else{
-                return '(' + (this.numberToMoney(value * -1)) + ')'
-              }
+              return this.numberToMoney(value)
             }
-          },
-          {
+          }, {
+            name: 'cost',
+            title: 'Cost',
+            titleClass: 'text-center',
+            dataClass: 'text-right',
+            callback: (value) => {
+              return this.numberToMoney(value)
+            }
+          }, {
+            name: 'amount',
+            title: 'Amount',
+            titleClass: 'text-center',
+            dataClass: 'text-right',
+            callback: (value) => {
+              return this.numberToMoney(value)
+            }
+          }, {
+            name: 'discount_amount',
+            title: 'Discount',
+            titleClass: 'text-center',
+            dataClass: 'text-right',
+            callback: (value) => {
+              return this.numberToMoney(value)
+            }
+          }, {
             name: 'profit',
             title: 'Profit',
             titleClass: 'text-center',
@@ -79,11 +95,18 @@ export default {
     _getData(data){ // Use proper naming, and add underscore prefix if the method is exposed
       data.forEach(elem => {
         elem['transaction_products'].forEach(element => {
+          const negativeMultiplier = elem['operation'] === 2 ? -1 : 1
+          const amount = (element['vat_sales'] * 1) + (element['vat_exempt_sales'] * 1) + (element['vat_zero_rated_sales'] * 1) + (element['vat_amount'] * 1) - element['discount_amount'] * 1
           this.transactions.push({
             transactionProd: element,
             number: elem['number'],
+            price: element['price'] * negativeMultiplier,
+            cost: element['cost'],
+            amount: amount * negativeMultiplier,
+            quantity: element['quantity'] * negativeMultiplier,
+            discount_amount: element['discount_amount'] * negativeMultiplier,
             dateAndTime: elem['created_at'],
-            profit: (element['vat_sales'] * 1) + (element['vat_exempt_sales'] * 1) + (element['vat_amount'] * 1) - (element['cost'] * 1) - (element['discount_amount'] * 1)
+            profit: (amount - (element['cost'] * element['quantity'])) * negativeMultiplier
           })
         })
       })

@@ -33,6 +33,7 @@
     "vue-pwa-installer": "^0.2.0",
     "vue-router": "^3.3.4",
     "vue-select": "^3.10.7",
+    "vue-youtube-embed": "^2.2.2",
     "vuex": "^3.5.1",
     "weekstart": "^1.0.1"
   },

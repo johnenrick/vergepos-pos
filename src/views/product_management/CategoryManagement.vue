@@ -1,16 +1,20 @@
 <template>
   <div class="section p-3">
-    <basic-module :config="config" @form-update="formUpdateListener" @form-delete="formDeleteListener" />
+    <basic-module :config="config" @form-update="formUpdateListener" @form-delete="formDeleteListener" >
+      <template slot="customSection1"><FAQ /></template>
+    </basic-module>
   </div>
 </template>
 
 <script>
 import BasicModule from '@/vue-web-core/components/basic-module/BasicModule'
 import CategoryDB from '@/database/controller/category'
+import FAQ from './category-management-components/FAQ'
 let ModuleDefault = {
   name: 'dashboard',
   components: {
-    BasicModule
+    BasicModule,
+    FAQ
   },
   mounted () {
   },

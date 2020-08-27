@@ -10,7 +10,6 @@ export default {
     LineChart
   },
   props: {
-    transactions: Array
   },
   mounted(){
     // this._generate()
@@ -32,21 +31,21 @@ export default {
     }
   },
   methods: {
-    _generate(){
+    _generate(transactions){
       let transactionGroupByHour = {}
-      for(let x = 0; x < this.transactions.length; x++){
-        if(this.transactions[x]['status'] !== 1){
+      for(let x = 0; x < transactions.length; x++){
+        if(transactions[x]['status'] !== 1){
           continue
         }
-        let hour = (new Date(this.transactions[x]['created_at'])).getHours()
+        let hour = (new Date(transactions[x]['created_at'])).getHours()
         if(typeof transactionGroupByHour[hour] === 'undefined'){
           transactionGroupByHour[hour] = {
             amount: 0,
             discount_amount: 0
           }
         }
-        transactionGroupByHour[hour]['amount'] += (this.transactions[x]['total_amount'] * 1).toFixed(2) * 1
-        transactionGroupByHour[hour]['discount_amount'] += (this.transactions[x]['total_discount_amount'] * 1).toFixed(2) * 1
+        transactionGroupByHour[hour]['amount'] += (transactions[x]['total_amount'] * 1).toFixed(2) * 1
+        transactionGroupByHour[hour]['discount_amount'] += (transactions[x]['total_discount_amount'] * 1).toFixed(2) * 1
       }
       this.plotData(transactionGroupByHour)
     },

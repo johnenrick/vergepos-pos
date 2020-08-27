@@ -24,14 +24,14 @@
           </div>
         </div>
         <div v-show="!isTerminal">
-          <fa icon="info-circle" /> You need to set this device as a terminal to be able to see the weekly graph on this terminal. You can do this by clicking the <strong class="text-primaryx p-1">Set As Terminal</strong> at Quick Actions (top of this page).
+          <fa icon="info-circle" /> You need to set this device as a terminal to be able to see the Activity Hour on this terminal. You can do this by clicking the <strong class="text-primaryx p-1">Set As Terminal</strong> at Quick Actions (top of this page).
         </div>
       </div>
     </div>
   </div>
 </template>
 <script>
-import Transaction from '@/database/controller/transaction'
+import Transaction from '@/database/controller/transaction-number'
 import LineChart from '@/vue-web-core/components/chart/LineChart.js'
 export default {
   components: {
@@ -98,9 +98,8 @@ export default {
         where: {
           created_at: {
             '>': this.startDateFilter.getTime(),
-            '<': this.endDateFilter.getTime(),
+            '<=': this.endDateFilter.getTime(),
           },
-          status: 1
         },
         order: {
           by: 'created_at',

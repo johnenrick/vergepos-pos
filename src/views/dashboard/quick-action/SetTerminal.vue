@@ -19,15 +19,12 @@
           {{errorMessage}}
         </div>
         <div class="">
+          <div class="mb-2">
+            <FAQ />
+          </div>
+          <div v-if="isIncognito" class="alert alert-danger">You are current in Incognito! POS transactions need to be stored offline first before sending it to the server</div>
           <label>Device Serial Number</label>
           <input v-model="serialNumber" type="text" class="form-control" placeholder="XXXXXXXXXXXXXXX">
-          <small class="form-text text-muted">
-            <div v-if="!showSerialNumberHelp" class=" text-info c-pointer" @click="showSerialNumberHelp = true"> How to find serial number <fa icon="question-circle" /> </div>
-            <div v-else>
-              <span @click="showSerialNumberHelp = false" class="text-info text-underline c-pointer">Hide</span> <br>
-              If you are using Android devices, you can get the serial number in <strong>Settings > About Phone(or Tablet) > Status > Serial Number</strong>. If you are using a computer, just open a <i>Command Prompt</i> and copy&paste the following code: <i class="font-weight-bold">wmic bios get serialnumber</i>. If you can't find your serial number, don't hesitate to <router-link to="contact-us" class=text-primary>Contact Us</router-link>.
-            </div>
-          </small>
         </div>
         <div v-if="newTerminalMode" class="mb-2">
           <label>Terminal Description</label>
@@ -64,15 +61,33 @@
 <script>
 import UserStore from '@/vue-web-core/system/store'
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
+import FAQ from './set-terminal-components/FAQ'
 export default {
   components: {
-    Modal
+    Modal,
+    FAQ
+  },
+  mounted(){
+    var fs = window.RequestFileSystem || window.webkitRequestFileSystem
+    if (!fs) {
+      console.log('check failed?')
+    } else {
+      fs(window.TEMPORARY, 100,
+        () => {
+          console.log('!incog')
+          this.isIncognito = false
+        },
+        () => {
+          console.log('incog')
+          this.isIncognito = true
+        }
+      )
+    }
   },
   data(){
     return {
       isTerminal: localStorage.getItem('is_terminal'),
       isConfuringTerminal: false,
-      showSerialNumberHelp: false,
       stores: [],
       companyData: {},
       newTerminalMode: true,
@@ -81,6 +96,7 @@ export default {
       serialNumber: '',
       terminalDescription: '',
       errorMessage: null,
+      isIncognito: false
     }
   },
   methods: {

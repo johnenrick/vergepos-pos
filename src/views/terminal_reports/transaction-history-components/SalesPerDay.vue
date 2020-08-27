@@ -10,7 +10,6 @@ export default {
     LineChart
   },
   props: {
-    transactions: Array
   },
   mounted(){
     // this._generate()
@@ -32,13 +31,13 @@ export default {
     }
   },
   methods: {
-    _generate(){
+    _generate(transactions){
       let transactionGroup = {}
-      for(let x = 0; x < this.transactions.length; x++){
-        if(this.transactions[x]['status'] !== 1){
+      for(let x = 0; x < transactions.length; x++){
+        if(transactions[x]['status'] !== 1){
           continue
         }
-        let transactionDate = new Date(this.transactions[x]['created_at'])
+        let transactionDate = new Date(transactions[x]['created_at'])
         let date = this.padNumber(transactionDate.getDate()) + '-' + this.padNumber(transactionDate.getMonth() + 1) + '-' + this.padNumber(transactionDate.getFullYear())
         if(typeof transactionGroup[date] === 'undefined'){
           transactionGroup[date] = {
@@ -46,8 +45,8 @@ export default {
             discount_amount: 0
           }
         }
-        transactionGroup[date]['amount'] += (this.transactions[x]['total_amount'] * 1).toFixed(2) * 1
-        transactionGroup[date]['discount_amount'] += (this.transactions[x]['total_discount_amount'] * 1).toFixed(2) * 1
+        transactionGroup[date]['amount'] += (transactions[x]['total_amount'] * 1).toFixed(2) * 1
+        transactionGroup[date]['discount_amount'] += (transactions[x]['total_discount_amount'] * 1).toFixed(2) * 1
       }
       this.plotData(transactionGroup)
     },

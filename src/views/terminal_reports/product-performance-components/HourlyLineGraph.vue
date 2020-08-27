@@ -17,7 +17,7 @@
     </div>
     <div class="row">
       <div class="col mt-2 ml-4">
-        <p>The graph shows the total item sold on each time of the day. This would help you determine which item is sold best or least on specific time</p>
+        <p class="mb-0">The graph shows the total item sold on each time of the day. This would help you determine which item is sold best or least on specific time</p>
       </div>
     </div>
     <line-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></line-chart>
@@ -63,11 +63,8 @@ export default {
       } else{
         this.isEmpty = false
       }
-      let dateLabel = [ '0:00', '0:00', '1:00', '2:00', '3:00', '4:00', '5:00', '6:00', '7:00', '8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '21:00', '22:00', '23:00', ]
-      let qty = []
-      let amt = []
-      let discAmt = []
-      let prft = []
+      const xLabels = [ '12:00 am', '1:00 am', '2:00 am', '3:00 am', '4:00 am', '5:00 am', '6:00 am', '7:00 am', '8:00 am', '9:00 am', '10:00 am', '11:00 am', '12:00 nn', '1:00 pm', '2:00 pm', '3:00 pm', '4:00 pm', '5:00 pm', '6:00 pm', '7:00 pm', '8:00 pm', '9:00 pm', '10:00 pm', '11:00 pm' ]
+      let dataSets = []
       let products = []
       for(let element in this.passedData){
         if(!products.includes(this.passedData[element]['description'])){
@@ -76,28 +73,7 @@ export default {
       }
       products.forEach(element => {
         let color = '#' + Math.floor(Math.random() * 16777215).toString(16)
-        qty.push({
-          label: element,
-          fill: false,
-          borderColor: color,
-          backgroundColor: color,
-          data: []
-        })
-        amt.push({
-          label: element,
-          fill: false,
-          borderColor: color,
-          backgroundColor: color,
-          data: []
-        })
-        discAmt.push({
-          label: element,
-          fill: false,
-          borderColor: color,
-          backgroundColor: color,
-          data: []
-        })
-        prft.push({
+        dataSets.push({
           label: element,
           fill: false,
           borderColor: color,
@@ -105,50 +81,28 @@ export default {
           data: []
         })
       })
-      for(let x in this.passedData){
-        for(let y in this.passedData[x]['data']){
-          qty[products.indexOf(this.passedData[x]['description'])]['data'].push({
-            x: this.passedData[x]['data'][y]['x'],
-            y: this.passedData[x]['data'][y]['y']
-          })
-          amt[products.indexOf(this.passedData[x]['description'])]['data'].push({
-            x: this.passedData[x]['data'][y]['x'],
-            y: this.passedData[x]['data'][y]['y'] * this.passedData[x]['price']
-          })
-          discAmt[products.indexOf(this.passedData[x]['description'])]['data'].push({
-            x: this.passedData[x]['data'][y]['x'],
-            y: (this.passedData[x]['data'][y]['y'] * this.passedData[x]['price']) - (this.passedData[x]['data'][y]['y'] * this.passedData[x]['discount_amt'])
-          })
-          prft[products.indexOf(this.passedData[x]['description'])]['data'].push({
-            x: this.passedData[x]['data'][y]['x'],
-            y: (this.passedData[x]['data'][y]['y'] * this.passedData[x]['price']) - (this.passedData[x]['data'][y]['y'] * this.passedData[x]['cost'])
+      xLabels.forEach((xLabel) => {
+        for(let productId in this.passedData){
+          const xValue = xLabel
+          let yValue = 0
+          if(typeof this.passedData[productId]['data'][xLabel] !== 'undefined'){
+            switch(this.view * 1){
+              case 1: yValue = this.passedData[productId]['data'][xLabel]['quantity']; break
+              case 2: yValue = this.passedData[productId]['data'][xLabel]['amount']; break
+              case 3: yValue = this.passedData[productId]['data'][xLabel]['discount_amount']; break
+              case 4: yValue = this.passedData[productId]['data'][xLabel]['profit']; break
+            }
+          }
+          dataSets[products.indexOf(this.passedData[productId]['description'])]['data'].push({
+            x: xValue,
+            y: yValue
           })
         }
-      }
-      if(this.view * 1 === 1){
-        this.datacollection = {
-          labels: dateLabel,
-          bezierCurve: false,
-          datasets: qty
-        }
-      } else if(this.view * 1 === 2){
-        this.datacollection = {
-          labels: dateLabel,
-          bezierCurve: false,
-          datasets: amt
-        }
-      } if(this.view * 1 === 3){
-        this.datacollection = {
-          labels: dateLabel,
-          bezierCurve: false,
-          datasets: discAmt
-        }
-      } if(this.view * 1 === 4){
-        this.datacollection = {
-          labels: dateLabel,
-          bezierCurve: false,
-          datasets: prft
-        }
+      })
+      this.datacollection = {
+        labels: xLabels,
+        bezierCurve: false,
+        datasets: dataSets
       }
     }
   }

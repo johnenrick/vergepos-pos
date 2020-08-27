@@ -17,7 +17,7 @@
     </div>
     <div class="row">
       <div class="col mt-2 ml-4">
-        <p>This graphs compares each products sold in terms of quantity. amount, profit, and discount</p>
+        <p class="mb-0">This graphs compares each products sold in terms of quantity. amount, profit, and discount</p>
       </div>
     </div>
     <bar-chart v-if="datacollection" :chart-data="datacollection" :options="chartConfig" :styles="{responsive: true, position: 'relative'}"></bar-chart>

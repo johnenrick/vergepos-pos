@@ -69,7 +69,7 @@
           <div v-show="graphType === 'sales_per_day'">
             <p class="">Sales per day shows the total sale each day. This is useful in determining which days have least and most sales in a month or in a given timeframe.</p>
             <small class="text-info"><fa icon="info-circle"/> You can click the colors in the legend to hide or show the data</small>
-            <sales-per-day ref="salesPerDay" :transactions="transactions" />
+            <sales-per-day ref="salesPerDay" />
           </div>
           <div v-show="graphType === 'day_in_week'">
             <p >Day In Week Performance Graph shows which day in a week has the most and least sales in the given time frame.</p>
@@ -103,6 +103,15 @@
           v-show="toggleButtonState === true"
         />
       </div>
+    </div>
+    <div v-if="transactions.length">
+      Note:
+      <ul>
+        <li>
+        <strong>Amount</strong> = Vat Amount + Vat Sales + Vat Exempt Sales + Zero Rated Sales - Discount Amount
+        </li>
+        <li>Numbers enclosed with parenthesis <strong>"("</strong> and <strong>")"</strong> are negative numbers. Example: <strong>-</strong>9 is written as <strong>(</strong>9<strong>)</strong></li>
+      </ul>
     </div>
     <transaction-viewer ref="TransactionViewer" />
   </div>
@@ -173,7 +182,7 @@ export default {
           titleClass: 'text-center',
           dataClass: 'text-right',
           callback: (value) => {
-            return isNaN(value * 1) ? value : this.numberToMoney(value)
+            return this.numberToMoney(value)
           }
         }, {
           name: 'total_discount_amount',
@@ -181,7 +190,7 @@ export default {
           titleClass: 'text-center',
           dataClass: 'text-right',
           callback: (value) => {
-            return isNaN(value * 1) ? value : this.numberToMoney(value)
+            return this.numberToMoney(value)
           }
         }, {
           name: 'status',
@@ -339,14 +348,14 @@ export default {
               result[x]['total_amount'] = result[x]['transaction']['total_amount']
               result[x]['total_discount_amount'] = result[x]['transaction']['total_discount_amount']
               this.totalDiscount += (result[x]['transaction']['total_discount_amount'] * 1).toFixed(2) * 1
-              this.totalAmount += (result[x]['transaction']['total_amount'] * 1).toFixed(2) * 1
+              this.totalAmount += result[x]['total_amount']
               result[x]['transaction_products'] = result[x]['transaction']['transaction_products']
-            }else if(result[x]['operation'] === 2 && typeof result[x]['transaction_void'] !== 'undefined' && typeof result[x]['transaction_void']['transaction'] !== 'undefined'){
+            }else if(result[x]['operation'] === 2 && typeof result[x]['transaction_void'] !== 'undefined' && typeof result[x]['transaction_void']['transaction'] !== 'undefined'){ // void transaction
               result[x]['status'] = 2
-              result[x]['total_amount'] = '(' + result[x]['transaction_void']['transaction']['total_amount'] + ')'
-              result[x]['total_discount_amount'] = '(' + result[x]['transaction_void']['transaction']['total_discount_amount'] + ')'
+              result[x]['total_amount'] = result[x]['transaction_void']['transaction']['total_amount'] * -1
+              result[x]['total_discount_amount'] = result[x]['transaction_void']['transaction']['total_discount_amount'] * -1
               this.totalDiscount += (result[x]['transaction_void']['transaction']['total_discount_amount'] * 1).toFixed(2) * -1
-              this.totalAmount += (result[x]['transaction_void']['transaction']['total_amount'] * 1).toFixed(2) * -1
+              this.totalAmount += result[x]['total_amount']
               result[x]['transaction_products'] = result[x]['transaction_void']['transaction']['transaction_products']
             }
           }
@@ -357,15 +366,20 @@ export default {
               id: null,
               number: '<strong>TOTAL</strong>',
               created_at: null,
-              total_amount: '<strong>' + this.numberToMoney(this.totalAmount) + '</strong>',
-              total_discount_amount: '<strong>' + this.numberToMoney(this.totalDiscount) + '</strong>',
+              total_amount: this.totalAmount,
+              total_discount_amount: this.totalDiscount
             })
+          }
+          if(this.graphType){
+            this.generateReport()
           }
           this.isGenerating = false
           resolve(true)
-        }).catch((error) => {
-          console.log(error)
+        }).catch(() => {
           this.isGenerating = false
+          if(this.graphType){
+            this.generateReport()
+          }
           resolve(true)
         })
       })
@@ -488,15 +502,19 @@ export default {
             }
             this.transactions = result
             this.$refs.productHistory._getData(this.transactions)
+            console.log('this.totalAmount', this.totalAmount)
             if(result.length){
               this.transactions.push({
                 id: null,
                 number: '<strong>TOTAL</strong>',
                 created_at: null,
-                total_amount: '<strong>' + this.numberToMoney(this.totalAmount) + '</strong>',
-                total_discount_amount: '<strong>' + this.numberToMoney(this.totalDiscount) + '</strong>',
+                total_amount: this.totalAmount,
+                total_discount_amount: this.totalDiscount
               })
             }
+          }
+          if(this.graphType){
+            this.generateReport()
           }
           this.isGenerating = false
           resolve(true)
@@ -511,16 +529,16 @@ export default {
       this.totalDiscount = 0
       this.totalAmount = 0
       this.$refs.productHistory._reset()
-      this.generateReport()
+      this.generateReport(true)
     },
-    generateReport(){
+    generateReport(reset = false){
       let reportType = this.graphType
       if(reportType === 'time_in_day'){
-        this.$refs.timeInDay._generate()
+        this.$refs.timeInDay._generate(this.transactions)
       }else if(reportType === 'sales_per_day'){
-        this.$refs.salesPerDay._generate()
+        this.$refs.salesPerDay._generate(this.transactions)
       }else if(reportType === 'day_in_week'){
-        this.$refs.dayInWeek._generate()
+        this.$refs.dayInWeek._generate(this.transactions)
       }
     },
     statusBadge(status){

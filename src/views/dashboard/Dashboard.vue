@@ -2,7 +2,7 @@
   <div class="p-3">
     <div class="mb-3">
       <h2 class="font-weight-bold mb-4">Welcome to your VergePOS Dashboard!</h2>
-      <p>Your dashboard will give you quick reports about your business  from number of transactions to daily sales report! If you need help, don't hesitate to <router-link to="contact-us" class=""><u>contact us</u></router-link>.</p>
+      <p>Your dashboard will give you quick reports about your business  from number of transactions to daily sales report! You can also check the <strong>Quick Actions</strong> below which will guide you in setting up your account. If you need help, don't hesitate to <router-link to="contact-us" class=""><u>contact us</u></router-link>.</p>
     </div>
     <quick-action />
     <quick-report-card ref="quickReportCard" />
@@ -25,8 +25,8 @@ export default {
     QuickAction
   },
   mounted(){
+    this.init()
     this.$nextTick(() => {
-      this.init()
       DownSync.addListener(() => {
         this.init()
       })

@@ -47,7 +47,7 @@
       </div>
       <div v-show="toDisplay" class="w-100 card m-3">
         <div class="card-body">
-          <TransactionGraph v-show="toDisplay === 'transaction'" ref='graph' />
+          <TransactionGraph v-show="toDisplay === 'transaction'" ref='productSummary' />
           <DailyLineGraph v-show="toDisplay === 'daily'" ref="lineGraph" />
           <MonthlyLineGraph v-show="toDisplay === 'monthly'" ref="monthlyLineGraph" />
           <YearlyLineGraph v-show="toDisplay === 'yearly'" ref="yearlyLineGraph" />
@@ -69,6 +69,15 @@
           </template> -->
         </vuetable>
       </div>
+    </div>
+    <div v-if="transactionProducts.length" class="pt-2">
+      Note:
+      <ul>
+        <li>
+        <strong>Amount</strong> = Vat Amount + Vat Sales + Vat Exempt Sales + Zero Rated Sales - Discount Amount
+        </li>
+        <li>Numbers enclosed with parenthesis <strong>"("</strong> and <strong>")"</strong> are negative numbers. Example: <strong>-</strong>9 is written as <strong>(</strong>9<strong>)</strong></li>
+      </ul>
     </div>
     <div>
     </div>
@@ -161,6 +170,15 @@ export default {
             }
           },
           {
+            name: 'discount_amount',
+            title: 'Discount',
+            titleClass: 'text-center',
+            dataClass: 'text-center',
+            callback: (value) => {
+              return (this.numberToMoney(value))
+            }
+          },
+          {
             name: 'profit',
             title: 'Profit',
             titleClass: 'text-center',
@@ -223,8 +241,35 @@ export default {
       }
       this.addAmountQuantityProfitDiscount(productSummary[productKey]['data'][dataKey], transactionProduct)
     },
-    calculateAmount({ vat_sales: vatSales = 0, vat_amount: vatAmount = 0, vat_exempt_sales: vatExemptSales = 0, vat_zero_rated_sales: vatZeroRatedSales = 0 }){
-      return vatSales * 1 + vatAmount * 1 + vatExemptSales * 1 + vatZeroRatedSales * 1
+    addHourlyProductTrend(productSummary, transactionProduct){
+      const productKey = transactionProduct['product_id']
+      if(typeof productSummary[productKey] === 'undefined'){
+        productSummary[productKey] = {
+          product_id: transactionProduct['product_id'],
+          description: transactionProduct['description'],
+          data: {}
+        }
+      }
+      let dataKey = (new Date(transactionProduct['created_at'])).getHours()
+      if(dataKey === 12){
+        dataKey = `12:00 nn`
+      } else if(dataKey === 0){
+        dataKey = `12:00 am`
+      }else{
+        dataKey = dataKey < 12 ? `${dataKey}:00 am` : `${dataKey - 12}:00 pm`
+      }
+      if(typeof productSummary[productKey]['data'][dataKey] === 'undefined'){
+        productSummary[productKey]['data'][dataKey] = {
+          total_transaction_count: 0 // number of transactions
+        }
+      }
+      // console.log('productSummary', JSON.stringify(productSummary[productKey]['data'][dataKey]))
+      this.addAmountQuantityProfitDiscount(productSummary[productKey]['data'][dataKey], transactionProduct)
+      // console.log('productSummary', JSON.stringify(productSummary[productKey]['data'][dataKey]))
+      ++productSummary[productKey]['data'][dataKey]['total_transaction_count']
+    },
+    calculateAmount({ vat_sales: vatSales = 0, vat_amount: vatAmount = 0, vat_exempt_sales: vatExemptSales = 0, vat_zero_rated_sales: vatZeroRatedSales = 0, discount_amount: discountAmount }){
+      return vatSales * 1 + vatAmount * 1 + vatExemptSales * 1 + vatZeroRatedSales * 1 - (discountAmount * 1)
     },
     addAmountQuantityProfitDiscount(summaryEntry, transaction){
       const { discount_amount: discountAmount = 0, cost = 0, quantity = 0 } = transaction
@@ -344,23 +389,22 @@ export default {
       transactionNumber.get(query).then(result => {
         let transactionProducts = this.extractProductList(result)
         let response = transactionProducts
-        transactionProducts.forEach(item => {
-          // console.log(new Date(item['created_at']))
-        })
         if(transactionProducts.length){
           let productSummary = {}
           let dailyProductSummary = {}
           let monthlyProductSummary = {}
+          let hourlyProductTrend = {}
           transactionProducts.forEach(transactionProduct => {
             this.addProductSummary(productSummary, transactionProduct) // Note that the function will modify the productSummary Object
             this.addDailyProductSummary(dailyProductSummary, transactionProduct) // Note that the function will modify the dailyProductSummary Object
-            this.addMonthlyProductSummary(monthlyProductSummary, transactionProduct) // Note that the function will modify the productSummary Object
+            this.addMonthlyProductSummary(monthlyProductSummary, transactionProduct) // Note that the function will modify the monthlyProductSummary Object
+            this.addHourlyProductTrend(hourlyProductTrend, transactionProduct) // Note that the function will modify the productSummary Object
           })
           if(this.selectedReport === 'transaction'){
             for(let x in productSummary){
               this.transactionProducts.push(productSummary[x])
             }
-            this.$refs.graph._plotData(this.transactionProducts)
+            this.$refs.productSummary._plotData(this.transactionProducts)
           }else if(this.selectedReport === 'daily'){
             for(let productId in dailyProductSummary){
               for(let dataKey in dailyProductSummary[productId]['data']){
@@ -369,6 +413,7 @@ export default {
                   description: dailyProductSummary[productId]['description'],
                   quantity: dailyProductSummary[productId]['data'][dataKey]['quantity'],
                   amount: dailyProductSummary[productId]['data'][dataKey]['amount'],
+                  discount_amount: dailyProductSummary[productId]['data'][dataKey]['discount_amount'],
                   profit: dailyProductSummary[productId]['data'][dataKey]['profit']
                 })
               }
@@ -382,11 +427,31 @@ export default {
                   description: monthlyProductSummary[productId]['description'],
                   quantity: monthlyProductSummary[productId]['data'][dataKey]['quantity'],
                   amount: monthlyProductSummary[productId]['data'][dataKey]['amount'],
+                  discount_amount: hourlyProductTrend[productId]['data'][dataKey]['discount_amount'],
                   profit: monthlyProductSummary[productId]['data'][dataKey]['profit']
                 })
               }
             }
             this.$refs.monthlyLineGraph._plotData(monthlyProductSummary, this.startDatetimeFilter, this.endDatetimeFilter)
+          }else if(this.selectedReport === 'hourly'){
+            for(let productId in hourlyProductTrend){
+              for(let dataKey in hourlyProductTrend[productId]['data']){
+                const totalTransactionCount = hourlyProductTrend[productId]['data'][dataKey]['total_transaction_count']
+                hourlyProductTrend[productId]['data'][dataKey]['amount'] = hourlyProductTrend[productId]['data'][dataKey]['amount'] / totalTransactionCount
+                hourlyProductTrend[productId]['data'][dataKey]['quantity'] = hourlyProductTrend[productId]['data'][dataKey]['quantity'] / totalTransactionCount
+                hourlyProductTrend[productId]['data'][dataKey]['profit'] = hourlyProductTrend[productId]['data'][dataKey]['profit'] / totalTransactionCount
+                hourlyProductTrend[productId]['data'][dataKey]['discount_amount'] = hourlyProductTrend[productId]['data'][dataKey]['discount_amount'] / totalTransactionCount
+                this.transactionProducts.push({
+                  created_at: dataKey,
+                  description: hourlyProductTrend[productId]['description'],
+                  quantity: hourlyProductTrend[productId]['data'][dataKey]['quantity'],
+                  amount: hourlyProductTrend[productId]['data'][dataKey]['amount'],
+                  discount_amount: hourlyProductTrend[productId]['data'][dataKey]['discount_amount'],
+                  profit: hourlyProductTrend[productId]['data'][dataKey]['profit']
+                })
+              }
+            }
+            this.$refs.hourlyLineGraph._plotData(hourlyProductTrend)
           }
           this.toDisplay = this.selectedReport
         }
@@ -462,75 +527,6 @@ export default {
           this.transactionProducts = forTableData
           this.toDisplay = this.selectedReport
           this.$refs.yearlyLineGraph._prepData(this.yearlyTransactionProducts, this.startDatetimeFilter, this.endDatetimeFilter)
-        } else if(this.selectedReport === 'hourly'){
-          this.hourlyTransactionProducts = {}
-          let startDatetimeFilter = new Date(this.startDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
-          let endDatetimeFilter = new Date(this.endDatetimeFilter.replace('T', ' ').replace('Z', '')).toString().split(' ').slice(0, 5).join(' ')
-          let prepareData = []
-          let filteredData = response
-          if(this.selectFilterValue.length !== 0){
-            filteredData = []
-            for(let x = 0; x < response.length; x++){
-              for(let y = 0; y < this.selectFilterValue.length; y++){
-                if(response[x]['product_id'] === this.selectFilterValue[y]['db_id']){
-                  filteredData.push(response[x])
-                }
-              }
-            }
-          }
-          for(let x = 0; x < filteredData.length; x++){
-            prepareData = []
-            if(typeof this.hourlyTransactionProducts[filteredData[x]['product_id']] === 'undefined'){
-              for(let ctr = new Date(startDatetimeFilter).getHours(), i = 0; ctr <= new Date(endDatetimeFilter).getHours(); ctr++, i++){
-                let data = {
-                  x: '',
-                  y: 0,
-                  amt: 0
-                }
-                if(new Date(startDatetimeFilter).getHours() + i === new Date(filteredData[x]['created_at']).getHours()){
-                  Vue.set(data, 'y', filteredData[x]['quantity'])
-                  Vue.set(data, 'amt', filteredData[x]['vat_sales'] + filteredData[x]['vat_exempt_sales'] + filteredData[x]['vat_zero_rated_sales'] + filteredData[x]['vat_amount'])
-                }
-                Vue.set(data, 'x', new Date(startDatetimeFilter).getHours() + i + ':00')
-                prepareData.push(data)
-              }
-              this.hourlyTransactionProducts[filteredData[x]['product_id']] = {
-                description: filteredData[x]['description'],
-                cost: filteredData[x]['cost'],
-                price: filteredData[x]['price'],
-                discount_amt: filteredData[x]['discount_amount'],
-                data: prepareData
-              }
-            }else {
-              for(let index in this.hourlyTransactionProducts){
-                for(let i = 0; i < this.hourlyTransactionProducts[index]['data'].length; i++) {
-                  if(index * 1 === filteredData[x]['product_id'] * 1 && this.hourlyTransactionProducts[index]['data'][i].x === new Date(filteredData[x]['created_at']).getHours() + ':00') {
-                    this.hourlyTransactionProducts[index]['data'][i].y += filteredData[x]['quantity']
-                    this.hourlyTransactionProducts[index]['data'][i].amt += (filteredData[x]['vat_sales'] + filteredData[x]['vat_amount'] + filteredData[x]['vat_exempt_sales'])
-                  }
-                }
-              }
-            }
-          }
-          let forTableData = []
-          for(let i in this.hourlyTransactionProducts){
-            for(let x in this.hourlyTransactionProducts[i]['data']){
-              if(this.hourlyTransactionProducts[i]['data'][x].y !== 0){
-                let data = {
-                  description: this.hourlyTransactionProducts[i]['description'],
-                  created_at: this.hourlyTransactionProducts[i]['data'][x].x,
-                  quantity: this.hourlyTransactionProducts[i]['data'][x].y,
-                  amount: this.hourlyTransactionProducts[i]['data'][x].amt,
-                  profit: this.hourlyTransactionProducts[i]['data'][x].amt - ((this.hourlyTransactionProducts[i]['data'][x].y * this.hourlyTransactionProducts[i].cost) + (this.hourlyTransactionProducts[i]['data'][x].y * this.hourlyTransactionProducts[i].discount_amt))
-                }
-                forTableData.push(data)
-              }
-              delete this.hourlyTransactionProducts[i]['data'][x].amt
-            }
-          }
-          this.transactionProducts = forTableData
-          this.toDisplay = this.selectedReport
-          this.$refs.hourlyLineGraph._plotData(this.hourlyTransactionProducts)
         }
 
         // resolve(response)
@@ -548,6 +544,9 @@ export default {
       this.transactions = []
       this.totalDiscount = 0
       this.totalAmount = 0
+      // this.$refs.monthlyLineGraph._plotData([], this.startDatetimeFilter, this.endDatetimeFilter)
+      // this.$refs.productSummary._plotData([])
+      // this.$refs.hourlyLineGraph._plotData([])
     },
     statusBadge(status){
       switch(status * 1){

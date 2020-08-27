@@ -6,6 +6,7 @@
         <button @click="refreshApp" class="btn btn-outline-dark mr-1" title="Refresh the app"><fa :icon="'redo'" /></button>
         <button @click="clearCart" class="btn btn-outline-dark mr-1" title="Clear Cart"><fa :icon="'trash'" /></button>
         <button @click="viewTransaction" class="btn btn-outline-dark mr-1" title="Open Transaction"><fa :icon="'receipt'" /></button>
+        <button @click="openFAQ" class="btn btn-outline-dark mr-1" title="Open FAQ"><fa :icon="'question'" /></button>
         <button v-if="inDevMode" @click="benchmark" class="btn btn-outline-dark" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button>
       </div>
       <div class="col-md-3 pt-2 text-right d-none d-sm-block pb-2">
@@ -15,6 +16,7 @@
     <transaction-viewer ref="TransactionViewer" />
     <benchmark ref="benchmark" />
     <DialogBox ref="dialogBox" />
+    <FAQ ref="faq" />
   </div>
 </template>
 <script>
@@ -24,11 +26,13 @@ import ToggleFullscreen from '@/helpers/toggle-fullscreen'
 import Cart from './cart-store'
 import SyncStore from '@/database/sync/sync-store'
 import DialogBox from '@/vue-web-core/components/DialogBox'
+import FAQ from './control_box_components/FAQ'
 export default {
   components: {
     TransactionViewer,
     Benchmark,
-    DialogBox
+    DialogBox,
+    FAQ
   },
   mounted(){
     this.runLiveTime()
@@ -44,6 +48,9 @@ export default {
     }
   },
   methods: {
+    openFAQ(){
+      this.$refs.faq._open()
+    },
     toggleFullscreen(){
       this.isFullscreen = ToggleFullscreen.toggle()
     },

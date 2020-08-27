@@ -20,6 +20,7 @@
           <div v-if="isOffline" class="card-header text-white bg-secondary text-center text-uppercase font-weight-bold">Offline Mode <fa icon="wifi" /></div>
           <div v-bind:class="isOffline ? 'bg-light' : ''" class="card-body ">
             <!-- <div v-if="isOffline" class="alert alert-info mb-2"><fa icon="info-circle" /> You will be logging in using <strong>Offline Mode</strong>. Please use your <strong>PIN</strong> instead of password</div> -->
+            <div v-if="noInternet" class="text-center alert alert-danger"><span class="">No Internet Connection!</span></div>
             <h5 v-bind:class="isOffline ? 'text-secondary' : 'text-primary'" class="card-title text-center font-weight-bold">Welcome to VergePOS </h5>
             <p>Empower your business and be more!</p>
             <div v-if="isOffline === null" class="text-center">
@@ -103,6 +104,7 @@ export default {
       intervalID: 0,
       isOffline: null,
       loginSwitch: false,
+      noInternet: false
     }
   },
   methods: {
@@ -110,8 +112,10 @@ export default {
       // return this.isOffline = true
       this.checkConnectivity().then((ping) => {
         this.isOffline = false
+        this.noInternet = false
       }).catch((status) => {
         this.isOffline = true
+        this.noInternet = true
       }).finally(() => {
         if(typeof callback === 'function'){
           callback()

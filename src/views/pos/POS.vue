@@ -20,13 +20,11 @@
     </div>
     <div v-show="!isTerminal" class="text-center pt-4">
       <div class="border rounded p-3 border-warning" style="display: inline-block">
-        <fa class="text-warning" icon="exclamation-triangle"/> This device is not a terminal. Just go back to the
-        <router-link to="/" class="font-weight-bold">Dashboard</router-link> and click
-        <strong class="badge badge-secondary badge-lg p-2">
-          <big>
-            <fa icon="cash-register"/>Set As Terminal
-          </big>
-        </strong>
+        <div class="mb-3">
+          <fa class="text-warning" icon="exclamation-triangle"/> This device is not a terminal.
+        </div>
+        <div class="mb-3">Go back to the Dashboard and click <strong class="text-nowrap"><fa icon="cash-register"/> Set As Terminal</strong> under <em>Quick Actions</em>.</div>
+        <router-link to="/" class="btn btn-outline-primary btn-sm font-weight-bold"> Go to Dashboard</router-link>
       </div>
     </div>
   </div>

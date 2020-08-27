@@ -14,7 +14,9 @@ export default {
     },
     loginPage(){
       localStorage.removeItem('default_auth_token')
-      this.refreshPage()
+      this.$router.push({
+        path: '/'
+      })
     }
   }
 }
