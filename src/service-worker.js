@@ -1,7 +1,7 @@
 console.log('self.__precacheManifest', self.__precacheManifest)
 if (workbox) {
   workbox.setConfig({
-    debug: true,
+    debug: false,
   })
 
   // adjust log level for displaying workbox logs

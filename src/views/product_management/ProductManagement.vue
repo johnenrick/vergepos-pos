@@ -108,7 +108,7 @@ let ModuleDefault = {
         },
         price: {
           placeholder: 'Selling Price',
-          help_text: 'How much will you sell it to your customer'
+          help_text: 'How much will you sell it to your customer. Do not forget to include the tax!'
         }
       }
     }

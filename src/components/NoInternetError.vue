@@ -17,6 +17,7 @@ export default {
       this.$router.push({
         path: '/'
       })
+      location.reload(true)
     }
   }
 }

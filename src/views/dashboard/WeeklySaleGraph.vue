@@ -96,9 +96,11 @@ export default {
             }
           }
           const transaction = transactionNumber['operation'] === 2 ? transactionNumber['transaction_void']['transaction'] : transactionNumber['transaction']
-          const negativeMultiplier = transactionNumber['operation'] === 2 ? -1 : 1
-          transactionGroup[date]['amount'] += (transaction['total_amount'] * 1).toFixed(2) * negativeMultiplier
-          transactionGroup[date]['discount_amount'] += (transaction['total_discount_amount'] * 1).toFixed(2) * negativeMultiplier
+          if(typeof transaction !== 'undefined'){
+            const negativeMultiplier = transactionNumber['operation'] === 2 ? -1 : 1
+            transactionGroup[date]['amount'] += (transaction['total_amount'] * 1).toFixed(2) * negativeMultiplier
+            transactionGroup[date]['discount_amount'] += (transaction['total_discount_amount'] * 1).toFixed(2) * negativeMultiplier
+          }
         })
         this.plotData(transactionGroup)
       })

@@ -1,7 +1,6 @@
 import { register } from 'register-service-worker'
 
 if (process.env.NODE_ENV === 'production') {
-  console.log('process.env.BASE_URL', process.env.BASE_URL + 'hey')
   window.addEventListener('load', function() {
     register(`${process.env.BASE_URL}service-worker.js`, {
       ready () {

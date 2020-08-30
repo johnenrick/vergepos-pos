@@ -1,14 +1,14 @@
 <template>
   <div>
-    Frequently Asked Questions (FAQs):
+    <span v-if="!noTitle">Frequently Asked Questions (FAQs):</span>
     <ul class="mb-0">
       <template v-for="(howTo, index) in howToList">
         <li>{{howTo['description']}} <a @click="learn(index)" class="text-info c-pointer">[learn]</a></li>
       </template>
     </ul>
-    <modal ref='modal' size="lg" :closeable="true">
+    <modal ref='modal' size="lg" :closeable="true" :title="activeHowToIndex !== null && howToList.length ? howToList[activeHowToIndex]['description'] : ''">
       <div slot="body" v-if="activeHowToIndex !== null && howToList.length">
-        <h5>{{howToList[activeHowToIndex]['description']}}</h5>
+        <p v-if="typeof howToList[activeHowToIndex]['preInstructionText'] !== 'undefined'" v-html="howToList[activeHowToIndex]['preInstructionText']" class="mb-2"></p>
         <div v-if="typeof howToList[activeHowToIndex]['videoLink'] !== 'undefined'" class="mb-2">
           <youtube  :video-id="getVideoId(howToList[activeHowToIndex]['videoLink'])" player-width="100%"/>
         </div>
@@ -31,6 +31,10 @@ export default {
     Modal,
   },
   props: {
+    noTitle: {
+      type: Boolean,
+      default: false
+    },
     howToList: Array,
   },
   data(){

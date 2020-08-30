@@ -287,11 +287,15 @@ export default {
         where: {
           created_at: createdAtCondition
         },
-        groupBy: 'id',
+        order: {
+          by: 'number',
+          type: 'desc'
+        },
         with: {
           transaction: {
             with: {
               transaction_products: {
+                groupBy: 'id',
                 join: {
                   with: 'products',
                   on: 'products.db_id=transaction_products.product_id',
@@ -314,6 +318,7 @@ export default {
                 is_parent: true,
                 with: {
                   transaction_products: {
+                    groupBy: 'id',
                     join: {
                       with: 'products',
                       on: 'products.db_id=transaction_products.product_id',
@@ -343,20 +348,30 @@ export default {
         let transactionNumberDB = new TransactionNumber()
         transactionNumberDB.get(query).then(result => {
           for(let x = 0; x < result.length; x++){
-            if(result[x]['operation'] === 1 && typeof result[x]['transaction'] !== 'undefined'){
-              result[x]['status'] = 1
-              result[x]['total_amount'] = result[x]['transaction']['total_amount']
-              result[x]['total_discount_amount'] = result[x]['transaction']['total_discount_amount']
-              this.totalDiscount += (result[x]['transaction']['total_discount_amount'] * 1).toFixed(2) * 1
-              this.totalAmount += result[x]['total_amount']
-              result[x]['transaction_products'] = result[x]['transaction']['transaction_products']
-            }else if(result[x]['operation'] === 2 && typeof result[x]['transaction_void'] !== 'undefined' && typeof result[x]['transaction_void']['transaction'] !== 'undefined'){ // void transaction
-              result[x]['status'] = 2
-              result[x]['total_amount'] = result[x]['transaction_void']['transaction']['total_amount'] * -1
-              result[x]['total_discount_amount'] = result[x]['transaction_void']['transaction']['total_discount_amount'] * -1
-              this.totalDiscount += (result[x]['transaction_void']['transaction']['total_discount_amount'] * 1).toFixed(2) * -1
-              this.totalAmount += result[x]['total_amount']
-              result[x]['transaction_products'] = result[x]['transaction_void']['transaction']['transaction_products']
+            if(result[x]['operation'] === 1){
+              if(typeof result[x]['transaction'] !== 'undefined'){
+                result[x]['status'] = 1
+                result[x]['total_amount'] = result[x]['transaction']['total_amount']
+                result[x]['total_discount_amount'] = result[x]['transaction']['total_discount_amount']
+                this.totalDiscount += (result[x]['transaction']['total_discount_amount'] * 1).toFixed(2) * 1
+                this.totalAmount += result[x]['total_amount']
+                result[x]['transaction_products'] = result[x]['transaction']['transaction_products']
+              }else{
+                result[x]['status'] = 11
+              }
+            }else if(result[x]['operation'] === 2){ // void transaction
+              if(typeof result[x]['transaction_void'] !== 'undefined' && typeof result[x]['transaction_void']['transaction'] !== 'undefined'){
+                result[x]['status'] = 2
+                result[x]['total_amount'] = result[x]['transaction_void']['transaction']['total_amount'] * -1
+                result[x]['total_discount_amount'] = result[x]['transaction_void']['transaction']['total_discount_amount'] * -1
+                this.totalDiscount += (result[x]['transaction_void']['transaction']['total_discount_amount'] * 1).toFixed(2) * -1
+                this.totalAmount += result[x]['total_amount']
+                result[x]['transaction_products'] = result[x]['transaction_void']['transaction']['transaction_products']
+              }else{
+                result[x]['status'] = 21
+              }
+            }else{
+              result[x]['status'] = 'error'
             }
           }
           this.transactions = result
@@ -542,11 +557,18 @@ export default {
       }
     },
     statusBadge(status){
+      const exclamationMark = '<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="exclamation" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 512" class="svg-inline--fa fa-exclamation fa-w-6"><path fill="currentColor" d="M176 432c0 44.112-35.888 80-80 80s-80-35.888-80-80 35.888-80 80-80 80 35.888 80 80zM25.26 25.199l13.6 272C39.499 309.972 50.041 320 62.83 320h66.34c12.789 0 23.331-10.028 23.97-22.801l13.6-272C167.425 11.49 156.496 0 142.77 0H49.23C35.504 0 24.575 11.49 25.26 25.199z" class=""></path></svg>'
       switch(status * 1){
         case 1:
           return '<span class="badge badge-success">Ok</span>'
+        case 11:
+          return `<span class="badge badge-success">Ok</span> <span class="text-danger">${exclamationMark}</span>`
         case 2:
           return '<span class="badge badge-danger">Void</span>'
+        case 21:
+          return `<span class="badge badge-danger">Void</span> <span class="text-danger">${exclamationMark}</span>`
+        case 'error':
+          return 'unknown'
       }
     }
   },

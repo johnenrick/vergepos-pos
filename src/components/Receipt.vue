@@ -13,8 +13,8 @@
         <br>
         <table class="table table-sm" style="width:100%">
           <tbody>
-            <tr>
-              <td class="text-uppercase  text-center text-danger" colspan="2" v-if="transactionDetail.status === 2">
+            <tr v-if="transactionDetail.status === 2">
+              <td class="text-uppercase  text-center text-danger" colspan="2" >
                 <span class="font-weight-bold" >Voided Transaction</span> <br>
                 Ref. Txn# {{transactionDetail.voidTransactionNumber}}
               </td>
@@ -135,10 +135,8 @@
   </div>
 </template>
 <script>
-import Transaction from '@/database/controller/transaction'
 import store from '@/vue-web-core/system/store'
 import User from '@/database/controller/user'
-import TransactionProduct from '@/database/controller/transaction-product'
 import TransactionVoids from '@/database/controller/transaction-void'
 import TransactionNumber from '@/database/controller/transaction-number'
 
@@ -170,8 +168,6 @@ export default {
       randomId: null,
       isLoading: false,
       errorMessage: null,
-      transactionDB: new Transaction(),
-      transactionProductDB: new TransactionProduct(),
       transactionVoidDB: new TransactionVoids(),
       transactionNumberDB: new TransactionNumber(),
       userDB: new User(),
@@ -220,8 +216,7 @@ export default {
         return false
       }
       return new Promise((resolve, reject) => {
-        console.log('this.transactionNumber', this.transactionNumber)
-        this.transactionNumberDB.get({
+        const transactionNumber = {
           where: {
             number: this.transactionNumber * 1,
           },
@@ -229,6 +224,7 @@ export default {
             transaction: {
               with: {
                 transaction_products: {
+                  groupBy: 'id',
                   join: {
                     with: 'products',
                     on: 'transaction_products.product_id=products.db_id',
@@ -245,8 +241,33 @@ export default {
                 }
               }
             },
-            transaction_void: {}
+            transaction_void: {
+              with: {
+                transaction: {
+                  is_parent: true,
+                  with: {
+                    transaction_products: {
+                      groupBy: 'id',
+                      join: {
+                        with: 'products',
+                        on: 'products.db_id=transaction_products.product_id',
+                        type: 'inner',
+                        as: {
+                          'id': 'product_id',
+                          'db_id': 'product_db_id',
+                          'created_at': 'product_created_at',
+                          'updated_at': 'product_updated_at',
+                          'deleted_at': 'product_deleted_at',
+                          'cost': 'cost'
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           },
+          groupBy: 'id',
           join: [{
             with: 'transaction_voids',
             on: 'transaction_numbers.number=transaction_voids.voided_transaction_number',
@@ -254,28 +275,32 @@ export default {
             as: {
               'id': 'transaction_void_id',
               'db_id': 'transaction_void_db_id',
+              'transaction_id': 'transaction_void_transaction_id',
+              'transaction_number_id': 'transaction_void_transaction_number_id',
               'created_at': 'transaction_void_created_at',
               'updated_at': 'transaction_void_updated_at',
-              'deleted_at': 'transaction_void_deleted_at'
+              'deleted_at': 'transaction_void_updated_at',
             },
+
           }, {
             with: 'transaction_numbers',
             on: 'transaction_voids.transaction_number_id=transaction_numbers.id',
             type: 'left',
             as: {
-              'id': 'voided_transaction_number_id',
-              'db_id': 'voided_transaction_number_db_id',
-              'operation': 'voided_transaction_number_operation',
-              'number': 'voided_transaction_number_number',
-              'created_at': 'voided_transaction_number_created_at',
-              'updated_at': 'voided_transaction_number_updated_at',
-              'deleted_at': 'voided_transaction_number_deleted_at'
-            },
-          }]
-        }).then((result) => {
+              'id': 'transaction_void_transaction_number_id',
+              db_id: 'transaction_void_transaction_number_db_id',
+              number: 'transaction_void_transaction_number_number',
+              operation: 'transaction_void_transaction_number_operation',
+              'created_at': 'transaction_void_transaction_number_created_at',
+              'updated_at': 'transaction_void_transaction_number_updated_at',
+              'deleted_at': 'transaction_void_transaction_number_updated_at',
+            }
+          }],
+        }
+        this.transactionNumberDB.get(transactionNumber).then((result) => {
+          console.log(result, transactionNumber)
           if(result.length){
             result = result[0]
-            console.log(result)
             if(result['operation'] === 2){
               this.transactionOperation = 2
               this.transactionDetail.datetime = result['created_at']
@@ -285,6 +310,7 @@ export default {
                 this.transactionDetail.voidTransactionReason = result['transaction_void']['remarks']
               }
             }else{
+              console.log(result)
               this.transactionOperation = 1
               this.transactionDetail.id = result['transaction']['id']
               this.transactionDetail.transactionNumber = result['number']
@@ -297,12 +323,12 @@ export default {
               this.transactionDetail.subTotalAmount = result['transaction']['sub_total_amount']
               this.transactionDetail.cashTendered = result['transaction']['cash_tendered']
               this.transactionDetail.datetime = result['created_at']
-              this.transactionDetail.status = result['transaction_void_id'] === null ? 1 : 2
+              this.transactionDetail.status = result['transaction_void_id'] ? 2 : 1
               let dateCreated = new Date(this.transactionDetail.datetime)
               let currentDate = new Date()
-              this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate() && result['transaction_void_id'] === null
+              this.transactionDetail.voidable = dateCreated.getDate() === currentDate.getDate()
               if(result['transaction_void_id']){
-                this.transactionDetail.voidTransactionNumber = result['voided_transaction_number_number']
+                this.transactionDetail.voidTransactionNumber = result['transaction_void_transaction_number_number']
               }
               this.transactionProduct = result['transaction']['transaction_products']
             }
@@ -315,6 +341,7 @@ export default {
             this.errorMessage = 'No Transaction Found.'
           }
         }).catch(errorResult => {
+          this.isLoading = false
           console.log('error', errorResult)
         })
       })
@@ -359,7 +386,6 @@ export default {
                 store_terminal_id: localStorage.getItem('is_terminal') * 1,
                 user_id: localStorage.getItem('user_id') * 1
               }
-
               this.transactionNumberDB.add(transactionNumberEntry).then((transactionNumberResult) => {
                 let transactionvoidEntry = {
                   transaction_id: this.transactionDetail.id, // the transaction id of the voided transaction

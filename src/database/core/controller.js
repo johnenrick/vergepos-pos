@@ -30,7 +30,7 @@ export default class Controller {
           resolve(response.length ? response[0] : null)
         }
       }).catch(error => {
-        console.log(this.tableName, data, error)
+        console.error(this.tableName, data, error)
         reject(error)
       })
     })
@@ -61,7 +61,7 @@ export default class Controller {
       }).then(response => {
         resolve(response)
       }).catch(error => {
-        console.log(this.tableName, data)
+        console.error(this.tableName, data)
         reject(error)
       })
     })
@@ -110,73 +110,102 @@ export default class Controller {
           }
         }
       }).catch(error => {
-        console.log('error', query['from'], error, query)
+        console.error('error', query['from'], error, query)
         reject(error)
       }).finally(() => {
       })
     })
   }
   executeWithQuery(query, result){
-    let rootTableIdList = []
-    let idLookUp = {}
-    for(let x = 0; x < result.length; x++){
-      idLookUp[result[x]['id']] = x
-      rootTableIdList.push(result[x]['id'])
-    }
-    let withCount = Object.keys(query['with']).length
+    const withCount = Object.keys(query['with']).length
     let completedQuery = 0
     return new Promise((resolve, reject) => {
       for(let withTable in query['with']){
-        let mainTable = pluralize.singular(query['from'])
         let withQuery = query['with'][withTable]
         withQuery['from'] = pluralize.plural(withTable)
         if(typeof withQuery['where'] === 'undefined'){
           withQuery['where'] = {}
         }
-        let withTableIdList = []
+
         let withTablename = pluralize.singular(withTable)
-        let childTableLookUp = {} // Used if the with table is a parent table
+
         if(typeof query['with'][withTable]['is_parent'] === 'undefined' || !query['with'][withTable]['is_parent']){ // if with table is child
-          withQuery['where'][mainTable + '_id'] = {
-            in: rootTableIdList
-          }
-          query['with'][withTable]['is_parent'] = false
-        }else{ // if with table is a parent
-          for(let x = 0; x < result.length; x++){
-            let parentTableId = result[x][withTablename + '_id']
-            if(parentTableId){
-              childTableLookUp[parentTableId] = x
-              withTableIdList.push(parentTableId)
+          this.executeWithChildQuery(query, result, withTable, withQuery, withTablename).finally(() => { // note that query and result are modified in the function
+            completedQuery++
+            if(completedQuery === withCount){
+              resolve(result)
             }
-          }
-          withQuery['where']['id'] = {
-            in: withTableIdList
+          })
+        }else{ // if with table is a parent
+          this.executeWithParentQuery(query, result, withTable, withQuery, withTablename).finally(() => { // note that query and result are modified in the function
+            completedQuery++
+            if(completedQuery === withCount){
+              resolve(result)
+            }
+          })
+        }
+      }
+    })
+  }
+  executeWithChildQuery(query, result, withTable, withQuery, withTablename){
+    let mainTable = pluralize.singular(query['from'])
+    let idLookUp = {}
+    let rootTableIdList = []
+    for(let x = 0; x < result.length; x++){
+      idLookUp[result[x]['id']] = x
+      rootTableIdList.push(result[x]['id'])
+    }
+    withQuery['where'][mainTable + '_id'] = {
+      in: rootTableIdList
+    }
+    // query['with'][withTable]['is_parent'] = false
+    const isOnlyOne = withTable === withTablename
+    return new Promise((resolve, reject) => {
+      this.get(withQuery).then(withTableResult => {
+        let groupedResult = us.groupBy(withTableResult, mainTable + '_id')
+        for(let parentId in groupedResult){
+          if(typeof result[idLookUp[parentId]] !== 'undefined'){
+            result[idLookUp[parentId]][withTable] = !isOnlyOne ? groupedResult[parentId] : groupedResult[parentId][0]
+          }else{
+            console.error('The aliasing of joined table might be overidding the main table column')
           }
         }
-        let isOnlyOne = withTable === withTablename
-        this.get(withQuery).then(response => {
-          if(!query['with'][withTable]['is_parent']){ // if with table is child
-            let groupedResult = us.groupBy(response, mainTable + '_id')
-            for(let parentId in groupedResult){
-              if(typeof result[idLookUp[parentId]] !== 'undefined'){
-                result[idLookUp[parentId]][withTable] = !isOnlyOne ? groupedResult[parentId] : groupedResult[parentId][0]
-              }else{
-                console.error('The aliasing of joined table might be overidding the main table column')
-              }
-            }
-          }else{
-            for(let parentIndex = 0; parentIndex < response.length; parentIndex++){
-              let resultIndex = childTableLookUp[response[parentIndex]['id']]
-              result[resultIndex][withTable] = response[parentIndex]
-            }
-          }
-        }).finally(() => {
-          completedQuery++
-          if(completedQuery === withCount){
-            resolve(result)
-          }
-        })
+        resolve(true)
+      }).finally(() => {
+        resolve(false)
+      })
+    })
+  }
+  executeWithParentQuery(query, result, withTable, withQuery, withTablename){
+    let childTableLookUp = {} // Used if the with table is a parent table, determine which index of result of a given parent id
+    let withTableIdList = []
+    for(let x = 0; x < result.length; x++){
+      const parentTableId = result[x][withTablename + '_id']
+      if(parentTableId){
+        if(typeof childTableLookUp[parentTableId] === 'undefined'){
+          childTableLookUp[parentTableId] = []
+        }
+        childTableLookUp[parentTableId].push(x)
+        withTableIdList.push(parentTableId)
       }
+    }
+    withQuery['where']['id'] = {
+      in: withTableIdList
+    }
+    return new Promise((resolve) => {
+      this.get(withQuery).then(withTableResult => { // if with table is a parent table
+        const parentTableResult = withTableResult
+        parentTableResult.forEach((parentTable, index) => {
+          const parentTableId = parentTable['id']
+          let resultIndices = childTableLookUp[parentTableId]
+          resultIndices.forEach(resultIndex => {
+            result[resultIndex][withTable] = parentTable
+          })
+        })
+        resolve(true)
+      }).finally(() => {
+        resolve(false)
+      })
     })
   }
   getByIndex(index, value){
@@ -208,7 +237,7 @@ export default class Controller {
         }).then(response => {
           resolve(response)
         }).catch(error => {
-          console.log(this.tableName, error)
+          console.error(this.tableName, error)
           reject(error)
         })
       }

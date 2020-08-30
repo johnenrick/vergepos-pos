@@ -101,7 +101,6 @@ export default class ProductSync extends Sync{
                 if(result){
                   counter += productToAdd.length
                 }
-                console.log('result', result)
               })
             }
           })

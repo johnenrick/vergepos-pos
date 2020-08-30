@@ -12,7 +12,7 @@
         class="col-12 col-sm-12 col-md-7 px-1"
       >
         <button class="btn btn-outline-success w-100 mb-2 d-md-none" @click="viewOrderList">
-          <fa icon="list"/>View Orders
+          <fa icon="shopping-cart"/> View Cart (<em> {{totalAmount | numberToMoney}} </em>)
         </button>
         <control-box/>
         <product-list ref="productList"/>
@@ -34,6 +34,7 @@ import OrderList from './OrderList.vue'
 import ProductList from './ProductList.vue'
 import ControlBox from './ControlBox.vue'
 import SyncStore from '@/database/sync/sync-store'
+import CartStore from './cart-store'
 // import UserSession from '@/vue-web-core/system/store'
 
 export default {
@@ -43,8 +44,6 @@ export default {
     ControlBox
   },
   beforeMount() {
-    this.$store.dispatch('SET_LOADING', true)
-    this.$store.dispatch('SET_SMS', 'Loading Products...')
   },
   mounted() {
     this.draw()
@@ -56,11 +55,6 @@ export default {
       isTerminal: localStorage.getItem('is_terminal'),
       doneReSynching: false,
       currentView: null
-    }
-  },
-  computed: {
-    isSynching() {
-      return SyncStore.getters.isSynching
     }
   },
   watch: {
@@ -115,6 +109,14 @@ export default {
           this.draw()
         })
       })
+    }
+  },
+  computed: {
+    totalAmount(){
+      return CartStore.getters.totalAmount
+    },
+    isSynching() {
+      return SyncStore.getters.isSynching
     }
   }
 }

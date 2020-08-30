@@ -24,7 +24,8 @@ export default {
             'You can usually find the barcode at the back of the product or you can leave it blank',
             'Cost refers to the amount you spent to buy the product. If you buy the product in a pack, the cost would be: <div class="text-center"> <strong>Cost</strong> = <em>Price Per Pack</em> / <em>Pieces per Pack</em> </div>',
             'Price refers to the amount you will sell the product. Its basically <div class="text-center"><strong>Price</strong> = <span class="font-weight-bold font-italic">Cost</span> + <em>Profit</em></div>',
-            'Make sure that the <em>Price</em> is higher than the <em>Cost</em>',
+            'It is up to you to decide the profit, but you should include the tax amount in it',
+            'Make sure that the <em>Price</em> is higher than the <em>Cost</em>. ',
             'After filling up the form, just click <span class="badge badge-success text-nowrap">' + checkIcon + ' Save</span> button at the bottom right',
             'When saved succesfully, you can then edit the information or just close it'
           ]

@@ -263,9 +263,7 @@ export default {
           total_transaction_count: 0 // number of transactions
         }
       }
-      // console.log('productSummary', JSON.stringify(productSummary[productKey]['data'][dataKey]))
       this.addAmountQuantityProfitDiscount(productSummary[productKey]['data'][dataKey], transactionProduct)
-      // console.log('productSummary', JSON.stringify(productSummary[productKey]['data'][dataKey]))
       ++productSummary[productKey]['data'][dataKey]['total_transaction_count']
     },
     calculateAmount({ vat_sales: vatSales = 0, vat_amount: vatAmount = 0, vat_exempt_sales: vatExemptSales = 0, vat_zero_rated_sales: vatZeroRatedSales = 0, discount_amount: discountAmount }){
@@ -295,13 +293,14 @@ export default {
           })
           trasactionProducts = trasactionProducts.concat(transactionTransactionpProduct)
         }else if(transactionNumber['operation'] === 2 && transactionNumber['transaction_void'] && transactionNumber['transaction_void']['transaction'] && transactionNumber['transaction_void']['transaction']['transaction_products']){
-          transactionNumber['transaction_void']['transaction']['transaction_products'].forEach(voidedTransactionProduct => {
+          const voidedTransactionProducts = transactionNumber['transaction_void']['transaction']['transaction_products']
+          voidedTransactionProducts.forEach(voidedTransactionProductOriginal => {
+            let voidedTransactionProduct = JSON.parse(JSON.stringify(voidedTransactionProductOriginal))
             voidedTransactionProduct['quantity'] = voidedTransactionProduct['quantity'] * -1
             voidedTransactionProduct['vat_sales'] = voidedTransactionProduct['vat_sales'] * -1
             voidedTransactionProduct['vat_amount'] = voidedTransactionProduct['vat_amount'] * -1
             voidedTransactionProduct['vat_exempt_sales'] = voidedTransactionProduct['vat_exempt_sales'] * -1
             voidedTransactionProduct['vat_zero_rated_sales'] = voidedTransactionProduct['vat_zero_rated_sales'] * -1
-            // voidedTransactionProduct['cost'] = voidedTransactionProduct['cost'] * -1
             trasactionProducts.push(voidedTransactionProduct)
           })
         }
@@ -321,6 +320,7 @@ export default {
           transaction: {
             with: {
               transaction_products: {
+                groupBy: 'id',
                 join: {
                   with: 'products',
                   on: 'products.db_id=transaction_products.product_id',
@@ -343,6 +343,7 @@ export default {
                 is_parent: true,
                 with: {
                   transaction_products: {
+                    groupBy: 'id',
                     join: {
                       with: 'products',
                       on: 'products.db_id=transaction_products.product_id',
@@ -427,7 +428,7 @@ export default {
                   description: monthlyProductSummary[productId]['description'],
                   quantity: monthlyProductSummary[productId]['data'][dataKey]['quantity'],
                   amount: monthlyProductSummary[productId]['data'][dataKey]['amount'],
-                  discount_amount: hourlyProductTrend[productId]['data'][dataKey]['discount_amount'],
+                  discount_amount: monthlyProductSummary[productId]['data'][dataKey]['discount_amount'],
                   profit: monthlyProductSummary[productId]['data'][dataKey]['profit']
                 })
               }
@@ -534,7 +535,7 @@ export default {
         this.isLoading = false
       }).catch(error => {
         this.isLoading = false
-        console.log(error)
+        console.error(error)
       })
     },
     addInitQuantity(){

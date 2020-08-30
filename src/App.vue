@@ -23,7 +23,7 @@
       <side-bar ref="sideBar" :menu="sidebarMenu"/>
       <div id="page-content-wrapper" style="overflow-wrap: break-word;">
         <NoInternetError v-if="noInternetConnectionMessage" />
-        <div ref="loadingComponentMessage" class="text-center" style="padding-top: 10vh">
+        <div ref="loadingComponentMessage" v-show="isLoadingModule" class="text-center" style="padding-top: 10vh">
           <h1 class="mb-1 display-3"><fa icon="circle-notch" spin /></h1>
           Loading components...
         </div>
@@ -104,6 +104,7 @@ export default {
                 // Online but not logged in
                 store.dispatch('setUserInformation')
               }
+              this.noInternetConnectionMessage = false
             })
             .catch(status => {
               // Offline
