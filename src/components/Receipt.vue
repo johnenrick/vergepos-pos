@@ -137,7 +137,8 @@
 <script>
 import store from '@/vue-web-core/system/store'
 import User from '@/database/controller/user'
-import TransactionVoids from '@/database/controller/transaction-void'
+import TransactionVoid from '@/database/controller/transaction-void'
+import Transaction from '@/database/controller/transaction'
 import TransactionNumber from '@/database/controller/transaction-number'
 
 import Vue from 'vue'
@@ -168,7 +169,8 @@ export default {
       randomId: null,
       isLoading: false,
       errorMessage: null,
-      transactionVoidDB: new TransactionVoids(),
+      transactionVoidDB: new TransactionVoid(),
+      transactionDB: new Transaction(),
       transactionNumberDB: new TransactionNumber(),
       userDB: new User(),
       transactionNumber: null,

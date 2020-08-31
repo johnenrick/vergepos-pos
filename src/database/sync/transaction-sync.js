@@ -166,7 +166,6 @@ export default class TransactionNumberSync extends Sync{
       2. Create voided transactions that has not yet created
       3. Create Transaction Void
     */
-    console.log('transactionNumbersVoided', voidTransactionNumbers)
     let transactionNumberDB = new TransactionNumber()
     let transactionVoidDB = new TransactionVoid()
 
@@ -194,20 +193,11 @@ export default class TransactionNumberSync extends Sync{
         })
         voidTransactionNumbers.forEach(voidTransactionNumber => {
           if(typeof existingTransactionNumberLookUp[voidTransactionNumber['transaction_void']['voided_transaction_number']] !== 'undefined'){ // voided transaction already exists
-            console.log('a')
             const exisitingTransactionNumberIndex = existingTransactionNumberLookUp[voidTransactionNumber['transaction_void']['voided_transaction_number']]
-            console.log('b')
             voidTransactionNumber['transaction_void']['transaction_number_id'] = existingTransactionNumbers[exisitingTransactionNumberIndex]['id']
-            console.log('c')
-
             voidTransactionNumber['transaction_void']['transaction_id'] = existingTransactionNumbers[exisitingTransactionNumberIndex]['transaction']['id']
-            console.log('d')
             voidTransactionNumber['db_id'] = voidTransactionNumber['id']
-            console.log('e')
             const transactionData = this.prepareTransactionNumber(voidTransactionNumber)
-            console.log('f')
-
-            console.log(transactionData, transactionVoidData)
             transactionNumberDB.add(transactionData).then(result => {
               if(result){
                 const transactionVoidData = this.prepareTransactionVoid(

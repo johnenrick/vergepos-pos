@@ -157,6 +157,7 @@ export default {
       transactions: [],
       totalDiscount: 0,
       totalAmount: 0,
+      totalProfit: 0,
       isGenerating: false,
       storeTerminals: [],
       tableSetting: {
@@ -187,6 +188,14 @@ export default {
         }, {
           name: 'total_discount_amount',
           title: 'Discount',
+          titleClass: 'text-center',
+          dataClass: 'text-right',
+          callback: (value) => {
+            return this.numberToMoney(value)
+          }
+        }, {
+          name: 'total_profit',
+          title: 'Profit',
           titleClass: 'text-center',
           dataClass: 'text-right',
           callback: (value) => {
@@ -349,24 +358,34 @@ export default {
         transactionNumberDB.get(query).then(result => {
           for(let x = 0; x < result.length; x++){
             if(result[x]['operation'] === 1){
+              console.log('a')
               if(typeof result[x]['transaction'] !== 'undefined'){
                 result[x]['status'] = 1
                 result[x]['total_amount'] = result[x]['transaction']['total_amount']
                 result[x]['total_discount_amount'] = result[x]['transaction']['total_discount_amount']
                 this.totalDiscount += (result[x]['transaction']['total_discount_amount'] * 1).toFixed(2) * 1
                 this.totalAmount += result[x]['total_amount']
+                const totalCost = this.calculateTotalCostFormTransactionProducts(result[x]['transaction']['transaction_products'])
+                const totalProfit = result[x]['total_amount'] - totalCost
+                result[x]['total_profit'] = totalProfit
+                this.totalProfit += totalProfit
                 result[x]['transaction_products'] = result[x]['transaction']['transaction_products']
               }else{
                 result[x]['status'] = 11
               }
             }else if(result[x]['operation'] === 2){ // void transaction
               if(typeof result[x]['transaction_void'] !== 'undefined' && typeof result[x]['transaction_void']['transaction'] !== 'undefined'){
+                const transaction = result[x]['transaction_void']['transaction']
                 result[x]['status'] = 2
-                result[x]['total_amount'] = result[x]['transaction_void']['transaction']['total_amount'] * -1
-                result[x]['total_discount_amount'] = result[x]['transaction_void']['transaction']['total_discount_amount'] * -1
-                this.totalDiscount += (result[x]['transaction_void']['transaction']['total_discount_amount'] * 1).toFixed(2) * -1
-                this.totalAmount += result[x]['total_amount']
-                result[x]['transaction_products'] = result[x]['transaction_void']['transaction']['transaction_products']
+                result[x]['total_amount'] = transaction['total_amount'] * -1
+                result[x]['total_discount_amount'] = transaction['total_discount_amount'] * -1
+                this.totalDiscount += (transaction['total_discount_amount'] * 1).toFixed(2) * -1
+                this.totalAmount += (result[x]['total_amount'])
+                const totalCost = this.calculateTotalCostFormTransactionProducts(transaction['transaction_products']) * -1
+                const totalProfit = result[x]['total_amount'] - (totalCost)
+                result[x]['total_profit'] = totalProfit
+                this.totalProfit += totalProfit
+                result[x]['transaction_products'] = transaction['transaction_products']
               }else{
                 result[x]['status'] = 21
               }
@@ -382,6 +401,7 @@ export default {
               number: '<strong>TOTAL</strong>',
               created_at: null,
               total_amount: this.totalAmount,
+              total_profit: this.totalProfit,
               total_discount_amount: this.totalDiscount
             })
           }
@@ -398,6 +418,13 @@ export default {
           resolve(true)
         })
       })
+    },
+    calculateTotalCostFormTransactionProducts(transactionProducts){
+      let totalCost = 0
+      transactionProducts.forEach(transactionProduct => {
+        totalCost += (transactionProduct['quantity'] * transactionProduct['cost'])
+      })
+      return totalCost
     },
     generateOnline(startDatetime, endDatetime){
       let param = {
@@ -476,6 +503,10 @@ export default {
           column: 'created_at',
           clause: '<=',
           value: this.serverDatetimeFormat(endDatetime, true)
+        }],
+        sort: [{
+          column: 'number',
+          order: 'desc'
         }]
       }
       if(this.storeTerminalFilter){
@@ -492,20 +523,29 @@ export default {
             for(let x = 0; x < result.length; x++){
               let transactionProducts = null
               if(result[x]['operation'] * 1 === 1 && result[x]['transaction']){
+                const transaction = result[x]['transaction']
                 result[x]['status'] = 1
-                result[x]['total_amount'] = (this.computeTransactionTotalAmountOnline(result[x]['transaction'])).toFixed(2)
-                result[x]['total_discount_amount'] = result[x]['transaction']['transaction_computation']['total_discount_amount']
-                this.totalDiscount += (result[x]['transaction']['transaction_computation']['total_discount_amount'] * 1).toFixed(2) * 1
-                this.totalAmount += result[x]['total_amount'] * 1
-                transactionProducts = result[x]['transaction']['transaction_products']
+                result[x]['total_amount'] = this.computeTransactionTotalAmountOnline(transaction)
+                result[x]['total_discount_amount'] = transaction['transaction_computation']['total_discount_amount']
+                this.totalDiscount += (transaction['transaction_computation']['total_discount_amount'] * 1).toFixed(2) * 1
+                this.totalAmount += result[x]['total_amount']
+                const totalCost = this.calculateTotalCostFormTransactionProducts(transaction['transaction_products'])
+                const totalProfit = result[x]['total_amount'] - totalCost
+                result[x]['total_profit'] = totalProfit
+                this.totalProfit += totalProfit
+                transactionProducts = transaction['transaction_products']
               }else if(result[x]['operation'] * 1 === 2 && result[x]['transaction_void'] && result[x]['transaction_void']['transaction']){
+                const transaction = result[x]['transaction_void']['transaction']
                 result[x]['status'] = 2 // void transaction
-                result[x]['total_amount'] = (this.computeTransactionTotalAmountOnline(result[x]['transaction_void']['transaction'])).toFixed(2)
-                result[x]['total_discount_amount'] = '(' + result[x]['transaction_void']['transaction']['transaction_computation']['total_discount_amount'] + ')'
-                this.totalDiscount += (result[x]['transaction_void']['transaction']['transaction_computation']['total_discount_amount'] * 1).toFixed(2) * -1
-                this.totalAmount += result[x]['total_amount'] * -1
-                result[x]['total_amount'] = '(' + result[x]['total_amount'] + ')'
-                transactionProducts = result[x]['transaction_void']['transaction']['transaction_products']
+                result[x]['total_amount'] = this.computeTransactionTotalAmountOnline(transaction) * -1
+                result[x]['total_discount_amount'] = transaction['transaction_computation']['total_discount_amount'] * -1
+                this.totalDiscount += (transaction['transaction_computation']['total_discount_amount'] * 1).toFixed(2) * -1
+                this.totalAmount += result[x]['total_amount']
+                const totalCost = this.calculateTotalCostFormTransactionProducts(transaction['transaction_products']) * -1
+                const totalProfit = result[x]['total_amount'] - totalCost
+                result[x]['total_profit'] = totalProfit
+                this.totalProfit += totalProfit
+                transactionProducts = transaction['transaction_products']
               }
               for(let y = 0; y < transactionProducts.length; y++){
                 if(transactionProducts[y]['product']){
@@ -524,7 +564,8 @@ export default {
                 number: '<strong>TOTAL</strong>',
                 created_at: null,
                 total_amount: this.totalAmount,
-                total_discount_amount: this.totalDiscount
+                total_discount_amount: this.totalDiscount,
+                total_profit: this.totalProfit
               })
             }
           }
@@ -543,6 +584,7 @@ export default {
       this.transactions = []
       this.totalDiscount = 0
       this.totalAmount = 0
+      this.totalProfit = 0
       this.$refs.productHistory._reset()
       this.generateReport(true)
     },

@@ -4,7 +4,7 @@
   </div>
 </template>
 <script>
-import HowTo from '@/components/HowTo'
+import HowTo from '@/components/how-to/HowTo'
 export default {
   components: {
     HowTo

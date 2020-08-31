@@ -118,10 +118,12 @@ export default {
       icon: 'store',
       name: 'Business Detail',
       has_offline: false,
+      dev: true
     }, {
       icon: 'desktop',
       name: 'Terminal',
       route: '/terminal',
+      dev: true
 
     }],
     role_access_list: {
