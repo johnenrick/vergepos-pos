@@ -287,6 +287,9 @@ export default {
         return this.generateOnline(startDatetimeFilter, endDatetimeFilter)
       }
     },
+    processTransactionRow(operation, transactionNumber){
+
+    },
     generateOffline(startDatetime, endDatetime){
       let createdAtCondition = {
         '>': startDatetime.getTime()
@@ -356,9 +359,9 @@ export default {
       return new Promise((resolve, reject) => {
         let transactionNumberDB = new TransactionNumber()
         transactionNumberDB.get(query).then(result => {
+          console.log('result', result)
           for(let x = 0; x < result.length; x++){
             if(result[x]['operation'] === 1){
-              console.log('a')
               if(typeof result[x]['transaction'] !== 'undefined'){
                 result[x]['status'] = 1
                 result[x]['total_amount'] = result[x]['transaction']['total_amount']

@@ -12,7 +12,6 @@
           <fa icon="exclamation-triangle" class="text-warning"/> You need to create a Product Category first before you can create a <strong> Product</strong>. You can do this by clicking <fa icon="boxes" /><strong> Category</strong> in the side menu.
         </span>
       </div>
-      <FAQ />
     </div>
     <template v-else-if="isOffline === true && isOffline !== null && isCategoryAvailable === true">
       <h2>Product List<small>(Offline)</small></h2>

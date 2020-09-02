@@ -25,6 +25,7 @@
 import Vue from 'vue'
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
 import VueYouTubeEmbed, { getIdFromURL } from 'vue-youtube-embed'
+import HowToDB from './how-to-db'
 Vue.use(VueYouTubeEmbed)
 export default {
   components: {
@@ -35,14 +36,25 @@ export default {
       type: Boolean,
       default: false
     },
-    howToList: Array,
+    category: {
+      type: String,
+      required: true
+    },
+  },
+  mounted(){
+    this._list()
   },
   data(){
     return {
-      activeHowToIndex: null
+      activeHowToIndex: null,
+      howToList: []
     }
   },
   methods: {
+    _list(){
+      console.log('list')
+      this.howToList = HowToDB.get(this.category)
+    },
     learn(howToIndex){
       this.activeHowToIndex = howToIndex
       this.$refs.modal._open()

@@ -48,7 +48,7 @@ let ModuleDefault = {
       config: {
         // module_name: 'Variable Management',
         api: 'category',
-        description: 'A Product Category or simply a Category refers to the groupings of products. You need to create a Category first before you can create a Product. You can also create Categories such as "All Product" if you do not want to categorize your products or "Others" for products that do not have specific category.',
+        description: 'A Product Category or simply a Category refers to the groupings of products. You can also create Categories such as "All Product" if you do not want to categorize your products or "Others" for products that do not have specific category.',
         table_setting: {
           retrieve_parameter: tableSettingRetrieveParameter,
           table_column_setting: tableColumnSetting

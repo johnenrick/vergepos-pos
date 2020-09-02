@@ -143,10 +143,10 @@ export default class TransactionNumberSync extends Sync{
           }
           let interval = setInterval(() => {
             if(counter === maxCount){
+              clearInterval(interval)
               this.syncTransactionVoid(transactionVoids).finally(() => {
                 resolve(this.resolveId)
               })
-              clearInterval(interval)
             }
           }, 100)
         }else{
@@ -173,6 +173,7 @@ export default class TransactionNumberSync extends Sync{
       let voidedTransactionNumberId = []
       for(let x = 0; x < voidTransactionNumbers.length; x++){
         voidedTransactionNumberId.push(voidTransactionNumbers[x]['transaction_void']['voided_transaction_number'] * 1)
+        voidedTransactionNumberId.push(voidTransactionNumbers[x]['number'] * 1)
       }
       let query = {
         where: {
@@ -188,33 +189,37 @@ export default class TransactionNumberSync extends Sync{
       let transactionNumberCount = voidTransactionNumbers.length
       transactionNumberDB.get(query).then((existingTransactionNumbers) => {
         let existingTransactionNumberLookUp = {}
-        existingTransactionNumbers.forEach((existingTransactionNumber, index) => { //
+        existingTransactionNumbers.forEach((existingTransactionNumber, index) => {
           existingTransactionNumberLookUp[existingTransactionNumber['number']] = index
         })
         voidTransactionNumbers.forEach(voidTransactionNumber => {
-          if(typeof existingTransactionNumberLookUp[voidTransactionNumber['transaction_void']['voided_transaction_number']] !== 'undefined'){ // voided transaction already exists
-            const exisitingTransactionNumberIndex = existingTransactionNumberLookUp[voidTransactionNumber['transaction_void']['voided_transaction_number']]
-            voidTransactionNumber['transaction_void']['transaction_number_id'] = existingTransactionNumbers[exisitingTransactionNumberIndex]['id']
-            voidTransactionNumber['transaction_void']['transaction_id'] = existingTransactionNumbers[exisitingTransactionNumberIndex]['transaction']['id']
-            voidTransactionNumber['db_id'] = voidTransactionNumber['id']
-            const transactionData = this.prepareTransactionNumber(voidTransactionNumber)
-            transactionNumberDB.add(transactionData).then(result => {
-              if(result){
-                const transactionVoidData = this.prepareTransactionVoid(
-                  result['id'],
-                  voidTransactionNumber['transaction_void'],
-                  voidTransactionNumber['transaction_void']['transaction_id']
-                )
-                transactionVoidDB.add(transactionVoidData).finally(() => {
-                  ++doneCounter
-                  if(doneCounter === transactionNumberCount){
-                    resolve(true)
-                  }
-                })
-              }
-            })
-          }else{ // voided transaction not created yet
-            // TODO transaction_void.transaction is not yet retrieved. Modify the retrieve parameter
+          const voidedTransactionNumber = voidTransactionNumber['transaction_void']['voided_transaction_number']
+          if(typeof existingTransactionNumberLookUp[voidTransactionNumber['number']] === 'undefined'){
+            if(typeof existingTransactionNumberLookUp[voidedTransactionNumber] !== 'undefined'){ // voided transaction already exists
+              const exisitingTransactionNumberIndex = existingTransactionNumberLookUp[voidedTransactionNumber]
+              voidTransactionNumber['transaction_void']['transaction_number_id'] = existingTransactionNumbers[exisitingTransactionNumberIndex]['id']
+              voidTransactionNumber['transaction_void']['transaction_id'] = existingTransactionNumbers[exisitingTransactionNumberIndex]['transaction']['id']
+              voidTransactionNumber['db_id'] = voidTransactionNumber['id']
+              const transactionData = this.prepareTransactionNumber(voidTransactionNumber)
+              console.log(voidTransactionNumber['number'])
+              transactionNumberDB.add(transactionData).then(result => {
+                if(result){
+                  const transactionVoidData = this.prepareTransactionVoid(
+                    result['id'],
+                    voidTransactionNumber['transaction_void'],
+                    voidTransactionNumber['transaction_void']['transaction_id']
+                  )
+                  transactionVoidDB.add(transactionVoidData).finally(() => {
+                    ++doneCounter
+                    if(doneCounter === transactionNumberCount){
+                      resolve(true)
+                    }
+                  })
+                }
+              })
+            }else{ // voided transaction not created yet
+              // TODO transaction_void.transaction is not yet retrieved. Modify the retrieve parameter
+            }
           }
         })
       }).catch(() => {
