@@ -52,7 +52,6 @@ export default {
   },
   methods: {
     _list(){
-      console.log('list')
       this.howToList = HowToDB.get(this.category)
     },
     learn(howToIndex){

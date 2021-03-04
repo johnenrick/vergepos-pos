@@ -86,6 +86,13 @@ let routes = [
     meta: {
       auth_offline: true
     }
+  }, {
+    path: '/inventory',
+    name: 'Inventory',
+    component: require('@/views/inventory/Inventory.vue').default,
+    meta: {
+      auth_offline: true
+    }
   },
   {
     path: '/discount',
@@ -134,6 +141,14 @@ let routes = [
     path: '/product-performance',
     name: 'productPerformance',
     component: require('@/views/terminal_reports/ProductPerformance.vue').default,
+    meta: {
+      auth_offline: true
+    }
+  },
+  {
+    path: '/work-shift',
+    name: 'WorkShift',
+    component: require('@/views/terminal_reports/WorkShift.vue').default,
     meta: {
       auth_offline: true
     }
@@ -242,6 +257,12 @@ let routes = [
     path: '/contact-us',
     name: 'ContactUs',
     component: require('@/views/ContactUs.vue').default,
+    meta: {}
+  },
+  {
+    path: '/test-db',
+    name: 'TestingDBPage',
+    component: require('@/views/Testing.vue').default,
     meta: {}
   }
 ]

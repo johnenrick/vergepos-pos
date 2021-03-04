@@ -1,5 +1,5 @@
 <template>
-  <div class="card text-white  mb-3" :class="customClass">
+  <div class="card text-white" :class="customClass">
         <div class="card-body text-center px-3 py-2 d-flex">
           <div style="width:50px"><h1 class="mb-0"><fa :icon="icon"/></h1></div>
           <div class="pl-2 text-center" style="width: calc(100% - 50px)">

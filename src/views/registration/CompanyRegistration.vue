@@ -1,42 +1,44 @@
 <template>
   <div class="container p-3">
+    <div class="bg-white p-4 mx-auto shadow" style="max-width:600px">
+      <form-component
+        ref="form"
+        :config="formConfig"
+        :validation-messages="validationMessage"
+      />
 
-    <form-component
-      ref="form"
-      :config="formConfig"
-      :validation-messages="validationMessage"
-    />
-
-    <div class="text-center">
-      <div v-if="isLoading" >
-        <big>
-          <fa class="text-primary" icon="circle-notch" spin />
-        </big>
-        Talking to server. Please wait...
+      <div class="text-center">
+        <div v-if="isLoading" >
+          <big>
+            <fa class="text-primary" icon="circle-notch" spin />
+          </big>
+          Talking to server. Please wait...
+        </div>
+        <!-- <img
+          v-if="isLoading"
+          src="/loading-circle.gif"
+          width="70px"
+        > -->
+        <button
+          v-else
+          @click="register"
+          type="button"
+          class="btn btn-primary btn-lg"
+        >
+          Register Now!
+        </button>
       </div>
-      <!-- <img
-        v-if="isLoading"
-        src="/loading-circle.gif"
-        width="70px"
-      > -->
-      <button
-        v-else
-        @click="register"
-        type="button"
-        class="btn btn-primary btn-lg"
-      >
-        Register Now!
-      </button>
     </div>
+
     <modal ref="modal" size="lg">
       <template v-slot:body>
         <div class="p-4 text-center">
-          <h1 class="display-5 font-weight-bold">
+          <h3 class=" font-weight-bold">
             Congratulations, {{username}}!
-          </h1>
+          </h3>
           <p class="lead mt-4">Your account has been successfully created! You can now start exploring VergePOS and transform your business!</p>
-          <button v-if="isTerminal === false" @click="logIn" class="btn btn-success btn-lg">Proceed To My Account <fa :icon="'arrow-right'"  /></button>
-          <button v-else @click="goHome" class="btn btn-success btn-lg">Go to Log In Page <fa :icon="'arrow-right'"  /></button>
+          <button v-if="isTerminal === false" :disabled="isProceedLoading" @click="logIn" class="btn btn-success btn-lg">Proceed To My Account <fa :icon="'arrow-right'"  /></button>
+          <button v-else @click="goHome" :dsiabled="isProceedLoading" class="btn btn-success btn-lg">Go to Log In Page <fa :icon="'arrow-right'"  /></button>
         </div>
       </template>
     </modal>
@@ -69,6 +71,7 @@ export default {
       validationMessage: {},
       username: 'John',
       credential: {},
+      isProceedLoading: false,
       formConfig: {
         fields: {
           your_company: {
@@ -84,14 +87,15 @@ export default {
           //   placeholder: 'e.g. GMA, ABSCBN, SMC'
           // },
           'company_detail.nature': {
-            name: 'Nature of Business'
+            name: 'Nature of Business',
+            help_text: 'E.g. Sari-Sari Store, Ukay-Ukay, RTW, Pharmacy, Barbershop, Carenderia'
           },
           'company_detail.address': {
             name: 'Company Address'
           },
-          // 'company_detail.contact_number': {
-          //   name: 'Contact Number'
-          // },
+          'company_detail.contact_number': {
+            name: 'Contact Number'
+          },
           personal_information: {
             label_col_span: 12,
             label_style: 'text-center font-weight-bold text-uppercase pt-4',
@@ -202,6 +206,7 @@ export default {
       })
     },
     logIn(){
+      this.isProceedLoading = true
       this.$auth.login({
         params: this.credential,
         rememberMe: false,
@@ -221,11 +226,13 @@ export default {
           if (response.status === 401) {
             this.errorMessage = 'Invalid credentials'
           }
+          this.isProceedLoading = false
           this.isLoading = false
         }
       })
     },
     goHome(){
+      this.isProceedLoading = true
       window.location = '/'
     }
   }

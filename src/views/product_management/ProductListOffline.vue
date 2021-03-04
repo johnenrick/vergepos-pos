@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div >
     <p><fa icon="info-circle" class="text-info" /> You are in Offline mode. You can only view products but cannot manage</p>
     <Vuetable :fields="tableSetting.columns"
     :api-mode="false"
@@ -19,7 +19,7 @@
               </div>
               <div class="col-7">
                 <span class="form-control-plaintext">
-                  {{productList[activeProductIndex]['description']}} <small v-if="productList[activeProductIndex]['short_description'] !== '0' && productList[activeProductIndex]['short_description'] !== null">({{productList[activeProductIndex]['short_description']}})</small>
+                  {{productList[activeProductIndex]['description']}} <small v-if="typeof productList[activeProductIndex]['short_description'] !== 'undefined' && productList[activeProductIndex]['short_description'] !== '' && productList[activeProductIndex]['short_description'] !== null">({{productList[activeProductIndex]['short_description']}})</small>
                 </span>
               </div>
               </div>

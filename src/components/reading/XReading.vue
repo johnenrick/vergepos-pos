@@ -11,6 +11,7 @@
       :vatAmount="vatAmount"
       :discountAmounts="discountAmounts"
       :totalDiscount="totalDiscount"
+      :paymentMethods="paymentMethods"
       :previousGrandTotal="previousGrandTotal"
       :voidedTransactionCount="voidedTransactionCount"
       :reprintTransactionCount="reprintTransactionCount"
@@ -27,6 +28,7 @@ import Vue from 'vue'
 import ReadingTemplate from './ReadingTemplate.vue'
 import TransactionNumber from '@/database/controller/transaction-number.js'
 import Discount from '@/database/controller/discount.js'
+import PaymentMethod from '@/database/controller/payment-method.js'
 export default {
   components: {
     ReadingTemplate
@@ -54,13 +56,14 @@ export default {
       vatZeroRatedSales: 0,
       vatAmount: 0,
       discountAmounts: {},
+      paymentMethods: {},
       totalDiscount: 0,
       previousGrandTotal: 0,
       voidedTransactionCount: 0,
       reprintTransactionCount: 0,
       salesTransactionCount: 0,
       firstTransactionNumber: 0,
-      lastTransactionNumber: 0
+      lastTransactionNumber: 0,
     }
   },
   methods: {
@@ -86,7 +89,6 @@ export default {
       if(this.endDatetime){
         createdAtCondition['<='] = this.endDatetime.getTime()
       }
-      console.log(this.startDatetime, this.endDatetime)
       let query = {
         where: {
           created_at: createdAtCondition
@@ -100,7 +102,10 @@ export default {
           transaction_void: {
             with: {
               transaction: {
-                is_parent: true
+                is_parent: true,
+                with: {
+                  transaction_products: {}
+                }
               }
             }
 
@@ -135,6 +140,7 @@ export default {
                 if(transactionNumbers[x]['transaction_void']['transaction']['total_amount']){
                   this.totalVoidedAmount = (this.totalVoidedAmount * 1) + (transactionNumbers[x]['transaction_void']['transaction']['total_amount'] * 1)
                 }
+                this.calculateTransactions(transactionNumbers[x]['transaction_void']['transaction'], true)
                 ++this.voidedTransactionCount
               }
             }
@@ -224,6 +230,9 @@ export default {
         })
       })
     },
+    _getPaymentMethodSummary(){
+      return this.paymentMethods
+    },
     printXReading(callback = null){
       this.$refs.ReadingTemplate.printXReading(callback)
     },
@@ -234,19 +243,30 @@ export default {
       }
       return ids
     },
-    calculateTransactions(transaction){
-      this.vatSales += transaction['total_vat_sales'] * 1
-      this.vatExemptSales += transaction['total_vat_exempt_sales'] * 1
-      this.vatZeroRatedSales += transaction['total_vat_zero_rated_sales'] * 1
-      this.vatAmount += transaction['total_vat_amount'] * 1
-      this.totalDiscount += transaction['total_discount_amount'] * 1
+    calculateTransactions(transaction, isVoid = false){
+      const negativeMultiplier = isVoid ? -1 : 1
+      this.vatSales += transaction['total_vat_sales'] * negativeMultiplier
+      this.vatExemptSales += transaction['total_vat_exempt_sales'] * negativeMultiplier
+      this.vatZeroRatedSales += transaction['total_vat_zero_rated_sales'] * negativeMultiplier
+      this.vatAmount += transaction['total_vat_amount'] * negativeMultiplier
+      this.totalDiscount += transaction['total_discount_amount'] * negativeMultiplier
       let transactionProducts = transaction['transaction_products']
       for(let y = 0; y < transactionProducts.length; y++){
         let discountId = transactionProducts[y]['discount_id']
         if(discountId){
-          Vue.set(this.discountAmounts[discountId], 'amount', this.discountAmounts[discountId]['amount'] + (transactionProducts[y]['discount_amount'] * 1))
+          Vue.set(this.discountAmounts[discountId], 'amount', this.discountAmounts[discountId]['amount'] + (transactionProducts[y]['discount_amount'] * negativeMultiplier))
         }
       }
+      const { transaction_payments: transactionPayments = [] } = transaction
+      let totalOtherPay = 0
+      transactionPayments.forEach(transactionPayment => {
+        const paymentMethodId = transactionPayment['payment_method_id']
+        totalOtherPay += (transactionPayment['amount'] * 1)
+        const newPaymentMethodTotal = this.paymentMethods[paymentMethodId]['amount'] + transactionPayment['amount'] * 1
+        Vue.set(this.paymentMethods[paymentMethodId], 'amount', newPaymentMethodTotal)
+      })
+      const newCashPaymentMethodTotal = this.paymentMethods[1]['amount'] + transaction['cash_amount_paid'] * negativeMultiplier - (isVoid ? totalOtherPay : 0) // 1 is the payment method id of cash payment
+      Vue.set(this.paymentMethods[1], 'amount', newCashPaymentMethodTotal)
     },
     reset(){
       this.date = null
@@ -269,12 +289,27 @@ export default {
           amount: 0
         })
       }
+      for(let x in this.paymentMethods){
+        Vue.set(this.paymentMethods, x, {
+          description: this.paymentMethods[x]['description'],
+          amount: 0
+        })
+      }
     },
     init(){
       let discountDB = new Discount()
       discountDB.get({}).then((response) => {
         for(let x = 0; x < response.length; x++){
           Vue.set(this.discountAmounts, response[x]['id'], {
+            description: response[x]['description'],
+            amount: 0
+          })
+        }
+      })
+      let paymentMethodDB = new PaymentMethod()
+      paymentMethodDB.get().then((response) => {
+        for(let x = 0; x < response.length; x++){
+          Vue.set(this.paymentMethods, response[x]['id'], {
             description: response[x]['description'],
             amount: 0
           })

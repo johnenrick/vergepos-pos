@@ -11,7 +11,13 @@ class DBMigrate {
     this.prepareSchema()
     let isDbCreated = await connection.initDb(this.schema)
     console.log('DB initialized', isDbCreated, this.schema)
-    isReadyCallback(true)
+    if(isDbCreated){
+      setTimeout(() => {
+        window.location.reload(true)
+      })
+    }else{
+      isReadyCallback(true)
+    }
   }
   prepareSchema(){
     this.schema['name'] = schemaV1['dbName']

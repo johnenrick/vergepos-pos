@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.30",
+    "@fortawesome/free-brands-svg-icons": "^5.15.2",
     "@fortawesome/free-solid-svg-icons": "^5.14.0",
     "@fortawesome/vue-fontawesome": "^0.1.10",
     "@websanova/vue-auth": "^2.21.14-beta",
@@ -60,6 +61,7 @@
     "lint-staged": "^8.1.5",
     "node-sass": "^4.14.1",
     "sass-loader": "^7.1.0",
+    "vue-svg-loader": "^0.16.0",
     "vue-template-compiler": "^2.6.10",
     "vuetable-2": "^1.7.5"
   },

@@ -23,110 +23,138 @@
           </a>
         </div>
         <div class="modal-body">
-          <div class="row">
-            <label class="col-7 col-sm-6 col-form-label text-right font-weight-bold">Sub Total: </label>
-            <div class="col-5 col-sm-4">
-              <input
-                type="text"
-                readonly="readonly"
-                class="form-control-plaintext text-right"
-                :value="subTotal | numberToMoney"
-              >
+          <div v-show="!showMorePaymentMethods">
+            <div v-if="customers.length" class="row">
+              <label class="col-6 col-sm-6 col-form-label text-right font-weight-bold">Customer: </label>
+              <div class="col-6 col-sm-4">
+                <input
+                  type="text"
+                  readonly="readonly"
+                  class="form-control-plaintext text-right"
+                  :value="customers[0]['name']"
+                >
+              </div>
             </div>
-          </div>
+            <div class="row">
+              <label class="col-6 col-sm-6 col-form-label text-right font-weight-bold">Sub Total: </label>
+              <div class="col-6 col-sm-4">
+                <input
+                  type="text"
+                  readonly="readonly"
+                  class="form-control-plaintext text-right"
+                  :value="subTotal | numberToMoney"
+                >
+              </div>
+            </div>
 
-          <div class=" row">
-            <label class="col-7 col-sm-6 col-form-label text-right ">VAT Sales: </label>
-            <div class="col-5 col-sm-4">
-              <input
-                type="text"
-                readonly="readonly"
-                class="form-control-plaintext text-right"
-                :value="totalVatSales | numberToMoney"
-              >
+            <div class=" row">
+              <label class="col-6 col-sm-6 col-form-label text-right ">VAT Sales: </label>
+              <div class="col-6 col-sm-4">
+                <input
+                  type="text"
+                  readonly="readonly"
+                  class="form-control-plaintext text-right"
+                  :value="totalVatSales | numberToMoney"
+                >
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-6 col-sm-6 col-form-label text-right">VAT Exempt Sales: </label>
+              <div class="col-6 col-sm-4">
+                <input
+                  type="text"
+                  readonly="readonly"
+                  class="form-control-plaintext text-right"
+                  :value="totalVatExempt | numberToMoney"
+                >
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-6 col-sm-6 col-form-label text-right ">VAT({{taxPercentage}}): </label>
+              <div class="col-6 col-sm-4">
+                <input
+                  type="text"
+                  readonly="readonly"
+                  class="form-control-plaintext text-right"
+                  :value="totalVatAmount | numberToMoney"
+                >
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-6 col-sm-6 col-form-label text-right">Total Discount: </label>
+              <div class="col-6 col-sm-4">
+                <input
+                  type="text"
+                  readonly="readonly"
+                  class="form-control-plaintext text-right"
+                  :value="totalDiscountAmount | numberToMoney"
+                >
+              </div>
+            </div>
+            <div class="row ">
+              <label class="col-6 col-sm-6 col-form-label form-control-lg text-right font-weight-bold">Total Payable:</label>
+              <div class="col-6 col-sm-4">
+                <input
+                  type="text"
+                  readonly="readonly"
+                  class="form-control-plaintext text-right font-weight-bold form-control-lg"
+                  :value="totalAmount | numberToMoney"
+                >
+              </div>
+            </div>
+            <div class="row">
+              <label class="col-6 col-sm-6 col-form-label text-right font-weight-bold">Cash Payment: </label>
+              <div class="col-6 col-sm-4 text-right">
+                <number-input :default-value="0" :current-value="cashPayment" :is-decimal="true" @change="cashPayment = $event"/>
+                <small @click="showMorePaymentMethods = true" class="text-info c-pointer text-hover-underline">More Payment Methods</small>
+              </div>
+            </div>
+            <template v-for="paymentMethod in paymentMethods">
+              <div class=" row">
+                <label class="col-6 col-sm-6 col-form-label text-right ">{{paymentMethod['description']}}: </label>
+                <div class="col-6 col-sm-4">
+                  <input
+                    type="text"
+                    readonly="readonly"
+                    class="form-control-plaintext text-right"
+                    :value="paymentMethod['amount'] | numberToMoney"
+                  >
+                </div>
+              </div>
+            </template>
+            <div class="form-group row">
+              <label class="col-6 col-sm-6 col-form-label text-right font-weight-bold">Change: </label>
+              <div class="col-6 col-sm-4">
+                <input
+                  type="text"
+                  readonly="readonly"
+                  class="form-control-plaintext text-right"
+                  v-bind:class="totalAmount > totalPaid ? 'text-danger' : ''"
+                  :value="(totalPaid - totalAmount) * 1 | numberToMoney"
+                >
+              </div>
+            </div>
+            <div class="pt-3 pb-0 text-center border-top">
+              <template v-if="!transacting">
+                <button @click="changeTogglePrintState" :class="printOnCheckOut?'btn btn-primary':'btn btn-outline-primary'" style="float: left">
+                  <span><fa icon="print"></fa></span>
+                </button>
+                <button
+                  v-bind:disabled="totalAmount > totalPaid"
+                  @click="checkout"
+                  type="button"
+                  class="btn btn-lg btn-success"
+                >
+                  Check Out <fa :icon="'arrow-right'" />
+                </button>
+              </template>
+              <template v-else-if="transacting">
+                <span v-if="transactionStatus === null" class="font-weight-bold">Please wait...</span>
+                <span v-if="transactionStatus === true" class="font-weight-bold text-success">Transaction Succesful!</span>
+              </template>
             </div>
           </div>
-          <div class="row">
-            <label class="col-7 col-sm-6 col-form-label text-right ">VAT Exempt Sales: </label>
-            <div class="col-5 col-sm-4">
-              <input
-                type="text"
-                readonly="readonly"
-                class="form-control-plaintext text-right"
-                :value="totalVatExempt | numberToMoney"
-              >
-            </div>
-          </div>
-          <div class="row">
-            <label class="col-7 col-sm-6 col-form-label text-right ">VAT({{taxPercentage}}): </label>
-            <div class="col-5 col-sm-4">
-              <input
-                type="text"
-                readonly="readonly"
-                class="form-control-plaintext text-right"
-                :value="totalVatAmount | numberToMoney"
-              >
-            </div>
-          </div>
-          <div class="row">
-            <label class="col-7 col-sm-6 col-form-label text-right">Total Discount: </label>
-            <div class="col-5 col-sm-4">
-              <input
-                type="text"
-                readonly="readonly"
-                class="form-control-plaintext text-right"
-                :value="totalDiscountAmount | numberToMoney"
-              >
-            </div>
-          </div>
-          <div class="row ">
-            <label class="col-7 col-sm-6 col-form-label form-control-lg text-right font-weight-bold">Total Payable:</label>
-            <div class="col-5 col-sm-4">
-              <input
-                type="text"
-                readonly="readonly"
-                class="form-control-plaintext text-right font-weight-bold form-control-lg"
-                :value="totalAmount | numberToMoney"
-              >
-            </div>
-          </div>
-          <div class="row">
-            <label class="col-7 col-sm-6 col-form-label text-right font-weight-bold">Cash Payment: </label>
-            <div class="col-5 col-sm-4">
-              <number-input :default-value="0" :current-value="cashPayment" :is-decimal="true" @change="cashPayment = $event"/>
-            </div>
-          </div>
-          <div class="form-group row">
-            <label class="col-7 col-sm-6 col-form-label text-right font-weight-bold">Change: </label>
-            <div class="col-5 col-sm-4">
-              <input
-                type="text"
-                readonly="readonly"
-                class="form-control-plaintext text-right"
-                v-bind:class="totalAmount > cashPayment ? 'text-danger' : ''"
-                :value="(cashPayment - totalAmount) * 1 | numberToMoney"
-              >
-            </div>
-          </div>
-        </div>
-        <div class="p-3 text-center border-top">
-          <template v-if="!transacting">
-            <button @click="changeTogglePrintState" :class="printOnCheckOut?'btn btn-primary':'btn btn-outline-primary'" style="float: left">
-              <span><fa icon="print"></fa></span>
-            </button>
-            <button
-              v-bind:disabled="totalAmount > cashPayment"
-              @click="checkout"
-              type="button"
-              class="btn btn-lg btn-success"
-            >
-              Check Out <fa :icon="'arrow-right'" />
-            </button>
-          </template>
-          <template v-else-if="transacting">
-            <span v-if="transactionStatus === null" class="font-weight-bold">Please wait...</span>
-            <span v-if="transactionStatus === true" class="font-weight-bold text-success">Transaction Succesful!</span>
-          </template>
+          <OtherPaymentMethod ref="otherPaymentMethod" v-show="showMorePaymentMethods" @change="otherPaymentMethodChange" />
         </div>
       </div>
     </div>
@@ -141,13 +169,15 @@ import Cart from '../cart-store'
 import NumberInput from '@/components/NumberInput'
 import Transaction from '../transact.js'
 import Receipt from '@/components/Receipt'
+import OtherPaymentMethod from './checkout-components/OtherPaymentMethod'
 export default {
   mounted() {
     this.getPrintOnCheckOutLocalState()
   },
   components: {
     NumberInput,
-    Receipt
+    Receipt,
+    OtherPaymentMethod
   },
   props: {
     subTotal: Number,
@@ -160,15 +190,21 @@ export default {
   },
   data () {
     return {
+      showMorePaymentMethods: false,
       cashPayment: 0,
       taxPercentage: (Cart.state.taxPercentage * 100) + '%',
       transaction: new Transaction(),
       transacting: false,
       transactionStatus: null,
-      printOnCheckOut: false
+      printOnCheckOut: false,
+      paymentMethods: []
     }
   },
   methods: {
+    otherPaymentMethodChange(otherPayments){
+      this.paymentMethods = otherPayments
+      this.showMorePaymentMethods = false
+    },
     getPrintOnCheckOutLocalState (){
       if(localStorage.getItem('printOnCheckOut') !== null){
         if(localStorage.getItem('printOnCheckOut') === 'false'){
@@ -185,6 +221,20 @@ export default {
     checkout () {
       this.transacting = true
       this.transactionStatus = null
+      let paymentMethods = []
+      this.paymentMethods.forEach(paymentMethod => {
+        paymentMethods.push({
+          payment_method_id: paymentMethod['id'],
+          amount: paymentMethod['amount'],
+          remarks: paymentMethod['remarks']
+        })
+      })
+      const change = (this.totalPaid - Cart.state.totalAmount)
+      let cashAmountPaid = this.cashPayment ? this.cashPayment - change : 0
+      if(this.totalPaid > Cart.state.totalAmount){ // if the total paid is greater than the total amount
+        cashAmountPaid = this.cashPayment - change // if the
+        cashAmountPaid = cashAmountPaid > 0 ? cashAmountPaid : 0
+      }
       this.transaction.transact({
         customer: 'Guest',
         total_amount: Cart.state.totalAmount,
@@ -195,9 +245,11 @@ export default {
         total_discount_amount: Cart.state.totalDiscountAmount,
         sub_total_amount: Cart.state.subTotalAmount,
         cash_tendered: this.cashPayment,
-        cash_amount_paid: Cart.state.totalAmount,
+        cash_amount_paid: cashAmountPaid,
         discount_id: Cart.state.discountId,
         discount_remarks: Cart.state.discountRemarks,
+        customers: Cart.state.customers,
+        transaction_payments: paymentMethods
       }, JSON.parse(JSON.stringify(Cart.getters.items))).then((response) => {
         Cart.commit('setLatestTransactionNUmber', response['number'])
         this.transactionStatus = true
@@ -214,20 +266,34 @@ export default {
           Cart.commit('reset')
         }, 800)
       }).catch(error => {
-        console.log('Checkout Transact Error', error)
+        console.error('Checkout Transact Error', error)
         this.transacting = false
       })
     },
     _open () { // open the modal
+      this.showMorePaymentMethods = false
       $(this.$refs.modal).modal('show')
     },
     _reset(){
       this.transacting = false
       this.transactionStatus = null
       this.cashPayment = 0
+      this.showMorePaymentMethods = false
+      this.paymentMethods = []
+      this.$refs.otherPaymentMethod._reset()
     }
   },
   computed: {
+    totalPaid(){
+      let totalPaid = this.cashPayment
+      this.paymentMethods.forEach(paymentMethod => {
+        totalPaid += paymentMethod['amount']
+      })
+      return totalPaid
+    },
+    customers(){
+      return Cart.getters.customers
+    }
   }
 }
 </script>

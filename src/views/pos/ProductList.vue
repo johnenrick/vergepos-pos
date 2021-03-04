@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="">
     <div class="border no_selection">
-      <div class="row mb-2 border-bottom py-2 mx-0 no-gutters">
+      <div class="row mb-2 border-bottom py-1 mx-0 no-gutters">
         <div class="col-4 pl-2">
           <button
             v-if="categoryFilterID"
@@ -26,7 +26,7 @@
         </div>
         <div class="col-8 px-2">
           <div class="input-group">
-            <input v-model="searchFilterValue" placeholder="Search Product" class="form-control">
+            <input ref="searchInput" v-model="searchFilterValue" placeholder="Search Product" class="form-control">
             <div v-if="searchFilterValue" class="input-group-append">
               <button
                 @click="searchFilterValue = ''"
@@ -47,13 +47,9 @@
           >ALL &nbsp;</a> >
         </div>
       </div>
-      <div v-show="!productList.length && !isLoading" class="alert text-center border-warning m-4">
+      <div v-show="!productList.length && !isLoading" class="border border-warning p-2 text-center m-4">
         <span v-if="isOnline">
-          <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products created. Go to
-          <fa icon="list"/>
-          <strong>Manage</strong> >
-          <fa icon="box"/>
-          <strong>Product</strong> to create products.
+          <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products created. Go to <fa icon="list" /> <strong> Manage</strong> > <fa icon="box"/> <strong> Product</strong> to create products.
         </span>
         <span v-else>
           <fa icon="exclamation-triangle" class="text-warning"/> There are currently no Products saved. Try connecting to the internet, and re-login without using <em>Offline Mode</em>.
@@ -61,10 +57,10 @@
       </div>
       <div ref="container" class="productList slim-scrollbar">
         <div v-if="isLoading" class="text-center pt-5">
-          <Loading :loadingSMS="loadingSMS"/>
+          <Loading :loadingSMS="loadingSMS" type="card" />
         </div>
         <div v-else>
-          <div class="row align-items-center mx-0 px-2">
+          <div class="row align-items-center mx-0 px-1">
             <template v-if="!categoryFilterID">
               <template v-for="(category) in categoryList">
                 <div
@@ -82,7 +78,7 @@
               </template>
             </template>
           </div>
-          <div class="row align-items-center mx-0 px-2">
+          <div class="row align-items-center mx-0 px-1">
             <template v-for="(product, index) in productList">
               <div
                 class="col-6 col-sm-6 col-md-4 px-1 py-1 itemContainer"
@@ -110,12 +106,10 @@ import Vue from 'vue'
 import Product from '@/database/controller/product.js'
 import Category from '@/database/controller/category.js'
 import Cart from './cart-store'
-import Loading from '@/components/Loading.vue'
 import UserStore from '@/vue-web-core/system/store'
 // import UserStore from '@/vue-web-core/system/store'
 // import SyncStore from '@/database/sync/sync-store'
 export default {
-  components: { Loading },
   mounted() {},
   data() {
     return {
@@ -126,8 +120,11 @@ export default {
       categoryFilterID: null,
       categoryFilterDescription: null,
       searchTimeoutID: null,
-      categoryList: {},
-      productList: {},
+      categoryList: [],
+      productList: [],
+      productIdLookUp: {}, // db_id
+      productBarcodeLookUp: {},
+      productInventory: {},
       isAdding: false,
       pendingAddProduct: [],
       isLoading: false
@@ -144,6 +141,13 @@ export default {
       // // totalheight - the space from the windows top until container top - the height of the footer
       // this.containerHeight = (totalHeight - $(this.$refs.container).position().top - offset) + 'px'
     },
+    _barcodeScanned(barcode){
+      if(typeof this.productBarcodeLookUp[barcode] !== 'undefined' && document.activeElement !== this.$refs.searchInput){
+        const productListIndex = this.productBarcodeLookUp[barcode]
+        this.addProduct(this.productList[productListIndex]['db_id'])
+      }
+      this.$refs.searchInput.blur()
+    },
     setCategoryFilter(id, description) {
       this.categoryFilterID = id
       this.categoryFilterDescription = description
@@ -152,23 +156,41 @@ export default {
       this.isLoading = true
       this.categoryFilterID = null
       if (this.defaultItemToShow === 'all') {
-        new Category().getAll().then(response => {
+        new Category().get({ order: { by: 'description', type: 'asc' } }).then(response => {
           this.categoryList = response || []
           this.isLoading = false
         })
-        new Product().getAll().then(response => {
-          this.productList = response || []
+        this.retrieveProductList().finally(() => {
           this.isLoading = false
         })
       } else {
-        new Category().getAll().then(response => {
+        new Category().get({ order: { by: 'description', type: 'asc' } }).then(response => {
           this.categoryList = response || []
+          this.isLoading = false
         })
       }
     },
+    retrieveProductList(){
+      return new Promise((resolve, reject) => {
+        const productParam = {
+          where: { is_sellable: 1 },
+          order: { by: 'description', type: 'asc' }
+        }
+        new Product().get(productParam).then(response => {
+          response.forEach((product, index) => {
+            this.productIdLookUp[product['db_id']] = index
+            if(product['barcode'] && product['barcode'] !== ''){
+              this.productBarcodeLookUp[product['barcode']] = index
+            }
+          })
+          this.productList = response || []
+          resolve(true)
+        })
+      })
+    },
     filterItemList() {
       this.isLoading = true
-      for (let x in this.categoryList) {
+      for(let x in this.categoryList){
         let haystack = this.categoryList[x]['description'].toLowerCase()
         if (haystack.indexOf(this.searchFilterValue.toLowerCase()) >= 0) {
           Vue.set(this.categoryList[x], 'show', true)
@@ -176,11 +198,8 @@ export default {
           Vue.set(this.categoryList[x], 'show', false)
         }
       }
-      for (let x in this.productList) {
-        if (
-          this.categoryFilterID === null ||
-          this.categoryFilterID === this.productList[x]['category_id'] * 1
-        ) {
+      for(let x in this.productList){
+        if(this.categoryFilterID === null || this.categoryFilterID === this.productList[x]['category_id'] * 1){
           let haystackDesc = this.productList[x]['description'].toLowerCase()
           let code = this.productList[x]['barcode'] || ''
           code = code.replace(/ /g, '')
@@ -200,7 +219,8 @@ export default {
       }
       this.isLoading = false
     },
-    addProduct(productID, productListIndex) {
+    addProduct(productID) {
+      const productListIndex = this.productIdLookUp[productID]
       if(this.isAdding){
         if(productID){
           this.pendingAddProduct.push(productID)
@@ -283,12 +303,12 @@ export default {
 }
 .productList {
   height: calc(
-    100vh - 67px - 16px - 54px - 63px - 29px
+    100vh - 80px - 16px - 54px - 50px - 35px
   ); /**header, page-content-wrapper, tools, search, breadcrumb*/
 }
 @media (max-width: 768px) {
   .productList {
-    height: calc(100vh - 67px - 16px - 46px - 46px - 64px - 34px) !important;
+    height: calc(100vh - 95px - 16px - 46px - 46px - 50px - 34px) !important;
   }
 }
 </style>

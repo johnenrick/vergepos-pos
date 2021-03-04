@@ -1,27 +1,27 @@
 <template>
   <div>
-    <div class="text-center centered">
-      <img src="/img/loading.gif" width="50px">
-      <br>
-      <p>{{loadingSMS}}</p>
+    <div class="text-center center">
+      <template v-if="type === 'card'">
+        <fa icon="circle-notch" spin class="display-3 mb-3" />
+        <br>
+        <p>{{loadingSMS}}</p>
+      </template>
+      <div v-if="type === 'inline'">{{loadingSMS}} <fa icon="circle-notch" spin /></div>
     </div>
   </div>
 </template>
-<style scoped>
-.centered {
-  justify-content: center !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  display: flex !important;
-  height: 30vh;
-}
-</style>
-
 <script>
 export default {
   name: 'Loading',
   props: {
-    loadingSMS: String
+    loadingSMS: {
+      type: String,
+      default: 'Please wait... '
+    },
+    type: {
+      type: String,
+      default: 'inline' // card
+    }
   }
 }
 </script>

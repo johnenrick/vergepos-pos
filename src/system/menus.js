@@ -44,20 +44,29 @@ export default {
       102: true, // Manager
     }
   }, {
+    icon: 'clipboard-list',
+    name: 'Inventory',
+    has_offline: true,
+    dev: true,
+    role_access_list: {
+      100: true, // Company Admin
+      102: true, // Manager
+    }
+  }, {
     icon: 'percent',
     name: 'Discount',
     role_access_list: {
       100: true, // Company Admin
       102: true, // Manager
     }
-  // }, {
-  //   icon: 'user-friends',
-  //   has_offline: true,
-  //   name: 'Customer',
-  //   role_access_list: {
-  //     100: true, // Company Admin
-  //     102: true, // Manager
-  //   }
+  }, {
+    icon: 'user-friends',
+    has_offline: true,
+    name: 'Customer',
+    role_access_list: {
+      100: true, // Company Admin
+      102: true, // Manager
+    }
   }, {
     icon: 'file-contract',
     name: 'Terminal Reports',
@@ -84,6 +93,13 @@ export default {
       role_access_list: {
         100: true, // Company Admin
         101: true, // Cashier
+        102: true, // Manager
+      }
+    }, {
+      name: 'Work Shift',
+      has_offline: true,
+      role_access_list: {
+        100: true, // Company Admin
         102: true, // Manager
       }
     }]

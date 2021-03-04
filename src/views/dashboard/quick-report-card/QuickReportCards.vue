@@ -1,23 +1,28 @@
 <template>
-  <div class="row no-gutters mb-1">
-    <div class="col-12 p-1 text"><h6 class="font-weight-bold text-uppercase">Today's Status on {{currentDate | formatDate('M d, yyyy hh:mm')}}</h6></div>
-    <div class="col-12 col-md-4 px-1">
-      <card icon="money-bill" description="Current Sales" :value="currentSales | numberToMoney" custom-class="bg-success" />
+  <div>
+    <div class="p-1"><h6 class="font-weight-bold text-uppercase">Today's Status on {{currentDate | formatDate('M d, yyyy hh:mm')}}</h6></div>
+    <div v-if="isTerminal" class="row no-gutters mb-1">
+      <div class="col-12 col-md-4 px-1 mb-2">
+        <card icon="money-bill" description="Current Sales" :value="currentSales | numberToMoney" custom-class="bg-success" />
+      </div>
+      <div class="col-12 col-md-4 px-1 mb-2">
+        <card icon="receipt" description="Transactions" :value="totalTransactions" custom-class="bg-info" />
+      </div>
+      <div class="col-12 col-md-4 px-1 mb-2">
+        <card icon="box" description="Items Sold" :value="totalSold" custom-class="bg-warning" />
+      </div>
+      <div class="col-12 col-md-4 px-1 mb-2 mb-md-0">
+        <card icon="money-bill" description="Sales per Hour" :value="salesPerHour | numberToMoney" custom-class="text-success border-success" />
+      </div>
+      <div class="col-12 col-md-4 px-1 mb-2 mb-md-0">
+        <card icon="dot-circle" description="First Txn Time" :value="timeOfFirstTransaction" custom-class="text-info border-info" />
+      </div>
+      <div class="col-12 col-md-4 px-1">
+        <card icon="flag-checkered" description="Last Txn Time" :value="timeOfLastTransaction" custom-class="text-warning border-warning" />
+      </div>
     </div>
-    <div class="col-12 col-md-4 px-1">
-      <card icon="receipt" description="Transactions" :value="totalTransactions" custom-class="bg-info" />
-    </div>
-    <div class="col-12 col-md-4 px-1">
-      <card icon="box" description="Items Sold" :value="totalSold" custom-class="bg-warning" />
-    </div>
-    <div class="col-12 col-md-4 px-1">
-      <card icon="money-bill" description="Sales per Hour" :value="salesPerHour | numberToMoney" custom-class="text-success border-success" />
-    </div>
-    <div class="col-12 col-md-4 px-1">
-      <card icon="dot-circle" description="First Txn Time" :value="timeOfFirstTransaction" custom-class="text-info border-info" />
-    </div>
-    <div class="col-12 col-md-4 px-1">
-      <card icon="flag-checkered" description="Last Txn Time" :value="timeOfLastTransaction" custom-class="text-warning border-warning" />
+    <div v-else class="p-2  rounded">
+      <fa icon="info-circle" /> You can only see Today's Status on Terminal Devices
     </div>
   </div>
 </template>
@@ -33,14 +38,14 @@ export default {
       totalSold: 0,
       totalTransactions: 0,
       currentSales: 0,
-      currentDate: '',
+      currentDate: new Date(),
       salesPerHour: 0,
       timeOfLastTransaction: '',
       timeOfFirstTransaction: '',
+      isTerminal: localStorage.getItem('is_terminal')
     }
   },
   mounted(){
-    this._initialize()
   },
   methods: {
     _initialize(){

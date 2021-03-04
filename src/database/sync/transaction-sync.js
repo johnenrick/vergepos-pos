@@ -2,10 +2,13 @@ import Sync from '../core/sync.js'
 import TransactionNumber from '@/database/controller/transaction-number.js'
 import Transaction from '@/database/controller/transaction.js'
 import TransactionProduct from '@/database/controller/transaction-product.js'
+import TransactionCustomer from '@/database/controller/transaction-customer.js'
 import TransactionVoid from '@/database/controller/transaction-void.js'
+import Customer from '@/database/controller/customer.js'
 // import datetimeHelper from '@/vue-web-core/helper/mixin/datetime'
 export default class TransactionNumberSync extends Sync{
   resolveId = 6
+  customersToUpdate = {} // the customers that is being used in transaction_customers where customer_id is not set yet
   async downSync(){
     let idb = new TransactionNumber()
     let query = {
@@ -68,7 +71,21 @@ export default class TransactionNumberSync extends Sync{
             },
             transaction_computation: {
               select: ['transaction_id', 'total_vat_sales', 'total_vat_exempt_sales', 'total_vat_zero_rated_sales', 'total_vat_amount', 'total_discount_amount']
-            }
+            },
+            transaction_payments: {
+              select: {
+                0: 'transaction_id',
+                1: 'payment_method_id',
+                2: 'amount',
+                3: 'remarks'
+              }
+            },
+            transaction_customers: {
+              select: {
+                0: 'transaction_id',
+                1: 'customer_id'
+              }
+            },
           }
         },
         transaction_void: {
@@ -95,9 +112,11 @@ export default class TransactionNumberSync extends Sync{
       this.retrieveAPIData('transaction-number/retrieve', param).then(response => {
         resolve(this.resolveId)
         if (response['data'].length) {
+          this.customersToUpdate = {}
           let transactionNumber = new TransactionNumber()
           let transaction = new Transaction()
           let transactionProduct = new TransactionProduct()
+
           let counter = 0
           let maxCount = response['data'].length
           let transactionVoids = []
@@ -116,19 +135,24 @@ export default class TransactionNumberSync extends Sync{
                 }else{
                   transactionNumber.add(transactionNumberData).then((transactionNumberResult) => {
                     if(transactionNumberData['operation'] === 1 && response['data'][x]['transaction']){
-                      let transactionResponse = response['data'][x]['transaction']
+                      const transactionResponse = response['data'][x]['transaction']
                       let transactionData = this.prepareTransactionData(transactionResponse, transactionNumberResult['id'])
                       transaction.add(transactionData).then((transactionResult) => {
                         if(transactionResponse['transaction_products'].length){
                           // TODO Insert Many
                           let transactionProductsData = this.prepareTransactionProducts(transactionResponse['transaction_products'], transactionResult['id'])
-                          transactionProduct.add(transactionProductsData).finally(() => {
-                            counter++
+                          transactionProduct.add(transactionProductsData, { traceInventory: false }).finally(() => {
+                            this.insertTransactionCustomer(transactionResult['id'], transactionResponse['transaction_customers']).finally(() => {
+                              counter++
+                            })
                           })
                         }else{
-                          counter++
+                          this.insertTransactionCustomer(transactionResult['id'], transactionResponse['transaction_customers']).finally(() => {
+                            counter++
+                          })
                         }
-                      }).catch(() => {
+                      }).catch((error) => {
+                        console.error('transaction sync error', error)
                         counter++
                       })
                     }else{
@@ -145,7 +169,9 @@ export default class TransactionNumberSync extends Sync{
             if(counter === maxCount){
               clearInterval(interval)
               this.syncTransactionVoid(transactionVoids).finally(() => {
-                resolve(this.resolveId)
+                this.updateTransactionCustomerCustomerId().finally(() => {
+                  resolve(this.resolveId)
+                })
               })
             }
           }, 100)
@@ -158,6 +184,66 @@ export default class TransactionNumberSync extends Sync{
       })
     })
   }
+  updateTransactionCustomerCustomerId(){
+    return new Promise(resolve => {
+      let customerDBIds = []
+      for(let customerDBId in this.customersToUpdate){
+        customerDBIds.push(parseInt(customerDBId))
+      }
+      if(customerDBIds.length){
+        const param = {
+          where: {
+            db_id: {
+              in: customerDBIds
+            }
+          }
+        }
+        const customerDB = new Customer()
+        const transactionCustomerDB = new TransactionCustomer()
+        customerDB.get(param).then(result => {
+          if(result.length){
+            let remainingCount = result.length
+            result.forEach(customer => {
+              const updateData = {
+                customer_id: customer['id'],
+                where: {
+                  customer_db_id: customer['db_id']
+                }
+              }
+              transactionCustomerDB.update(updateData).finally(() => {
+                --remainingCount
+                if(remainingCount === 0){
+                  resolve(true)
+                }
+              })
+            })
+          }else{
+            resolve(true)
+          }
+        })
+      }else{
+        resolve(true)
+      }
+    })
+  }
+  insertTransactionCustomer(transactionId, transactionCustomers = []){
+    return new Promise((resolve, reject) => {
+      if(transactionCustomers.length){
+        let transactionCustomerDB = new TransactionCustomer()
+        transactionCustomers.forEach((transactionCustomer, index) => {
+          this.customersToUpdate[transactionCustomer['customer_id'] * 1] = true
+          transactionCustomers[index]['transaction_id'] = transactionId
+          transactionCustomers[index]['customer_db_id'] = transactionCustomer['customer_id'] * 1
+          transactionCustomers[index]['customer_id'] = 0
+        })
+        transactionCustomerDB.add(transactionCustomers).finally(() => {
+          resolve(true)
+        })
+      }else{
+        resolve(true)
+      }
+    })
+  }
   syncTransactionVoid(voidTransactionNumbers){ // transactionNumbers are voided transaction numbers only
     // NOTE Modify this code if transaction sync only sync partially
     /*
@@ -168,8 +254,11 @@ export default class TransactionNumberSync extends Sync{
     */
     let transactionNumberDB = new TransactionNumber()
     let transactionVoidDB = new TransactionVoid()
-
     return new Promise((resolve, reject) => {
+      if(voidTransactionNumbers.length === 0){
+        resolve(true)
+        return false
+      }
       let voidedTransactionNumberId = []
       for(let x = 0; x < voidTransactionNumbers.length; x++){
         voidedTransactionNumberId.push(voidTransactionNumbers[x]['transaction_void']['voided_transaction_number'] * 1)
@@ -201,7 +290,6 @@ export default class TransactionNumberSync extends Sync{
               voidTransactionNumber['transaction_void']['transaction_id'] = existingTransactionNumbers[exisitingTransactionNumberIndex]['transaction']['id']
               voidTransactionNumber['db_id'] = voidTransactionNumber['id']
               const transactionData = this.prepareTransactionNumber(voidTransactionNumber)
-              console.log(voidTransactionNumber['number'])
               transactionNumberDB.add(transactionData).then(result => {
                 if(result){
                   const transactionVoidData = this.prepareTransactionVoid(
@@ -244,7 +332,7 @@ export default class TransactionNumberSync extends Sync{
       operation: transactionNumber['operation'] * 1,
       created_at: (new Date(transactionNumber['created_at'])).getTime() + 28800000,
       deleted_at: transactionNumber['deleted_at'],
-      updated_at: transactionNumber['updated_at']
+      updated_at: (new Date(transactionNumber['updated_at'])).getTime() + 28800000
     }
   }
   prepareTransactionData(transaction, transactionNumberId){
@@ -274,6 +362,7 @@ export default class TransactionNumberSync extends Sync{
     }
     transactionData['sub_total_amount'] = transactionData['total_vat_sales'] + transactionData['total_vat_exempt_sales'] + transactionData['total_vat_zero_rated_sales'] + transactionData['total_vat_amount']
     transactionData['total_amount'] = transactionData['sub_total_amount'] - transactionData['total_discount_amount']
+    transactionData['transaction_payments'] = transaction['transaction_payments']
     return transactionData
   }
   prepareTransactionProducts(transactionProducts, transactionId){

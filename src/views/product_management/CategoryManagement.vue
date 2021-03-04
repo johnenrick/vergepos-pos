@@ -1,5 +1,5 @@
 <template>
-  <div class="section p-3">
+  <div class="">
     <basic-module :config="config" @form-update="formUpdateListener" @form-delete="formDeleteListener" >
       <template slot="customSection1"><FAQ /></template>
     </basic-module>

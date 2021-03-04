@@ -1,6 +1,6 @@
 let activeWisdomeQouteIndex = 0
 let wisdomQoutes = [
-  'Just because you are earning doesn\'t you are winning',
+  'Just because you are earning doesn\'t mean you are winning',
   'There will always be a cycle in business. Make sure when you are in good times, prepare for the bad times',
   'Great Success is a formula not a luck or coincedence',
   'Success does not happened overnight. It is an accumalation of what we do everyday',

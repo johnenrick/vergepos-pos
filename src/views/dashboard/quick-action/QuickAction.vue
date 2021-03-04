@@ -1,8 +1,8 @@
 <template>
-  <div class="mb-3">
+  <div class="">
     <h6 class="font-weight-bold text-uppercase">Quick Actions</h6>
-    <div v-show="isReady" class="row border px-1 pt-2 rounded mx-0 bg-primary">
-      <div v-show="quickActionCardVisibility['manage_master_list']" class="col-sm-12 col-md-6 px-1 mb-2">
+    <div v-show="isReady" class="row  px-1  mx-0">
+      <div v-if="hasInitialized" v-show="quickActionCardVisibility['manage_master_list']" class="col-sm-12 col-md-6 px-1 mb-2">
         <manage-master-list @toggle="toggleQuickActionCard('manage_master_list', $event)" />
       </div>
       <div v-if="quickActionCardVisibility['set_terminal']" class="col-sm-12 col-md-6 px-1 mb-2">
@@ -15,12 +15,12 @@
         <back-up-database/>
       </div>
       <div v-if="quickActionCardVisibility['unset_terminal']" class="col-sm-12 col-md-6 px-1 mb-2">
-        <unset-terminal />
+        <unset-terminal ref="unsetTerminal" />
       </div>
 
     </div>
-    <div v-show="!isReady" class="row border px-1 pt-2 rounded mx-0 bg-primary justify-content-center">
-      <div class="col-sm-11 col-md-6 bg-white mb-2 rounded py-2 text-center border">
+    <div v-show="!isReady" class="p-1">
+      <div class="border rounded text-center py-2">
         <fa icon="circle-notch" spin /> Please wait...
       </div>
     </div>
@@ -56,7 +56,8 @@ export default {
         back_up_database: false,
         install: false,
         unset_terminal: false,
-      }
+      },
+      hasInitialized: false
     }
   },
   methods: {
@@ -81,6 +82,12 @@ export default {
         if(this.isAdmin || this.isManager){
           Vue.set(this.quickActionCardVisibility, 'set_terminal', true)
         }
+      }
+      this.hasInitialized = true
+    },
+    _openQuickActionCard(card){
+      if(card === 'unset_terminal'){
+        this.$refs.unsetTerminal._openTerminalDetail()
       }
     },
     toggleQuickActionCard(card, show){

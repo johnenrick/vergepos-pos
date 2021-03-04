@@ -1,8 +1,10 @@
 <template>
   <div class="p-3">
-    <h2>Product Performance</h2>
-    <p>Product Performance Report will show you what products are the best base on the quantity sold, total sales, and profit made.</p>
-    <div class="row mb-4 no-gutters">
+    <div class="p-3 bg-white shadow-sm mb-2">
+      <h2>Product Performance</h2>
+      <p>Product Performance Report will show you what products are the best base on the quantity sold, total sales, and profit made.</p>
+    </div>
+    <div class="row no-gutters p-3 bg-white shadow-sm mb-2">
       <div class="col-12 pb-2 px-1">
         <vue-select v-model="selectFilterValue" :options="selectFilterOption" label="description" :multiple="true" placeholder="Category and Product Filter" />
         <small><fa icon="info-circle" /> Type the products or product categories you want to generate report</small>
@@ -55,7 +57,7 @@
           </div>
         </div>
     </div>
-    <div class="row">
+    <div class="row no-gutters p-3 bg-white shadow-sm mb-2">
       <div class="col-12 table-responsive">
         <vuetable ref="vuetable"
           :track-by="'id'"
@@ -196,6 +198,7 @@ export default {
       let defaultTime = currentDate.getFullYear() + '-' + this.padNumber(currentDate.getMonth() + 1) + '-' + this.padNumber(currentDate.getDate()) + 'T' + this.padNumber(0) + ':' + this.padNumber(0) + ':' + this.padNumber(0) + '.000Z'
       this.startDatetimeFilter = defaultTime
       this.productDB.get().then((e) => {
+        console.log('e', e)
         this.selectFilterOption = e
       })
       this.generate()

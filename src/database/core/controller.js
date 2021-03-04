@@ -1,9 +1,10 @@
 import { connection } from '../js_store/js-store-con' // https://jsstore.net/tutorial/get-started/
+import Migration from '../migration/v1'
 let us = require('underscore')
 var pluralize = require('pluralize')
-
 export default class Controller {
   tableName
+  migrationTable = null
   add(data){
     if(typeof data.length === 'undefined') data = [data]
     for(let x = 0; x < data.length; x++){
@@ -47,12 +48,23 @@ export default class Controller {
     }else{
       data['updated_at'] = (new Date()).getTime()
     }
+    const tableSchemaColumns = this.getMigrationTableSchema(this.tableName)
+    for(let dataField in data){
+      if(typeof tableSchemaColumns[dataField] !== 'undefined'){
+        switch(tableSchemaColumns[dataField]['dataType']){
+          case 'number': data[dataField] = data[dataField] * 1; break
+        }
+      }
+    }
     return new Promise((resolve, reject) => {
       let where = {}
       if(typeof data['id'] === 'undefined' && typeof data['db_id'] !== 'undefined'){
         where['db_id'] = data['db_id']
       }else if(typeof data['id'] !== 'undefined'){
         where['id'] = data['id']
+      }else if(typeof data['where'] !== 'undefined'){
+        where = data['where']
+        delete data['where']
       }
       connection.update({
         in: this.tableName,
@@ -65,6 +77,15 @@ export default class Controller {
         reject(error)
       })
     })
+  }
+  getMigrationTableSchema(tableName){
+    if(this.migrationTable === null){
+      this.migrationTable = {}
+      Migration['tables'].forEach(table => {
+        this.migrationTable[table['name']] = table['columns']
+      })
+    }
+    return this.migrationTable[tableName]
   }
   get(query){
     let hasId = false
@@ -103,6 +124,9 @@ export default class Controller {
             }
           })
         }else{
+          if(typeof query['with_trash'] === 'undefined'){
+            result = result.filter(item => typeof item['deleted_at'] === 'undefined' || (typeof item['deleted_at'] !== 'undefined' && !item['deleted_at']))
+          }
           if(!hasId){
             resolve(result.length ? result : [])
           }else{
@@ -150,10 +174,17 @@ export default class Controller {
   executeWithChildQuery(query, result, withTable, withQuery, withTablename){
     let mainTable = pluralize.singular(query['from'])
     let idLookUp = {}
+    let dbIdLookUp = {} // look up for finding the id given the db id
     let rootTableIdList = []
     for(let x = 0; x < result.length; x++){
-      idLookUp[result[x]['id']] = x
-      rootTableIdList.push(result[x]['id'])
+      if(typeof withQuery['use_db_id'] !== 'undefined' && withQuery['use_db_id']){
+        idLookUp[result[x]['db_id']] = x
+        dbIdLookUp['db_id'] = result[x]['id']
+        rootTableIdList.push(result[x]['db_id'])
+      }else{
+        idLookUp[result[x]['id']] = x
+        rootTableIdList.push(result[x]['id'])
+      }
     }
     withQuery['where'][mainTable + '_id'] = {
       in: rootTableIdList
@@ -163,6 +194,9 @@ export default class Controller {
     return new Promise((resolve, reject) => {
       this.get(withQuery).then(withTableResult => {
         let groupedResult = us.groupBy(withTableResult, mainTable + '_id')
+        // if(withTableResult.length){
+        //   console.log(withTableResult[0]['created_at'], groupedResult)
+        // }
         for(let parentId in groupedResult){
           if(typeof result[idLookUp[parentId]] !== 'undefined'){
             result[idLookUp[parentId]][withTable] = !isOnlyOne ? groupedResult[parentId] : groupedResult[parentId][0]
@@ -177,30 +211,32 @@ export default class Controller {
     })
   }
   executeWithParentQuery(query, result, withTable, withQuery, withTablename){
-    let childTableLookUp = {} // Used if the with table is a parent table, determine which index of result of a given parent id
+    let childTableLookUp = {} // Determine which index of result of a given parent id
     let withTableIdList = []
     for(let x = 0; x < result.length; x++){
       const parentTableId = result[x][withTablename + '_id']
       if(parentTableId){
         if(typeof childTableLookUp[parentTableId] === 'undefined'){
           childTableLookUp[parentTableId] = []
+          withTableIdList.push(parentTableId)
         }
         childTableLookUp[parentTableId].push(x)
-        withTableIdList.push(parentTableId)
       }
     }
-    withQuery['where']['id'] = {
+    const conditionColumn = typeof withQuery['use_db_id'] !== 'undefined' && withQuery['use_db_id'] ? 'db_id' : 'id'
+    withQuery['where'][conditionColumn] = {
       in: withTableIdList
     }
     return new Promise((resolve) => {
-      this.get(withQuery).then(withTableResult => { // if with table is a parent table
-        const parentTableResult = withTableResult
+      this.get(withQuery).then(parentTableResult => {
         parentTableResult.forEach((parentTable, index) => {
-          const parentTableId = parentTable['id']
-          let resultIndices = childTableLookUp[parentTableId]
-          resultIndices.forEach(resultIndex => {
-            result[resultIndex][withTable] = parentTable
-          })
+          const parentTableId = parentTable[conditionColumn]
+          if(typeof childTableLookUp[parentTableId] !== 'undefined'){
+            let resultIndices = childTableLookUp[parentTableId]
+            resultIndices.forEach(resultIndex => {
+              result[resultIndex][withTable] = parentTable
+            })
+          }
         })
         resolve(true)
       }).finally(() => {
@@ -228,12 +264,36 @@ export default class Controller {
       where['id'] = query * 1
     }
     return new Promise((resolve, reject) => {
+      this.get({ where: where }).then(result => {
+        let resultLoopCounter = result.length
+        result.forEach(entry => {
+          if(entry['db_id']){
+            this.softDelete(entry['id']).finally(() => {
+              --resultLoopCounter
+              if(resultLoopCounter === 0){
+                resolve(true)
+              }
+            })
+          }else{
+            this.hardDelete(where).finally(() => {
+              --resultLoopCounter
+              if(resultLoopCounter === 0){
+                resolve(true)
+              }
+            })
+          }
+        })
+      })
+    })
+  }
+  hardDelete(whereClause){
+    return new Promise((resolve, reject) => {
       if(typeof query === 'undefined' || !query){
         reject(false)
       }else{
         connection.remove({
           from: this.tableName,
-          where: where
+          where: whereClause
         }).then(response => {
           resolve(response)
         }).catch(error => {
@@ -241,6 +301,12 @@ export default class Controller {
           reject(error)
         })
       }
+    })
+  }
+  softDelete(id){
+    return this.update({
+      id: id,
+      deleted_at: (new Date()).getTime()
     })
   }
   getAll(){

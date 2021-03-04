@@ -136,7 +136,7 @@ let howTos = [
     ]
   }, {
     category: 'set_terminal',
-    description: 'How to find Serial Number in Windows(Laptop or Desktop)',
+    description: 'How to find Serial Number in Windows(Laptop or PC)',
     steps: [
       'Open <strong>Command Prompt</strong>. You can do this by clicking the windows key, then type <em>Command Prompt</em>',
       'Copy and paste the following code to the Command Prompt. <div class="text-center font-italic font-weight-bold">wmic bios get serialnumber</div>'

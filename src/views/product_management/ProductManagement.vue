@@ -1,26 +1,29 @@
 <template>
-  <div class="section p-3">
+  <div class="">
     <div v-if="isCategoryAvailable === true">
     </div>
     <basic-module v-if="isOffline === false && isOffline !== null && isCategoryAvailable === true" :config="config" @form-update="formUpdateListener" @form-delete="formDeleteListener">
       <template slot="customSection1"><FAQ /></template>
     </basic-module>
-    <div v-else-if="(isOffline === false || isOffline === true) && isOffline !== null && isCategoryAvailable === false">
+    <div v-else-if="(isOffline === false || isOffline === true) && isOffline !== null && isCategoryAvailable === false" class="p-3">
       <h2 class="mb-4">Product List</h2>
-      <div class="text-center alert border-warning m-4">
+      <div class="text-center alert alert-warning border-warning m-4">
         <span>
-          <fa icon="exclamation-triangle" class="text-warning"/> You need to create a Product Category first before you can create a <strong> Product</strong>. You can do this by clicking <fa icon="boxes" /><strong> Category</strong> in the side menu.
+          <fa icon="exclamation-triangle" /> You need to create a Product Category first before you can create a <strong> Product</strong>. Go to <fa icon="boxes" /><strong> Category</strong> in the side menu.
         </span>
       </div>
     </div>
-    <template v-else-if="isOffline === true && isOffline !== null && isCategoryAvailable === true">
-      <h2>Product List<small>(Offline)</small></h2>
-      <product-list-offline  />
-    </template>
-    <template v-else>
-      <h2>Product Management</h2>
+    <div v-else-if="isOffline === true && isOffline !== null && isCategoryAvailable === true" class="p-3">
+      <div class="bg-white p-3 border shadow-sm">
+        <h2 class="font-weight-bold">Product List<small>(Offline)</small></h2>
+        <product-list-offline  />
+
+      </div>
+    </div>
+    <div v-else class="p-3">
+      <h2 class="font-weight-bold">Product Management</h2>
       <p><fa icon="hourglass-half" /> Checking connectivity. Please wait...</p>
-    </template>
+    </div>
   </div>
 </template>
 
@@ -65,7 +68,8 @@ let ModuleDefault = {
             is_retained_on_create: true,
             config: {
               api_link: 'category/retrieve',
-              api_option_text: 'description'
+              api_option_text: 'description',
+
             }
           },
         }
@@ -92,7 +96,13 @@ let ModuleDefault = {
           is_retained_on_create: true,
           config: {
             api_link: 'category/retrieve',
-            api_option_text: 'description'
+            api_option_text: 'description',
+            api_parameter: {
+              sort: [{
+                column: 'description',
+                order: 'asc'
+              }]
+            }
           }
         },
         description: {
@@ -103,12 +113,46 @@ let ModuleDefault = {
           help_text: 'This is optional'
         },
         cost: {
+          type: 'number',
           help_text: 'How much you spent to buy each item. Also known as Cost of Goods.'
         },
         price: {
+          type: 'number',
           placeholder: 'Selling Price',
-          help_text: 'How much will you sell it to your customer. Do not forget to include the tax!'
-        }
+          config: {
+            min: 0
+          },
+          help_text: 'How much will you sell it to your customer. Do not forget to include the tax! You can also just leave it blank if the product is not sellable'
+        },
+        is_sellable: {
+          type: 'select',
+          help_text: 'Selecting Yes would make this product appear in the POS. Select No if this item is a raw materials only or is not for sale',
+          default_value: '1',
+          config: {
+            options: [{
+              value: '1',
+              text: 'Yes',
+            }, {
+              value: '0',
+              text: 'No',
+            }]
+          }
+        },
+        has_inventory: {
+          name: 'Is Inventoriable',
+          type: 'select',
+          default_value: 1,
+          help_text: 'Selecting Yes would allow you to manage the inventory of this product, and makes it appear in the Invetory Page',
+          config: {
+            options: [{
+              value: '1',
+              text: 'Yes',
+            }, {
+              value: '0',
+              text: 'No',
+            }]
+          }
+        },
       }
     }
     let formRetrieveParameter = {
@@ -168,7 +212,10 @@ let ModuleDefault = {
           data['company_id'] = data['company_id'] * 1
           data['category_id'] = data['category_id'] * 1
           data['cost'] = data['cost'] * 1
-          data['price'] = data['price'] * 1
+          console.log('data', data)
+          data['price'] = isNaN(data['price'] * 1) ? 0 : data['price'] * 1
+          data['is_sellable'] = data['is_sellable'] * 1
+          data['has_inventory'] = data['has_inventory'] * 1
           console.log(data)
           delete data['id']
           if(productData){

@@ -1,38 +1,45 @@
 <template>
   <div>
-    <div class="row no-gutters mb-2">
-      <div class="col-12 col-md-9">
+    <div class="row no-gutters bg-white">
+      <div class="col-9 ">
         <button @click="toggleFullscreen" class="btn btn-outline-dark mr-1" :title="isFullscreen ? 'Minimize Screen' : 'Full Screen'"><fa :icon="!isFullscreen2 ? 'window-maximize' : 'window-minimize'" /></button>
         <button @click="refreshApp" class="btn btn-outline-dark mr-1" title="Refresh the app"><fa :icon="'redo'" /></button>
         <button @click="clearCart" class="btn btn-outline-dark mr-1" title="Clear Cart"><fa :icon="'trash'" /></button>
         <button @click="viewTransaction" class="btn btn-outline-dark mr-1" title="Open Transaction"><fa :icon="'receipt'" /></button>
         <button @click="openFAQ" class="btn btn-outline-dark mr-1" title="Open FAQ"><fa :icon="'question'" /></button>
-        <button v-if="inDevMode" @click="benchmark" class="btn btn-outline-dark" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button>
+        <button v-if="workShiftDetailId" @click="openCloseWorkShift" class="btn btn-primary mr-1" title="End Shift"><fa :icon="'user-clock'" /> Shift</button>
+        <!-- <button v-if="inDevMode" @click="benchmark" class="btn btn-outline-dark mr-1" title="Create Test Transactions"><fa :icon="'vial'" class="text-info" /></button> -->
+        <!-- <Sync  /> -->
       </div>
-      <div class="col-md-3 pt-2 text-right d-none d-sm-block pb-2">
+      <div class="col-3 pt-2 text-right d-none d-sm-block pb-2">
         {{liveTime}} <big v-bind:class="connectionSpeed ? 'text-success' : 'text-secondary'" class="ml-2 "><span v-bind:title="isSynching ? 'Synching Data' : 'Internet Availability'" v-bind:class="isSynching ? 'blink' : ''"><fa icon="wifi" /></span></big>
       </div>
     </div>
     <transaction-viewer ref="TransactionViewer" />
-    <benchmark ref="benchmark" />
+    <Benchmark ref="benchmark" />
     <DialogBox ref="dialogBox" />
     <FAQ ref="faq" />
+    <CloseWorkShift ref="closeWorkShift" />
   </div>
 </template>
 <script>
 import TransactionViewer from './control_box_components/TransactionViewer'
 import Benchmark from './control_box_components/Benchmark'
 import ToggleFullscreen from '@/helpers/toggle-fullscreen'
-import Cart from './cart-store'
 import SyncStore from '@/database/sync/sync-store'
 import DialogBox from '@/vue-web-core/components/DialogBox'
 import FAQ from './control_box_components/FAQ'
+import CloseWorkShift from './control_box_components/CloseWorkShift'
+// import Sync from './control_box_components/Sync.vue'
+import CartStore from './cart-store'
 export default {
   components: {
     TransactionViewer,
     Benchmark,
     DialogBox,
-    FAQ
+    FAQ,
+    // Sync,
+    CloseWorkShift
   },
   mounted(){
     this.runLiveTime()
@@ -51,6 +58,9 @@ export default {
     openFAQ(){
       this.$refs.faq._open()
     },
+    openCloseWorkShift(){
+      this.$refs.closeWorkShift._open()
+    },
     toggleFullscreen(){
       this.isFullscreen = ToggleFullscreen.toggle()
     },
@@ -60,7 +70,7 @@ export default {
         yes_label: 'Clear Orders',
       }).then((answer) => {
         if(answer === 'yes'){
-          Cart.commit('reset')
+          CartStore.commit('reset')
         }
       })
     },
@@ -75,7 +85,7 @@ export default {
       })
     },
     viewTransaction(){
-      this.$refs.TransactionViewer._open(Cart.state.latestTransactionNumber ? Cart.state.latestTransactionNumber : null)
+      this.$refs.TransactionViewer._open(CartStore.state.latestTransactionNumber ? CartStore.state.latestTransactionNumber : null)
     },
     benchmark(){
       this.$refs.benchmark._open()
@@ -88,12 +98,17 @@ export default {
       }, 60 - currentDate.getSeconds())
     },
   },
+  watch: {
+  },
   computed: {
     isFullscreen2(){
       return ToggleFullscreen.store.getters.isFullscreen
     },
     isSynching(){
       return SyncStore.getters.isSynching
+    },
+    workShiftDetailId(){
+      return typeof CartStore.getters.workShiftDetail['id'] !== 'undefined' ? CartStore.getters.workShiftDetail['id'] : null
     }
   }
 }

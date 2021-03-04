@@ -16,9 +16,9 @@
     </modal>
     <div class="row">
       <div class="col-sm-9 col-md-7 col-lg-4 ml-auto">
-        <div class="card card-signin my-3">
+        <div class="card card-signin my-3 shadow-sm">
           <div v-if="isOffline" class="card-header text-white bg-secondary text-center text-uppercase font-weight-bold">Offline Mode <fa icon="wifi" /></div>
-          <div v-bind:class="isOffline ? 'bg-light' : ''" class="card-body ">
+          <div v-bind:class="isOffline ? '' : ''" class="card-body ">
             <!-- <div v-if="isOffline" class="alert alert-info mb-2"><fa icon="info-circle" /> You will be logging in using <strong>Offline Mode</strong>. Please use your <strong>PIN</strong> instead of password</div> -->
             <div v-if="noInternet" class="text-center alert alert-danger"><span class="">No Internet Connection!</span></div>
             <h5 v-bind:class="isOffline ? 'text-secondary' : 'text-primary'" class="card-title text-center font-weight-bold">Welcome to VergePOS </h5>
@@ -45,8 +45,14 @@
                   <span v-if="!isOffline" @click="switchLoginMode" class="c-pointer"><big><fa icon="wifi" class=""  /></big> Sign in using <strong class="">Offline Mode</strong></span>
                   <span v-else @click="switchLoginMode" class="c-pointer text-primary"><big><fa icon="wifi"  class="text-primary" /></big> Exit <strong>Offline Mode</strong></span>
                 </div>
-                <button v-if="isOffline" @click="offlineSignIn" v-bind:disabled="isLoading" class="btn btn-lg btn-secondary btn-block text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Logging In' : 'Log In'}}</button>
-                <button v-else @click="signIn" v-bind:disabled="isLoading" class="btn btn-lg btn-block btn-primary text-uppercase mt-3 mb-2" type="button">{{isLoading ? 'Logging In' : 'Log In'}}</button>
+                <button v-if="isOffline" @click="offlineSignIn" v-bind:disabled="isLoading" class="btn btn-lg btn-secondary btn-block text-uppercase mt-3 mb-2" type="button">
+                  <span v-if="!isLoading">Log In</span>
+                  <span v-else>Logging In <fa icon="circle-notch" spin /> </span>
+                </button>
+                <button v-else @click="signIn" v-bind:disabled="isLoading" class="btn btn-lg btn-block btn-primary text-uppercase mt-3 mb-2" type="button">
+                  <span v-if="!isLoading">Log In</span>
+                  <span v-else>Logging In <fa icon="circle-notch" spin /> </span>
+                </button>
                 <p :hidden="!(isOffline === false) && !isLoading" class="text-center pt-1">Don't have an account?<router-link to="/company-registration"><b> Sign Up</b></router-link></p>
               </form>
             </template>

@@ -4,7 +4,7 @@
       <div v-if="!isConfuringTerminal">
         <p class="mb-1">This device has been <strong>SET AS TERMINAL</strong>. Offline capabilities and Offline Mode has been enabled.</p>
         <div class="text-center">
-          <a @click.stop="openTerminalDetail" href="#" class="btn btn-outline-info btn-sm mb-1 mr-2" title="View terminal details or unset  this device as terminal"><fa icon="info-circle" /> Terminal Details</a>
+          <a @click.stop="_openTerminalDetail" href="#" class="btn btn-outline-info btn-sm mb-1 mr-2" title="View terminal details or unset  this device as terminal"><fa icon="info-circle" /> Terminal Details</a>
         </div>
       </div>
       <div v-else class=" text-center">
@@ -33,8 +33,8 @@
         <p v-else>Removing as terminal will clear all the data on this device. You can always download a backup data before doing so if you are not confident on removing this.</p>
         <div v-if="!isUpSynching" class="text-center">
           <button v-if="mode !== 'offline'" @click="removeTerminal" class="btn btn-danger mr-2 mb-2"><fa icon='desktop' /> Remove As Terminal</button>
-          <button v-if="unsynchedTransaction && mode === 'online'" @click="uploadData" class="btn btn-outline-success mr-2"><fa icon="arrow-up" /> Upload Data </button>
-          <button @click="closeRemoveTerminal" class="btn btn-outline-secondary">Close</button>
+          <button v-if="unsynchedTransaction && mode === 'online'" @click="uploadData" class="btn btn-outline-success mr-2 mb-2"><fa icon="arrow-up" /> Upload Data </button>
+          <button @click="closeRemoveTerminal" class="btn btn-outline-secondary mb-2">Close</button>
         </div>
         <div v-else class="text-center">
           Uploading data to the server. It may take a while. Please wait...
@@ -46,7 +46,7 @@
 <script>
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
 import UserStore from '@/vue-web-core/system/store'
-import TransactionNumber from '@/database/controller/transaction-number'
+import InventoryAdjustment from '@/database/controller/inventory-adjustment'
 import UpSync from '@/database/up-sync/up-sync'
 export default {
   components: {
@@ -67,6 +67,7 @@ export default {
   methods: {
     uploadData(){
       this.isUpSynching = true
+      console.log('up!')
       UpSync.sync().finally(() => {
         this.isUpSynching = false
         this.countUnsynchedTransaction().finally(() => {
@@ -75,21 +76,21 @@ export default {
       })
     },
     countUnsynchedTransaction(){
-      let transactionNumber = new TransactionNumber()
-      let query = {
+      const inventoryAdjustmentDB = new InventoryAdjustment()
+      const query = {
         where: {
           db_id: 0
         }
       }
       return new Promise((resolve, reject) => {
-        transactionNumber.get(query).then(result => {
+        inventoryAdjustmentDB.get(query).then(result => {
           this.unsynchedTransaction = result.length
         }).finally(() => {
           resolve(this.unsynchedTransaction)
         })
       })
     },
-    openTerminalDetail(){
+    _openTerminalDetail(){
       this.isConfuringTerminal = true
       this.countUnsynchedTransaction().finally(() => {
         this.isConfuringTerminal = false

@@ -25,11 +25,21 @@
           </tr>
           <tr>
             <td>Transaction Numbers</td>
-            <td class="text-right">{{firstTransactionNumber + ' - ' + lastTransactionNumber}}</td>
+            <td class="text-right">F:{{firstTransactionNumber}} <br /> L:{{lastTransactionNumber}}</td>
           </tr>
           <tr>
-            <td>Voided Transaction Count</td>
+            <td colspan="2">&nbsp;</td>
+          </tr>
+          <tr>
+            <td>Void Txn Count</td>
             <td class="text-right">{{voidedTransactionCount}}</td>
+          </tr>
+          <tr class="font-weight-bold">
+            <td>Void Sales Amount</td>
+            <td class="text-right">({{totalVoidedAmount | numberToMoney}})</td>
+          </tr>
+          <tr>
+            <td colspan="2">&nbsp;</td>
           </tr>
           <tr>
             <td>Vat Sales</td>
@@ -43,15 +53,14 @@
             <td>Vat Zero Rate Sales</td>
             <td class="text-right">{{vatZeroRatedSales | numberToMoney}}</td>
           </tr>
-          <tr>
+          <tr class="font-weight-bold">
             <td>Total Sales</td>
             <td class="text-right">{{totalSales | numberToMoney}}</td>
           </tr>
           <tr>
-            <td>Vat Amount</td>
-            <td class="text-right">{{vatAmount | numberToMoney}}</td>
+            <td colspan="2">&nbsp;</td>
           </tr>
-          <tr >
+          <tr class="font-weight-bold">
             <td>Discount Amount</td>
             <td class="text-right">({{totalDiscount | numberToMoney}})</td>
           </tr>
@@ -64,17 +73,44 @@
               <td class="text-right py-1"><small>{{discount['amount'] | numberToMoney}}</small></td>
             </tr>
           </template>
+          <tr>
+            <td colspan="2">&nbsp;</td>
+          </tr>
+          <tr class="font-weight-bold">
+            <td>Payments</td>
+            <td class="text-right"> {{totalPayment | numberToMoney}}</td>
+          </tr>
+          <tr class="bg-light text-center">
+            <td class="py-1" colspan="2"><small>Payment Methods breakdown</small></td>
+          </tr>
+          <template v-for="paymentMethod in paymentMethods">
+            <tr class="bg-light">
+              <td class="text-center py-1"><small>{{paymentMethod['description']}}</small></td>
+              <td class="text-right py-1"><small>{{paymentMethod['amount'] | numberToMoney}}</small></td>
+            </tr>
+          </template>
           <!-- <tr>
             <td>Total Discount</td>
             <td class="text-right"></td>
           </tr> -->
-          <tr >
-            <td>Voided Amount</td>
-            <td class="text-right">({{totalVoidedAmount | numberToMoney}})</td>
+          <tr>
+            <td colspan="2">&nbsp;</td>
           </tr>
           <tr class="font-weight-bold">
-            <td>Gross Amount</td>
-            <td class="text-right"><big>{{vatSales + vatExemptSales + vatZeroRatedSales + vatAmount - totalDiscount - totalVoidedAmount| numberToMoney}}</big></td>
+            <td>Total Sales</td>
+            <td class="text-right">{{totalSales | numberToMoney}}</td>
+          </tr>
+          <tr class="font-weight-bold">
+            <td>Total Discount</td>
+            <td class="text-right">{{totalDiscount | numberToMoney}}</td>
+          </tr>
+          <tr class="font-weight-bold">
+            <td>VAT Amount</td>
+            <td class="text-right">{{vatAmount | numberToMoney}}</td>
+          </tr>
+          <tr class="font-weight-bold">
+            <td>GROSS AMOUNT</td>
+            <td class="text-right"><big>{{grossAmount| numberToMoney}}</big></td>
           </tr>
           <tr v-if="hasGrandTotal" class="font-weight-bold text-uppercase">
             <td>Previous Grand Total</td>
@@ -125,6 +161,7 @@ export default {
     vatZeroRatedSales: Number,
     vatAmount: Number,
     discountAmounts: Object,
+    paymentMethods: Object,
     totalDiscount: Number,
     previousGrandTotal: Number,
     voidedTransactionCount: Number,
@@ -169,16 +206,23 @@ export default {
   },
   computed: {
     totalSales(){
-      return this.vatSales + this.vatExemptSales + this.vatZeroRatedSales
+      return this.vatSales + this.vatExemptSales + this.vatZeroRatedSales // - this.totalDiscount
     },
     grossAmount(){
-      return this.totalSales - this.totalDiscount
+      return this.totalSales + this.vatAmount - this.totalDiscount
     },
     currentGrandTotal(){
       return this.previousGrandTotal + this.grossAmount
     },
     companyInformation(){
       return store.state.companyInformation ? store.state.companyInformation : null
+    },
+    totalPayment(){
+      let totalPayment = 0
+      for(let x in this.paymentMethods){
+        totalPayment += this.paymentMethods[x]['amount']
+      }
+      return totalPayment
     }
   },
   filters: {

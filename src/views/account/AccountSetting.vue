@@ -1,6 +1,6 @@
 <template>
   <div class="p-3">
-    <h2>Account Settings <small v-if="isConnected === false">(Offline <fa icon="wifi" class="text-secondary"/>)</small></h2>
+    <h2>Account Settings</h2>
     <div class="row justify-content-center">
       <div class="col">
         <div class="card p-3">
@@ -14,29 +14,29 @@
             </div>
           </div>
           <div class="form-group row">
-           <label class="col-2 col-form-label">Email</label>
-            <div class="col-10">
+           <label class="col-3 col-form-label">Email</label>
+            <div class="col-9">
               <input type="text" readonly class="form-control-plaintext" v-model="email">
             </div>
           </div>
           <div class="form-group row">
-           <label class="col-2 col-form-label">First Name</label>
-            <div class="col-10">
+           <label class="col-3 col-form-label">First Name</label>
+            <div class="col-9">
               <input v-if="isConnected === true" v-model="fName" class='form-control' :disabled="isConnected === true && isEdit === true? false : true">
               <input v-else type="text" readonly class="form-control-plaintext" v-model="fName">
             </div>
           </div>
           <div class="form-group row">
-           <label class="col-2 col-form-label">Last Name</label>
-            <div class="col-10">
+           <label class="col-3 col-form-label">Last Name</label>
+            <div class="col-9">
               <input v-if="isConnected === true" v-model="lName" class='form-control' :disabled="isConnected === true  && isEdit === true? false : true">
               <input v-else type="text" readonly class="form-control-plaintext" v-model="lName">
             </div>
           </div>
           <div class="form-group row" v-if="isConnected === true">
-           <label class="col-2 col-form-label">Password</label>
-            <div class="col-10">
-              <input type="password" :class="passwordClass" v-model="password" class='form-control' :disabled="isEdit === false ? true : false" autocomplete="off">
+           <label class="col-3 col-form-label">Password</label>
+            <div class="col-9">
+              <input type="password" placeholder="********" :class="passwordClass" v-model="password" class='form-control' :disabled="isEdit === false ? true : false" autocomplete="off">
               <div class="invalid-feedback">
                 {{passwordPrompt}}
               </div>
@@ -46,9 +46,9 @@
             </div>
           </div>
           <div class="form-group row">
-           <label class="col-2 col-form-label">PIN</label>
-            <div class="col-10">
-              <input type="password" :class="pinClass" v-model="pin" class='form-control' :disabled="isEdit === false ? true : false" autocomplete="off">
+           <label class="col-3 col-form-label">PIN</label>
+            <div class="col-9">
+              <input type="password" placeholder="****" :class="pinClass" v-model="pin" class='form-control' :disabled="isEdit === false ? true : false" autocomplete="off">
               <div class="invalid-feedback">
                 {{pinPrompt}}
               </div>
@@ -59,13 +59,17 @@
           </div>
           <div v-if="isEdit === false" class="row">
             <div class="col form-group text-right">
-              <button @click="editDetails" class="btn btn-outline-primary"><fa icon="edit" />Edit Details</button>
+              <button @click="editDetails" v-if="isConnected" class="btn btn-outline-primary"><fa icon="edit" />Edit Details</button>
+              <span v-else><fa icon="info-circle" /> You cannot Edit while in Offline Mode</span>
             </div>
           </div>
           <div v-else class="row text-right">
-            <div class="col form-group ">
+            <div v-if="!isLoading" class="col form-group ">
               <button @click="saveEdit" class="btn btn-outline-success"><fa icon="check" /> Save</button>
               <button @click="cancelEdit" class="btn btn-outline-secondary ml-2"><fa icon="times" /> Cancel</button>
+            </div>
+            <div v-else class="col form-group text-right">
+              <span><fa icon="circle-notch" spin/> Please wait</span>
             </div>
           </div>
         </div>
@@ -98,6 +102,7 @@ export default {
   },
   data() {
     return {
+      isLoading: false,
       isHidden: Boolean,
       isConnected: Boolean,
       prompt: 'invisible',
@@ -277,16 +282,18 @@ export default {
         delete query.pin
       }
       if(this.passwordClass === 'is-valid' && this.pinClass === 'is-valid'){
+        this.isLoading = true
         this.apiRequest('user/update', param, (response) => {
           (new User()).update(query).then((response) => {
+            this.isLoading = false
+            this.isEdit = false
+            this.resetTemp()
+            this.isHidden = false
+            this.prompt = 'alert-success'
+            this.feedback = 'Changes have been saved'
+            UserStore.dispatch('setUserInformation')
+            setTimeout(() => { this.isHidden = true }, 700)
           })
-          this.isEdit = false
-          this.resetTemp()
-          this.isHidden = false
-          this.prompt = 'alert-success'
-          this.feedback = 'Changes have been saved'
-          UserStore.dispatch('setUserInformation')
-          setTimeout(() => { this.isHidden = true }, 700)
         })
       } else{
         this.isHidden = false

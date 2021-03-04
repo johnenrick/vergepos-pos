@@ -119,9 +119,7 @@ export default {
         }
       }
       for(let x = 0; x < transactions.length; x++){
-        console.log('a', x)
         await this.createTransaction(transactions[x], x)
-        console.log('c', x)
         setTimeout(() => {
           this.totalTransactionCreated++
           this.checkIfComplete()
@@ -167,7 +165,6 @@ export default {
         }, Cart.state.items).then(result => {
           Cart.commit('setLatestTransactionNUmber', result['number'])
           Cart.commit('reset')
-          console.log('b', x)
           resolve(result['number'])
         })
       })

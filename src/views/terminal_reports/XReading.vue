@@ -2,7 +2,12 @@
   <div class="section p-3">
     <h2>X Reading</h2>
     <div class="row mb-2 justify-content-center">
-      <div class="col-12 col-md-6 col-lg-4 mb-3 ">
+      <div class="col-12 col-md-7 col-lg-5 mb-2 bg-white p-3 shadow-sm border">
+        <div class="form-group row">
+          <div class="col-12">
+            <p class="alert alert-warning">This page is still experimental. Please contact us if you find problems in the calculations</p>
+          </div>
+        </div>
         <div class="form-group row">
           <label class="col-form-label col-4">Start Date</label>
           <div class="col-8">
@@ -51,7 +56,7 @@
       </div>
     </div>
     <div class="row justify-content-center">
-      <div class="col-12 col-md-6 col-lg-4 border rounded py-2">
+      <div class="col-12 col-md-6 col-lg-4 border rounded py-2 bg-white shadow-sm">
         <x-reading ref="xReading"  />
         <div class="w-100 text-right pb-2">
           <button :disabled="isPrinting" class="btn btn-success" @click="printXReading"><fa icon="print"/> Print Reading</button>
@@ -110,6 +115,9 @@ export default {
       let defaultTime = currentDate.getFullYear() + '-' + this.padNumber(currentDate.getMonth() + 1) + '-' + this.padNumber(currentDate.getDate()) + 'T' + this.padNumber(0) + ':' + this.padNumber(0) + ':' + this.padNumber(0) + '.000Z'
       this.startDatetime = defaultTime
       this.generateCashierList()
+    },
+    _getPaymentMethodSummary(){
+      return this.$refs.xReading._getPaymentMethodSummary()
     },
     generateReading(){
       this.isGenerating = true

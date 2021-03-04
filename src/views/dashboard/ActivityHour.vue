@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="card border-info mb-3" >
+    <div class="card border-info" >
       <h6 class="card-header bg-info text-white"><fa icon="clock" /> Activity Hour</h6>
       <div class="card-body" >
         <div v-show="isTerminal">

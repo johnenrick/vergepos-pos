@@ -36,6 +36,7 @@ const cacheCart = (state) => {
 }
 let store = new Vuex.Store({
   state: {
+    workShiftDetail: {},
     latestTransactionNumber: null,
     discountId: null,
     customers: [],
@@ -77,6 +78,12 @@ let store = new Vuex.Store({
     },
     discountRemarks: (state) => {
       return state.discountRemarks
+    },
+    customers: (state) => {
+      return state.customers
+    },
+    workShiftDetail: (state) => {
+      return state.workShiftDetail
     }
   },
   mutations: {
@@ -93,7 +100,7 @@ let store = new Vuex.Store({
             Vue.set(state, item, cachedCart[item])
           }
         }
-        Vue.set(state, 'cache_restored', { description: 'item_discount_applied' })
+        Vue.set(state, 'event', { description: 'cache_restored' })
       }
     },
     calculateTotal(state){
@@ -106,6 +113,21 @@ let store = new Vuex.Store({
       Vue.set(state.items[index], 'vat_exempt_quatity', vatExemptQuantity)
       Vue.set(state.items[index], 'vat_exempt_sales', vatExemptSales)
       Vue.set(state, 'event', { description: 'item_discount_applied', details: { discount_id: discountId } })
+      cacheCart(state)
+    },
+    setWorkShiftDetail(state, workShiftDetail){
+      Vue.set(state, 'workShiftDetail', workShiftDetail)
+    },
+    setCustomers(state, { id, name, db_id: dbId = 0 }){
+      Vue.set(state, 'customers', [{
+        id: id,
+        name: name,
+        db_id: dbId
+      }])
+      cacheCart(state)
+    },
+    clearCustomers(state){
+      state.customers = []
       cacheCart(state)
     },
     changeQuantity(state, [itemIndex, quantity]){
@@ -185,6 +207,7 @@ let store = new Vuex.Store({
     },
     reset(state){
       state.items = []
+      state.customers = []
       state.itemLookUp = {}
       state.modifiedItems = {}
       state.totalAmount = 0

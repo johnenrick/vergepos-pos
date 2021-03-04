@@ -1,10 +1,12 @@
 <template>
   <div class="p-3">
-    <h2>Transaction History</h2>
-    <p>Transaction History will show all the transactions that has been made. Just specify the <em>start</em> and <em>end</em> date & time. You can also <em>Show Graph</em> after generating the report to gave you an idea on how your business is doing against time</p>
-    <div class="row no-gutters mb-2">
+    <div class="p-3 bg-white shadow-sm mb-2 border">
+      <h2>Transaction History</h2>
+      <p>Transaction History will show all the transactions that has been made. Just specify the <em>start</em> and <em>end</em> date & time. You can also <em>Show Graph</em> after generating the report to gave you an idea on how your business is doing against time</p>
+    </div>
+    <div class="row no-gutters mb-2 p-3 bg-white shadow-sm border">
       <template v-if="terminal === 'all'">
-        <div  class="col-12 col-md-12 col-lg-3 px-1 mb-2">
+        <div  class="col-12 col-md-12 col-lg-3 px-1 mb-2 mb-md-0">
           <select v-model='storeTerminalFilter' class="form-control">
             <option value="0">Select Terminal</option>
             <template v-for="storeTerminal in storeTerminals">
@@ -13,7 +15,7 @@
           </select>
         </div>
       </template>
-      <div class="col-sm-12 col-md-6 col-lg-2 px-1 mb-2">
+      <div class="col-sm-12 col-md-6 col-lg-3 px-1 mb-2 mb-lg-0">
         <datetime v-model="startDatetimeFilter" class="theme-orange"
           format="yyyy-MM-dd HH:mm:ss"
           input-class="form-control"
@@ -25,7 +27,7 @@
           zone="local"
         />
       </div>
-      <div class="col-sm-12 col-md-6 col-lg-2 px-1 mb-2">
+      <div class="col-sm-12 col-md-6 col-lg-3 px-1 mb-2 mb-lg-0">
         <datetime v-model="endDatetimeFilter" class="theme-orange"
           format="yyyy-MM-dd HH:mm:ss"
           input-class="form-control"
@@ -37,16 +39,16 @@
           zone="local"
         />
       </div>
-      <div class="col-12 col-md-6 col-lg-2 px-1">
-        <button v-if="isGenerating" disabled class="btn btn-primary w-sm-100 mb-2 w-100 ">Generating...</button>
-        <button v-else :disabled="(terminal === 'local' || storeTerminalFilter * 1) ? false : true" @click="generate" class=" w-100 btn btn-primary w-sm-100 mb-2">Generate</button>
+      <div class="col-12 col-md-6 col-lg-3 px-1">
+        <button v-if="isGenerating" disabled class="btn btn-primary w-sm-100 mb-2 w-100 mb-lg-0">Generating...</button>
+        <button v-else :disabled="(terminal === 'local' || storeTerminalFilter * 1) ? false : true" @click="generate" class=" w-100 btn btn-primary w-sm-100 mb-2 mb-lg-0">Generate</button>
       </div>
-      <div class="col-12 col-md-6 col-lg-2 px-1">
+      <div class="col-12 col-md-6 col-lg-3 px-1">
         <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right w-sm-100 w-100"><fa icon="chart-line" /> Show Graph</button>
         <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right w-sm-100 w-100"><fa icon="chart-line" /> Hide Graph</button>
       </div>
     </div>
-    <div class="mb-3" v-show="graphType !== 'null'">
+    <div class="mb-2" v-show="graphType !== 'null'">
       <div class="card">
         <div class="card-body">
           <div class="form-row mb-2">
@@ -79,9 +81,9 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-12 table-responsive">
-        <button class="btn btn-outline-primary mb-4" @click="toggleButtonState = !toggleButtonState">{{toggleButtonState === true ? 'View Product History' : 'View Transaction History' }}</button>
+    <div class="row p-3 bg-white shadow-sm no-gutters border mb-2">
+      <div class="col-12">
+        <button class="btn btn-outline-primary mb-4" @click="toggleButtonState = !toggleButtonState">{{toggleButtonState ? 'View Transaction History' : 'View Product History'}}</button>
       </div>
       <div class="col-12 table-responsive">
         <vuetable
@@ -287,8 +289,45 @@ export default {
         return this.generateOnline(startDatetimeFilter, endDatetimeFilter)
       }
     },
-    processTransactionRow(operation, transactionNumber){
-
+    addTransactionToTable(transactionNumber, source){
+      let negativeMultiplier = 1
+      let transaction
+      if(transactionNumber['operation'] * 1 === 1){ // void transaction
+        if(typeof transactionNumber['transaction'] !== 'undefined'){
+          transaction = transactionNumber['transaction']
+          transactionNumber['status'] = 1
+        }else{
+          transactionNumber['status'] = 11
+          return false
+        }
+      }else if(transactionNumber['operation'] * 1 === 2){
+        negativeMultiplier = -1
+        if(typeof transactionNumber['transaction_void'] !== 'undefined' && typeof transactionNumber['transaction_void']['transaction'] !== 'undefined'){
+          transaction = transactionNumber['transaction_void']['transaction']
+          transactionNumber['status'] = 2
+        }else{
+          transactionNumber['status'] = 21
+          return false
+        }
+      }else{
+        transactionNumber['status'] = 'error'
+        return false
+      }
+      if(source === 'offline'){
+        transactionNumber['total_amount'] = transaction['total_amount'] * negativeMultiplier
+        transactionNumber['total_discount_amount'] = transaction['total_discount_amount'] * negativeMultiplier
+      }else{
+        transactionNumber['total_amount'] = this.computeTransactionTotalAmountOnline(transaction) * negativeMultiplier
+        transactionNumber['total_discount_amount'] = transaction['transaction_computation']['total_discount_amount'] * negativeMultiplier
+      }
+      this.totalDiscount += (transactionNumber['total_discount_amount']).toFixed(2) * 1
+      this.totalAmount += transactionNumber['total_amount']
+      const totalCost = this.calculateTotalCostFromTransactionProducts(transaction['transaction_products']) * negativeMultiplier
+      const totalProfit = transactionNumber['total_amount'] - totalCost
+      transactionNumber['total_profit'] = totalProfit
+      this.totalProfit += totalProfit
+      transactionNumber['transaction_products'] = transaction['transaction_products']
+      return true
     },
     generateOffline(startDatetime, endDatetime){
       let createdAtCondition = {
@@ -359,42 +398,8 @@ export default {
       return new Promise((resolve, reject) => {
         let transactionNumberDB = new TransactionNumber()
         transactionNumberDB.get(query).then(result => {
-          console.log('result', result)
           for(let x = 0; x < result.length; x++){
-            if(result[x]['operation'] === 1){
-              if(typeof result[x]['transaction'] !== 'undefined'){
-                result[x]['status'] = 1
-                result[x]['total_amount'] = result[x]['transaction']['total_amount']
-                result[x]['total_discount_amount'] = result[x]['transaction']['total_discount_amount']
-                this.totalDiscount += (result[x]['transaction']['total_discount_amount'] * 1).toFixed(2) * 1
-                this.totalAmount += result[x]['total_amount']
-                const totalCost = this.calculateTotalCostFormTransactionProducts(result[x]['transaction']['transaction_products'])
-                const totalProfit = result[x]['total_amount'] - totalCost
-                result[x]['total_profit'] = totalProfit
-                this.totalProfit += totalProfit
-                result[x]['transaction_products'] = result[x]['transaction']['transaction_products']
-              }else{
-                result[x]['status'] = 11
-              }
-            }else if(result[x]['operation'] === 2){ // void transaction
-              if(typeof result[x]['transaction_void'] !== 'undefined' && typeof result[x]['transaction_void']['transaction'] !== 'undefined'){
-                const transaction = result[x]['transaction_void']['transaction']
-                result[x]['status'] = 2
-                result[x]['total_amount'] = transaction['total_amount'] * -1
-                result[x]['total_discount_amount'] = transaction['total_discount_amount'] * -1
-                this.totalDiscount += (transaction['total_discount_amount'] * 1).toFixed(2) * -1
-                this.totalAmount += (result[x]['total_amount'])
-                const totalCost = this.calculateTotalCostFormTransactionProducts(transaction['transaction_products']) * -1
-                const totalProfit = result[x]['total_amount'] - (totalCost)
-                result[x]['total_profit'] = totalProfit
-                this.totalProfit += totalProfit
-                result[x]['transaction_products'] = transaction['transaction_products']
-              }else{
-                result[x]['status'] = 21
-              }
-            }else{
-              result[x]['status'] = 'error'
-            }
+            this.addTransactionToTable(result[x], 'offline') // modify the result[x] array
           }
           this.transactions = result
           this.$refs.productHistory._getData(this.transactions)
@@ -422,7 +427,7 @@ export default {
         })
       })
     },
-    calculateTotalCostFormTransactionProducts(transactionProducts){
+    calculateTotalCostFromTransactionProducts(transactionProducts){
       let totalCost = 0
       transactionProducts.forEach(transactionProduct => {
         totalCost += (transactionProduct['quantity'] * transactionProduct['cost'])
@@ -434,6 +439,7 @@ export default {
         select: {
           0: 'operation',
           1: 'number',
+          2: 'created_at',
           transaction: {
             select: {
               0: 'status',
@@ -524,32 +530,8 @@ export default {
           if(response['data']){
             let result = response['data']
             for(let x = 0; x < result.length; x++){
-              let transactionProducts = null
-              if(result[x]['operation'] * 1 === 1 && result[x]['transaction']){
-                const transaction = result[x]['transaction']
-                result[x]['status'] = 1
-                result[x]['total_amount'] = this.computeTransactionTotalAmountOnline(transaction)
-                result[x]['total_discount_amount'] = transaction['transaction_computation']['total_discount_amount']
-                this.totalDiscount += (transaction['transaction_computation']['total_discount_amount'] * 1).toFixed(2) * 1
-                this.totalAmount += result[x]['total_amount']
-                const totalCost = this.calculateTotalCostFormTransactionProducts(transaction['transaction_products'])
-                const totalProfit = result[x]['total_amount'] - totalCost
-                result[x]['total_profit'] = totalProfit
-                this.totalProfit += totalProfit
-                transactionProducts = transaction['transaction_products']
-              }else if(result[x]['operation'] * 1 === 2 && result[x]['transaction_void'] && result[x]['transaction_void']['transaction']){
-                const transaction = result[x]['transaction_void']['transaction']
-                result[x]['status'] = 2 // void transaction
-                result[x]['total_amount'] = this.computeTransactionTotalAmountOnline(transaction) * -1
-                result[x]['total_discount_amount'] = transaction['transaction_computation']['total_discount_amount'] * -1
-                this.totalDiscount += (transaction['transaction_computation']['total_discount_amount'] * 1).toFixed(2) * -1
-                this.totalAmount += result[x]['total_amount']
-                const totalCost = this.calculateTotalCostFormTransactionProducts(transaction['transaction_products']) * -1
-                const totalProfit = result[x]['total_amount'] - totalCost
-                result[x]['total_profit'] = totalProfit
-                this.totalProfit += totalProfit
-                transactionProducts = transaction['transaction_products']
-              }
+              this.addTransactionToTable(result[x], 'online')
+              const transactionProducts = result[x]['transaction_products']
               for(let y = 0; y < transactionProducts.length; y++){
                 if(transactionProducts[y]['product']){
                   transactionProducts[y]['description'] = transactionProducts[y]['product']['description']
@@ -560,7 +542,6 @@ export default {
             }
             this.transactions = result
             this.$refs.productHistory._getData(this.transactions)
-            console.log('this.totalAmount', this.totalAmount)
             if(result.length){
               this.transactions.push({
                 id: null,

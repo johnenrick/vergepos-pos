@@ -1,6 +1,7 @@
 import TransactionNumber from '@/database/controller/transaction-number'
 import Transaction from '@/database/controller/transaction'
 import TransactionProduct from '@/database/controller/transaction-product'
+import TransactionCustomer from '@/database/controller/transaction-customer'
 export default class Transact {
   transactionNumberDB = new TransactionNumber()
   transactionDB = new Transaction()
@@ -20,14 +21,23 @@ export default class Transact {
         if(transactionNumberResult['id']){
           transaction['transaction_number_id'] = transactionNumberResult['id'] * 1
           transaction['db_id'] = 0
+          const customers = transaction['customers']
+          delete transaction['customers']
           this.transactionDB.add(transaction).then((response) => {
             if(response && response['id']){
               let transactionDate = typeof transaction['created_at'] !== 'undefined' ? transaction['created_at'] : null
-              this.createTransactionProductRecursion(transactionProducts, 0, response['id'], transactionDate).then(result => {
+              if(customers.length){
+                this.createTransactionCustomers(response['id'], customers)
+              }
+              if(transactionProducts.length){
+                this.createTransactionProductRecursion(transactionProducts, 0, response['id'], transactionNumberResult['number'], transactionDate).then(result => {
+                  resolve(transactionNumberResult)
+                }).catch((error) => {
+                  reject(error)
+                })
+              }else{
                 resolve(transactionNumberResult)
-              }).catch((error) => {
-                reject(error)
-              })
+              }
             }
           })
         }
@@ -37,7 +47,19 @@ export default class Transact {
       })
     })
   }
-  createTransactionProductRecursion(transactionProducts, index, transactionID, transactionDate = null){
+  createTransactionCustomers(transactionId, customers){
+    const transactionCustomerDB = new TransactionCustomer()
+    customers.forEach((customer, index) => {
+      customers[index]['transaction_id'] = transactionId
+      customers[index]['customer_id'] = customer['id']
+      customers[index]['customer_db_id'] = customer['db_id']
+      delete customers[index]['id']
+    })
+    transactionCustomerDB.add(customers).then(result => {
+      console.log('createTransactionCustomers', result)
+    })
+  }
+  createTransactionProductRecursion(transactionProducts, index, transactionID, transactionNumber, transactionDate = null){
     return new Promise((resolve, reject) => {
       transactionProducts[index]['transaction_id'] = transactionID * 1
       transactionProducts[index]['product_id'] = transactionProducts[index]['id'] * 1
@@ -58,10 +80,10 @@ export default class Transact {
       if(transactionDate){
         newTransactionProduct['created_at'] = transactionDate
       }
-      this.transactionProductDB.add(newTransactionProduct).then(response => {
+      this.transactionProductDB.add(newTransactionProduct, { 'transaction_number': transactionNumber, trace_inventory: true }).then(response => {
         index++
         if(index < transactionProducts.length){
-          this.createTransactionProductRecursion(transactionProducts, index, transactionID).then(result => {
+          this.createTransactionProductRecursion(transactionProducts, index, transactionID, transactionNumber, transactionDate).then(result => {
             resolve(result)
           }).catch(error => {
             reject(error)

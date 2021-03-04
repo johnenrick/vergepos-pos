@@ -1,7 +1,7 @@
 <template>
   <div
     id="app"
-    style="padding-top:67px"
+    class="header-padding"
     @mouseover="isMouseOnPage = true"
     @mouseleave="isMouseOnPage = false"
   >
@@ -41,6 +41,7 @@
 </style>
 
 <script>
+import Vue from 'vue'
 import 'bootstrap'
 
 // import 'bootstrap/dist/css/bootstrap.min.css'
@@ -58,8 +59,10 @@ import UpSync from '@/database/up-sync/up-sync'
 import Menu from '@/system/menus'
 import PWAInstall from '@/vue-web-core/helper/pwa-install-store'
 import NoInternetError from '@/components/NoInternetError'
+import Loading from '@/components/Loading'
 window.$ = require('jquery')
 window.jQuery = window.$
+Vue.component('Loading', Loading)
 export default {
   name: 'home',
   components: {
@@ -70,20 +73,17 @@ export default {
   },
   beforeCreate() {
     window.addEventListener('beforeinstallprompt', e => {
-      console.log('PWA Install Enabled')
       e.preventDefault()
       PWAInstall.commit('deferredPrompt', e)
     })
-    window.addEventListener('beforeunload', event => {
-      if (!this.isMouseOnPage) {
-        if (localStorage.getItem('is_terminal') && localStorage.getItem('user_id')){
-          event.returnValue = 'Are you sure you want to close Verge POS?'
-        }
-      }
-    })
+
+    // window.addEventListener('beforeunload', event => {
+    //   if (localStorage.getItem('is_terminal') && localStorage.getItem('user_id')){
+    //     return 'Are you sure you want to close Verge POS?'
+    //   }
+    // })
   },
   mounted() {
-    console.info('Device Dimension', $(window).height(), $(window).width())
     document.getElementById('loadingVueAppIndicator').style.display = 'none' // hide the loading indicator before the vue is loaded
     store.commit('setAuthToken', localStorage.getItem('default_auth_token'))
     $('#loadingApplicationMessage').hide()
@@ -160,14 +160,16 @@ export default {
           store.commit('isReady', () => {
             if(this.userID && localStorage.getItem('is_terminal')){
               this.checkConnectivity().then((ping) => {
-                this.syncAll.downSync((progress) => {
-                  this.dataSynced = progress
-                  if(progress === 1){
-                    setTimeout(() => {
-                      this.doneSynching()
-                      resolve(true)
-                    }, 500)
-                  }
+                this.retrieveStoreTerminalDetail().finally(() => {
+                  this.syncAll.downSync((progress) => {
+                    this.dataSynced = progress
+                    if(progress === 1){
+                      setTimeout(() => {
+                        this.doneSynching()
+                        resolve(true)
+                      }, 500)
+                    }
+                  })
                 })
               }).catch(() => {
                 SyncStore.commit('isNotSynching')
@@ -183,7 +185,28 @@ export default {
         })()
       })
     },
-    doneSynching() {
+    retrieveStoreTerminalDetail(){
+      return new Promise(resolve => {
+        let storeTerminalId = localStorage.getItem('is_terminal')
+        const terminalDetails = localStorage.getItem('terminal_details')
+        if((!storeTerminalId || typeof terminalDetails['store_id'] !== 'undefined') || this.mode === 'offline'){
+          resolve(true)
+        }else{
+          const param = {
+            id: storeTerminalId,
+            select: ['description', 'serial_number', 'store_id']
+          }
+          console.log('getting store terminal details', terminalDetails, this.mode)
+          this.apiRequest('store-terminal/retrieve', param, response => {
+            if(response['data']){
+              localStorage.setItem('terminal_details', JSON.stringify(response['data']))
+            }
+            resolve(true)
+          })
+        }
+      })
+    },
+    doneSynching(){
       this.dataSynced = 1
       setTimeout(() => {
         this.$refs.modal._close()

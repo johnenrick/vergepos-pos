@@ -8,7 +8,7 @@
       <div class="col-3"></div>
       <div class="col bg-light pt-3 text-center">
         <span>
-          <p><fa class="text-info" icon="info-circle" /> If you think this is an error, send us a message at <a class="text-info" href="https://web.facebook.com/pg/vergepos/">https://web.facebook.com/vergepos/</a></p>
+          <p><fa class="text-info" icon="info-circle" /> If you think this is an error, send us a message at <a class="text-info" href="https://www.facebook.com/vergepos/">https://www.facebook.com/vergepos/</a></p>
         </span>
       </div>
       <div class="col-3"></div>

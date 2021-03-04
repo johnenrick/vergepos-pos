@@ -8,7 +8,17 @@ module.exports = {
         minSize: 10000,
         maxSize: 250000,
       }
-    }
+    },
+  },
+  chainWebpack: (config) => {
+    const svgRule = config.module.rule('svg')
+
+    svgRule.uses.clear()
+
+    svgRule
+      .test(/\.svg$/)
+      .use('vue-svg-loader')
+      .loader('vue-svg-loader')
   },
   pwa: {
     name: manifestJSON.name,
@@ -55,6 +65,5 @@ module.exports = {
     //   poll: 1000
     // },
   },
-
   productionSourceMap: false
 }

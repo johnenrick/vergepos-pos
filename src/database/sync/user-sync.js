@@ -74,8 +74,8 @@ export default class UserSync extends Sync{
               user_roles: userRoles,
               first_name: response['data'][x]['user_basic_information'] ? response['data'][x]['user_basic_information']['first_name'] : null,
               last_name: response['data'][x]['user_basic_information'] ? response['data'][x]['user_basic_information']['last_name'] : null,
-              created_at: response['data'][x]['created_at'],
-              updated_at: response['data'][x]['updated_at']
+              created_at: (new Date(response['data'][x]['created_at'])).getTime() + 28800000,
+              updated_at: (new Date(response['data'][x]['updated_at'])).getTime() + 28800000
             }
             for(let y = 0; y < userRoles.length; y++){
               if(userRoles[y]['role_id'] * 1 === 101){ // cashier

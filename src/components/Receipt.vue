@@ -26,7 +26,7 @@
           </tbody>
         </table>
         <div v-if="transactionOperation === 2" class="text-center">
-          <p>This Void Transaction has voided transaction</p>
+          <p>This is to void transaction: </p>
           <p class="font-weight-bold">{{transactionDetail.voidedTransactionNumber}}</p>
           <p>due to the reason of</p>
           <p><em>{{transactionDetail.voidTransactionReason}}</em></p>
@@ -46,7 +46,7 @@
                 <tr :key="index">
                   <td class="">{{product['description']}}</td>
                   <td class="text-right" style="text-align: right">{{product['quantity']}}</td>
-                  <td class="text-right" style="text-align: right">{{product['price'] | numberFormat}}</td>
+                  <td class="text-right" style="text-align: right">{{product['price'] | numberToMoney}}</td>
                 </tr>
               </template>
             </tbody>
@@ -55,40 +55,65 @@
             <tbody>
               <tr class="font-weight-bold" >
                 <td>Sub Total</td>
-                <td style="text-align: right">{{transactionDetail.subTotalAmount | numberFormat}}</td>
+                <td style="text-align: right">{{transactionDetail.subTotalAmount | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>VAT Sales</td>
-                <td style="text-align: right">{{transactionDetail.vatSales | numberFormat}}</td>
+                <td style="text-align: right">{{transactionDetail.vatSales | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>VAT Exempt Sales</td>
-                <td style="text-align: right">{{transactionDetail.vatExemptSales | numberFormat}}</td>
+                <td style="text-align: right">{{transactionDetail.vatExemptSales | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>ZR Sales</td>
-                <td style="text-align: right">{{transactionDetail.vatZeroRatedSales | numberFormat}}</td>
+                <td style="text-align: right">{{transactionDetail.vatZeroRatedSales | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>VAT Amount</td>
-                <td style="text-align: right">{{transactionDetail.vatAmount | numberFormat}}</td>
+                <td style="text-align: right">{{transactionDetail.vatAmount | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>Discount</td>
-                <td style="text-align: right">{{transactionDetail.discountAmount | numberFormat}}</td>
+                <td style="text-align: right">{{transactionDetail.discountAmount | numberToMoney}}</td>
               </tr>
               <tr class="font-weight-bold text-uppercase">
                 <td>Total</td>
-                <td style="text-align: right">{{transactionDetail.totalAmount | numberFormat}}</td>
+                <td style="text-align: right">{{transactionDetail.totalAmount | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>Cash</td>
-                <td style="text-align: right">{{transactionDetail.cashTendered | numberFormat}}</td>
+                <td style="text-align: right">{{transactionDetail.cashTendered | numberToMoney}}</td>
               </tr>
+              <template v-for="transactionPayment in transactionDetail.transactionPayments">
+                <tr>
+                  <td>
+                    {{typeof paymentMethods[transactionPayment['payment_method_id']] !== 'undefined' ? paymentMethods[transactionPayment['payment_method_id']]['description'] : 'N/A'}}<br />
+                    <small>&nbsp; {{transactionPayment['remarks']}}</small>
+                  </td>
+                  <td style="text-align: right">{{transactionPayment['amount'] | numberToMoney}}</td>
+                </tr>
+              </template>
               <tr>
                 <td>Change</td>
-                <td style="text-align: right">{{(transactionDetail.cashTendered - transactionDetail.totalAmount) | numberFormat}}</td>
+                <td style="text-align: right">{{(totalPaid - transactionDetail.totalAmount) | numberToMoney}}</td>
               </tr>
+              <template v-if="transactionDetail.transactionCustomers.length && typeof transactionDetail.transactionCustomers[0]['customer'] !== 'undefined'">
+                <tr>
+                  <td colspan="2">&nbsp;</td>
+                </tr>
+                <tr>
+                  <td colspan="2">Customer Details</td>
+                </tr>
+                <tr>
+                  <td>Name</td>
+                  <td class="text-uppercase" style="text-align: right">{{transactionDetail.transactionCustomers[0]['customer']['name']}}</td>
+                </tr>
+                <tr>
+                  <td>Address</td>
+                  <td style="text-align: right">{{transactionDetail.transactionCustomers[0]['customer']['address'] ? transactionDetail.transactionCustomers[0]['customer']['address'] : 'N/A'}}</td>
+                </tr>
+              </template>
             </tbody>
           </table>
         </div>
@@ -98,6 +123,7 @@
             VergePOS<br>
             vergepos.com<br>
             Cebu City, Cebu
+
           </p>
         </div>
       </div>
@@ -140,6 +166,7 @@ import User from '@/database/controller/user'
 import TransactionVoid from '@/database/controller/transaction-void'
 import Transaction from '@/database/controller/transaction'
 import TransactionNumber from '@/database/controller/transaction-number'
+import PaymentMethod from '@/database/controller/payment-method'
 
 import Vue from 'vue'
 import VueHtmlToPaper from 'vue-html-to-paper'
@@ -163,6 +190,7 @@ export default {
   },
   mounted(){
     this.randomId = 'printMe' + this.generateRandomNumber(1, 10000)
+    this.init()
   },
   data(){
     return {
@@ -198,17 +226,27 @@ export default {
         totalAmount: 0,
         subTotalAmount: 0,
         cashTendered: 0,
+        transactionPayments: [],
         datetime: '0/0/0',
         status: 1,
         voidable: false,
         voidTransactionNumber: null, // the transaction number used to void
-        voidedTransactionNumber: null // the transaction number being voided
-
+        voidedTransactionNumber: null, // the transaction number being voided
+        transactionCustomers: [],
       },
-      isPrinting: false
+      isPrinting: false,
+      paymentMethods: {}
     }
   },
   methods: {
+    init(){
+      const paymentMethod = new PaymentMethod()
+      paymentMethod.get().then(result => {
+        result.forEach(paymentMethod => {
+          Vue.set(this.paymentMethods, paymentMethod['id'], paymentMethod)
+        })
+      })
+    },
     async _view(transactionNumber){
       this.reset()
       this.transactionNumber = transactionNumber
@@ -240,6 +278,13 @@ export default {
                       'deleted_at': 'product_deleted_at'
                     }
                   }
+                },
+                transaction_customers: {
+                  with: {
+                    customer: {
+                      is_parent: true
+                    }
+                  }
                 }
               }
             },
@@ -263,7 +308,8 @@ export default {
                           'cost': 'cost'
                         }
                       }
-                    }
+                    },
+                    transaction_customers: {}
                   }
                 }
               }
@@ -300,7 +346,6 @@ export default {
           }],
         }
         this.transactionNumberDB.get(transactionNumber).then((result) => {
-          console.log(result, transactionNumber)
           if(result.length){
             result = result[0]
             if(result['operation'] === 2){
@@ -312,7 +357,6 @@ export default {
                 this.transactionDetail.voidTransactionReason = result['transaction_void']['remarks']
               }
             }else{
-              console.log(result)
               this.transactionOperation = 1
               this.transactionDetail.id = result['transaction']['id']
               this.transactionDetail.transactionNumber = result['number']
@@ -324,7 +368,10 @@ export default {
               this.transactionDetail.totalAmount = result['transaction']['total_amount']
               this.transactionDetail.subTotalAmount = result['transaction']['sub_total_amount']
               this.transactionDetail.cashTendered = result['transaction']['cash_tendered']
+              this.transactionDetail.transactionPayments = typeof result['transaction']['transaction_payments'] !== 'undefined' ? result['transaction']['transaction_payments'] : []
               this.transactionDetail.datetime = result['created_at']
+              console.log(result['transaction'])
+              this.transactionDetail.transactionCustomers = typeof result['transaction']['transaction_customers'] !== 'undefined' ? result['transaction']['transaction_customers'] : []
               this.transactionDetail.status = result['transaction_void_id'] ? 2 : 1
               let dateCreated = new Date(this.transactionDetail.datetime)
               let currentDate = new Date()
@@ -415,7 +462,11 @@ export default {
       this.toVoid = false
       this.transactionProduct = []
       for(let x in this.transactionDetail){
-        this.transactionDetail[x] = 0
+        if(typeof this.transactionDetail[x] === 'object'){
+          this.transactionDetail[x] = []
+        }else{
+          this.transactionDetail[x] = 0
+        }
       }
     }
   },
@@ -424,13 +475,16 @@ export default {
       this.$emit('loading', newData)
     }
   },
-  filters: {
-    numberFormat: (value) => {
-      value = typeof value !== 'undefined' ? value : 0
-      return value.toFixed(2)
-    }
-  },
   computed: {
+    totalPaid(){
+      let otherPayment = 0
+      if(typeof this.transactionDetail.transactionPayments === 'object'){
+        otherPayment = this.transactionDetail.transactionPayments.reduce((a, b) => {
+          return a + parseInt(b['amount'])
+        }, 0)
+      }
+      return this.transactionDetail.cashTendered + otherPayment
+    },
     companyInformation(){
       return store.state.companyInformation ? store.state.companyInformation : null
     }

@@ -1,5 +1,5 @@
 <template>
-  <div class="border shadow1 bg-white" >
+  <div class="border shadow-sm bg-white" >
     <div
       ref="header"
       class="row font-weight-bold text-center mx-0 pb-1"
@@ -79,7 +79,7 @@
               <fa :icon="'cog'" /> More Action
             </button>
             <div class="dropdown-menu">
-              <!-- <a @click="openCustomerDetail" class="dropdown-item" href="javascript:void(0)"><fa icon="user" /> Customer</a> -->
+              <a @click="openCustomerDetail" class="dropdown-item" href="javascript:void(0)"><fa icon="user" /> Customer</a>
               <a @click="openApplyDiscount" class="dropdown-item" href="javascript:void(0)" ><fa icon="percent" /> Apply Discounts</a>
               <!-- <a
                 @click="parkTransaction"
@@ -237,7 +237,6 @@ export default {
       let width = window.innerWidth
       let height = window.innerHeight
       if(width < height && height > 768 && width <= 768){
-        console.log('drawing', width, height)
         this.rotateDeviceMessage = true
       }else{
         this.rotateDeviceMessage = false
@@ -249,6 +248,7 @@ export default {
     },
     transactionCreated(){
       this.$refs.discountManagement._reset()
+      this.$refs.customerDetail._reset()
     },
     parkTransaction(){
       this.$refs.parkTransaction._open()
@@ -320,7 +320,7 @@ export default {
           this.addItemContainerEffect(index)
         }, 200)
       }else if(newData['description'] === 'cache_restored'){
-        (this.$refs.itemContainer).classList.add('itemContainerEffect')
+        // (this.$refs.itemContainer).classList.add('itemContainerEffect')
       }
     }
   },
@@ -352,11 +352,11 @@ export default {
 }
 .orderListContainer {
   overflow-y:scroll;
-  height: calc(100vh - 66px - 16px - 41px - 131px); // header + 1, page-content-wrapper y padding, table header, options
+  height: calc(100vh - 80px - 23px - 41px - 131px); // header + 1, page-content-wrapper y padding, table header, options
 }
 @media(max-width:768px) {
   .orderListContainer {
-    height: calc(100vh - 66px - 16px - 41px - 170px);
+    height: calc(100vh - 80px - 16px - 41px - 170px);
   }
 }
 </style>

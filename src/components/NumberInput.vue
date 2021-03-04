@@ -1,11 +1,15 @@
 <template>
   <div>
-    <input ref="input" type="number" @keyup="blurOnEnter" v-model="inputValue" @touchend="touched" @click="inputValue = ''" @blur="validateInput" class="form-control text-right">
+    <input ref="input" type="number" @keyup="blurOnEnter" v-model="inputValue" @touchend="touched" @click="inputValue = ''" @blur="validateInput" v-bind:class="size !== '' ? 'form-control-' + size : ''" class="form-control text-right">
   </div>
 </template>
 <script>
 export default {
   props: {
+    size: {
+      type: String,
+      default: ''
+    },
     defaultValue: {
       type: Number,
       default: 0

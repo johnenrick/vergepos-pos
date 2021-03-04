@@ -1,30 +1,35 @@
 <template>
-  <div class="p-2">
-    <div v-show="isTerminal" class="row no-gutters">
-      <div
-        v-show="currentView === 'order_list' || currentView === null"
-        class="col-12 col-sm-12 col-md-5 px-1"
-      >
-        <order-list ref="orderList" @view-product-list="viewProductList"/>
-      </div>
-      <div
-        v-show="currentView === 'product_list' || currentView === null"
-        class="col-12 col-sm-12 col-md-7 px-1"
-      >
-        <button class="btn btn-outline-success w-100 mb-2 d-md-none" @click="viewOrderList">
-          <fa icon="shopping-cart"/> View Cart (<em> {{totalAmount | numberToMoney}} </em>)
-        </button>
-        <control-box/>
-        <product-list ref="productList"/>
+  <div class="p-1">
+    <div v-show="isTerminal" >
+      <WorkShift v-show="sessionStatus !== 2" ref="workShift" @status-change="sessionStatusChange" />
+      <div v-show="sessionStatus === 2" class="row no-gutters">
+        <div v-show="currentView === 'order_list' || currentView === null" class="col-12 col-sm-12 col-md-5 pr-md-1 bg-white p-2 shadow-sm" >
+          <order-list ref="orderList" @view-product-list="viewProductList"/>
+        </div>
+        <div
+          v-show="currentView === 'product_list' || currentView === null"
+          class="col-12 col-sm-12 col-md-7 pl-md-1"
+        >
+          <div class="bg-white p-2 shadow-sm">
+            <button class="btn btn-outline-success w-100 mb-2 d-md-none bg-white" @click="viewOrderList">
+              <fa icon="shopping-cart"/> View Cart (<em class="font-weight-bold"> {{totalAmount | numberToMoney}} </em>)
+            </button>
+            <control-box />
+            <product-list ref="productList" />
+
+          </div>
+        </div>
       </div>
     </div>
     <div v-show="!isTerminal" class="text-center pt-4">
-      <div class="border rounded p-3 border-warning" style="display: inline-block">
-        <div class="mb-3">
-          <fa class="text-warning" icon="exclamation-triangle"/> This device is not a terminal.
+      <div class="p-3 bg-white boreder shadow-sm" style="display: inline-block">
+        <div class="border rounded p-3 border-warning " >
+          <div class="mb-3">
+            <fa class="text-warning" icon="exclamation-triangle"/> This device is not a terminal.
+          </div>
+          <div class="mb-3">Go back to the Dashboard and click <strong class="text-nowrap"><fa icon="cash-register"/> Set As Terminal</strong> under <em>Quick Actions</em>.</div>
+          <router-link to="/" class="btn btn-outline-primary btn-sm font-weight-bold"> Go to Dashboard</router-link>
         </div>
-        <div class="mb-3">Go back to the Dashboard and click <strong class="text-nowrap"><fa icon="cash-register"/> Set As Terminal</strong> under <em>Quick Actions</em>.</div>
-        <router-link to="/" class="btn btn-outline-primary btn-sm font-weight-bold"> Go to Dashboard</router-link>
       </div>
     </div>
   </div>
@@ -35,26 +40,34 @@ import ProductList from './ProductList.vue'
 import ControlBox from './ControlBox.vue'
 import SyncStore from '@/database/sync/sync-store'
 import CartStore from './cart-store'
+import WorkShift from './pos-components/WorkShift'
 // import UserSession from '@/vue-web-core/system/store'
 
 export default {
   components: {
     OrderList,
     ProductList,
-    ControlBox
+    ControlBox,
+    WorkShift
   },
   beforeMount() {
   },
   mounted() {
     this.draw()
     this.postSync()
+    window.addEventListener('keypress', this.readBarcodeScanner)
   },
-  beforeDestroy() {},
+  beforeDestroy(){
+    window.removeEventListener('keypress', this.readBarcodeScanner)
+  },
   data() {
     return {
       isTerminal: localStorage.getItem('is_terminal'),
       doneReSynching: false,
-      currentView: null
+      currentView: null,
+      barcodeScannerValue: null,
+      scannerTimer: new Date(),
+      sessionStatus: 0 // refer to WorkShift for the meaning of each value
     }
   },
   watch: {
@@ -69,18 +82,30 @@ export default {
         this.$refs.productList._draw()
       }, 1000)
     },
+    readBarcodeScanner(e){
+      if(e.code.indexOf('Digit') > -1){ // character pressed from scanner is Digit, if pressed from keyboard it is Key
+        const currentTime = new Date()
+        if((currentTime - this.scannerTimer) > 100){ // making sure that it belongs to one barcode
+          this.barcodeScannerValue = ''
+        }
+        this.scannerTimer = currentTime
+        this.barcodeScannerValue += e.key
+      }else if(e.key === 'Enter'){
+        this.$refs.productList._barcodeScanned(this.barcodeScannerValue)
+      }
+    },
     viewOrderList() {
       this.currentView = 'order_list'
       setTimeout(() => {
         this.$refs.orderList._draw()
       }, 400)
     },
+    sessionStatusChange(status){
+      this.sessionStatus = status
+    },
     draw() {
       this.$nextTick(() => {
-        if (
-          typeof this.$refs.productList !== 'undefined' &&
-          typeof this.$refs.productList !== 'undefined'
-        ) {
+        if(typeof this.$refs.productList !== 'undefined' && typeof this.$refs.productList !== 'undefined') {
           this.$refs.productList._draw()
           this.$refs.orderList._draw()
           if (window.innerWidth < 768) {
@@ -90,7 +115,7 @@ export default {
           } else {
             this.currentView = null
           }
-        } else {
+        }else{
           setTimeout(() => {
             this.draw()
           }, 400)
@@ -102,6 +127,7 @@ export default {
         return false
       }
       this.$nextTick(() => {
+        this.$refs.workShift._checkSession()
         this.$refs.productList._initialize()
         this.$refs.orderList._initialize()
         this.draw()

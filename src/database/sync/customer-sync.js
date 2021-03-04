@@ -1,5 +1,6 @@
 import Sync from '../core/sync.js'
 import Customer from '@/database/controller/customer.js'
+import TransactionCustomer from '@/database/controller/transaction-customer.js'
 import datetimeHelper from '@/vue-web-core/helper/mixin/datetime'
 export default class CustomerSync extends Sync{
   async downSync(){
@@ -15,7 +16,7 @@ export default class CustomerSync extends Sync{
       idb.get(query).then(response => {
         let latestDate = null
         if(response.length){
-          latestDate = datetimeHelper.serverDatetimeFormat(response[0]['updated_at'])
+          latestDate = datetimeHelper.serverDatetimeFormat(response[0]['updated_at'], true)
         }
         this.download(latestDate).then(result => {
           resolve(result)
@@ -29,6 +30,8 @@ export default class CustomerSync extends Sync{
         'name',
         'address',
         'birthdate',
+        'gender',
+        'notes',
         'updated_at',
         'created_at',
         'deleted_at'
@@ -55,12 +58,15 @@ export default class CustomerSync extends Sync{
                 db_id: response['data'][x]['id'] * 1
               }
             }
+
             let customerData = {
               db_id: response['data'][x]['id'] * 1,
               name: response['data'][x]['name'],
-              birthdate: response['data'][x]['birthdate'],
-              created_at: response['data'][x]['created_at'],
-              updated_at: response['data'][x]['updated_at']
+              gender: response['data'][x]['gender'] * 1,
+              notes: response['data'][x]['notes'],
+              birthdate: response['data'][x]['birthdate'] ? (new Date(response['data'][x]['birthdate'])).getTime() : null,
+              created_at: new Date(response['data'][x]['created_at']).getTime() + 28800000,
+              updated_at: new Date(response['data'][x]['updated_at']).getTime() + 28800000
             }
             customer.get(idbParam).then((result) => {
               if (response['data'][x]['deleted_at'] && result.length) {
@@ -74,7 +80,16 @@ export default class CustomerSync extends Sync{
                 })
               } else if (!result.length && !response['data'][x]['deleted_at']) {
                 response['data'][x]['db_id'] = response['data'][x]['id']
-                customer.add(customerData).finally(result => {
+                customer.add(customerData).then(result => {
+                  const updateTransactionCustomerData = {
+                    customer_id: result['id'],
+                    where: {
+                      customer_db_id: customerData['db_id']
+                    }
+                  }
+                  const transactionCustomerDB = new TransactionCustomer()
+                  transactionCustomerDB.update(updateTransactionCustomerData)
+                }).finally(result => {
                   counter++
                 })
               }else{
