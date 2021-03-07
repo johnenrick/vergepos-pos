@@ -15,14 +15,12 @@ export default class BatchSync1 extends Sync {
       discount_latest_datetime: await this.discountSync.getLatestDatetime(),
       payment_method_latest_datetime: await this.paymentMethodSync.getLatestDatetime(),
     }
-    console.log('downSync param', param)
     let result = await this.retrieveAPIData('sync/sync', param)
     if(result['data']){
       await this.saveLocalDB(result['data'])
     }
   }
   async saveLocalDB(newData){
-    console.log('saveLocalDB', newData)
     await this.categorySync.saveLocalDB(newData['categories'])
     await this.productSync.saveLocalDB(newData['products'])
     await this.discountSync.saveLocalDB(newData['discounts'])

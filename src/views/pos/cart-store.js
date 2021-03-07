@@ -52,6 +52,7 @@ let store = new Vuex.Store({
     totalDiscountAmount: 0,
     taxPercentage: 0.12,
     discountRemarks: '',
+    remarks: '',
     event: { description: 'none' }
   },
   getters: {
@@ -78,6 +79,9 @@ let store = new Vuex.Store({
     },
     discountRemarks: (state) => {
       return state.discountRemarks
+    },
+    remarks: (state) => {
+      return state.remarks
     },
     customers: (state) => {
       return state.customers
@@ -161,6 +165,10 @@ let store = new Vuex.Store({
       Vue.set(state, 'discountRemarks', discountRemarks)
       cacheCart(state)
     },
+    remarks(state, remarks){
+      Vue.set(state, 'remarks', remarks)
+      cacheCart(state)
+    },
     addItem(state, productID){
       let callback = null
       let productDetail = null
@@ -218,6 +226,7 @@ let store = new Vuex.Store({
       state.totalVatAmount = 0
       state.totalDiscountAmount = 0
       state.discountRemarks = ''
+      state.remarks = ''
       state.discountId = null
       cacheCart(state)
     }

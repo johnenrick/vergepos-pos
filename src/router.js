@@ -8,7 +8,7 @@ let routes = [
   {
     path: '/',
     name: 'home',
-    component: require('./views/Home.vue').default,
+    component: require('./views/home/Home.vue').default,
     meta: {
       no_sidebar: true,
       // auth_offline: false,

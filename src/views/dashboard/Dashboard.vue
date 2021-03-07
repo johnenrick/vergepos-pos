@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard p-3">
-    <div class="mb-3 bg-white p-3 shadow-sm">
-      <h2 class="font-weight-bold mb-4">Welcome to your VergePOS Dashboard!</h2>
+    <div class="mb-2 bg-white p-3 shadow-sm">
+      <h3 class="font-weight-bold mb-4">Welcome to your VergePOS Dashboard!</h3>
       <div class="row">
         <div class="col-12 col-md-7 col-lg-9">
           <div v-if="isTerminal"  class="mb-4">
@@ -25,10 +25,10 @@
       </div>
     </div>
     <!-- <SetUpWizard class="bg-white p-3 shadow-sm mb-2" /> -->
-    <quick-action ref="quicAction" class="bg-white p-3 shadow-sm mb-3" />
-    <quick-report-card ref="quickReportCard" class="bg-white p-3 shadow-sm mb-3" />
-    <activity-hour ref="activityHour" class="bg-white p-3 shadow-sm mb-3" />
-    <weekly-sale-graph ref="weeklySalesGraph" class="bg-white p-3 shadow-sm mb-3" />
+    <quick-action ref="quicAction" class="bg-white p-3 shadow-sm mb-2" />
+    <quick-report-card ref="quickReportCard" class="bg-white p-3 shadow-sm mb-2" />
+    <activity-hour ref="activityHour" class="bg-white p-3 shadow-sm mb-2" />
+    <weekly-sale-graph ref="weeklySalesGraph" class="bg-white p-3 shadow-sm mb-2" />
   </div>
 </template>
 <script>

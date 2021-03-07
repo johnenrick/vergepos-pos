@@ -23,8 +23,8 @@
           :use12-hour="true"
           auto
           type="datetime"
-          value-zone="local"
-          zone="local"
+          value-zone="utc"
+          zone="utc"
         />
       </div>
       <div class="col-sm-12 col-md-6 col-lg-3 px-1 mb-2 mb-lg-0">
@@ -35,8 +35,8 @@
           :use12-hour="true"
           auto
           type="datetime"
-          value-zone="local"
-          zone="local"
+          value-zone="utc"
+          zone="utc"
         />
       </div>
       <div class="col-12 col-md-6 col-lg-3 px-1">
@@ -177,7 +177,7 @@ export default {
           titleClass: 'text-center',
           dataClass: 'text-center',
           callback: (value) => {
-            return value ? this.formatDate(value, 'mm/dd/yy hh:mm') : ''
+            return value ? this.formatDate(value, 'mm/dd/yy hh:mm', this.terminal !== 'local') : ''
           }
         }, {
           name: 'total_amount',
@@ -277,14 +277,14 @@ export default {
         startDatetimeFilter.setHours(0, 0, 0)
       }
       if(this.endDatetimeFilter){
-        endDatetimeFilter = (new Date(this.endDatetimeFilter.replace('Z', ''))).getTime()
+        endDatetimeFilter = (new Date(this.endDatetimeFilter.replace('Z', '')))
       }else{
         let endTime = new Date()
         endTime.setHours(23, 59, 59)
-        endDatetimeFilter = endTime.getTime()
+        endDatetimeFilter = endTime
       }
       if(this.terminal === 'local'){
-        return this.generateOffline(startDatetimeFilter, endDatetimeFilter)
+        return this.generateOffline(startDatetimeFilter.getTime(), endDatetimeFilter.getTime())
       }else{
         return this.generateOnline(startDatetimeFilter, endDatetimeFilter)
       }
@@ -313,25 +313,30 @@ export default {
         transactionNumber['status'] = 'error'
         return false
       }
-      if(source === 'offline'){
-        transactionNumber['total_amount'] = transaction['total_amount'] * negativeMultiplier
-        transactionNumber['total_discount_amount'] = transaction['total_discount_amount'] * negativeMultiplier
+      if(typeof transaction !== 'undefined' && transaction){
+        if(source === 'offline'){
+          transactionNumber['total_amount'] = transaction['total_amount'] * negativeMultiplier
+          transactionNumber['total_discount_amount'] = transaction['total_discount_amount'] * negativeMultiplier
+        }else{
+          transactionNumber['total_amount'] = this.computeTransactionTotalAmountOnline(transaction) * negativeMultiplier
+          transactionNumber['total_discount_amount'] = transaction['transaction_computation'] ? transaction['transaction_computation']['total_discount_amount'] * negativeMultiplier : 0
+        }
+        this.totalDiscount += (transactionNumber['total_discount_amount']).toFixed(2) * 1
+        this.totalAmount += transactionNumber['total_amount']
+        const totalCost = (typeof transaction['transaction_products'] !== 'undefined') ? this.calculateTotalCostFromTransactionProducts(transaction['transaction_products']) * negativeMultiplier : 0
+        const totalProfit = transactionNumber['total_amount'] - totalCost
+        transactionNumber['total_profit'] = totalProfit
+        this.totalProfit += totalProfit
+        transactionNumber['transaction_products'] = transaction['transaction_products']
+        return true
       }else{
-        transactionNumber['total_amount'] = this.computeTransactionTotalAmountOnline(transaction) * negativeMultiplier
-        transactionNumber['total_discount_amount'] = transaction['transaction_computation']['total_discount_amount'] * negativeMultiplier
+        console.error('Transaction is not defined', transactionNumber)
+        return false
       }
-      this.totalDiscount += (transactionNumber['total_discount_amount']).toFixed(2) * 1
-      this.totalAmount += transactionNumber['total_amount']
-      const totalCost = this.calculateTotalCostFromTransactionProducts(transaction['transaction_products']) * negativeMultiplier
-      const totalProfit = transactionNumber['total_amount'] - totalCost
-      transactionNumber['total_profit'] = totalProfit
-      this.totalProfit += totalProfit
-      transactionNumber['transaction_products'] = transaction['transaction_products']
-      return true
     },
     generateOffline(startDatetime, endDatetime){
       let createdAtCondition = {
-        '>': startDatetime.getTime()
+        '>=': startDatetime
       }
       createdAtCondition['<'] = endDatetime
       let query = {
@@ -390,9 +395,8 @@ export default {
           }
         },
       }
-      let transactionNumberWhereQuery = JSON.parse(JSON.stringify(query.where))
       if(this.cashierId){
-        transactionNumberWhereQuery['user_id'] = this.cashierId
+        query['where']['user_id'] = this.cashierId
       }
       this.reset()
       return new Promise((resolve, reject) => {
@@ -402,7 +406,7 @@ export default {
             this.addTransactionToTable(result[x], 'offline') // modify the result[x] array
           }
           this.transactions = result
-          this.$refs.productHistory._getData(this.transactions)
+          this.$refs.productHistory._setData(this.transactions)
           if(result.length){
             this.transactions.push({
               id: null,
@@ -418,7 +422,8 @@ export default {
           }
           this.isGenerating = false
           resolve(true)
-        }).catch(() => {
+        }).catch(errorResult => {
+          console.error('errorResult', errorResult)
           this.isGenerating = false
           if(this.graphType){
             this.generateReport()
@@ -531,7 +536,7 @@ export default {
             let result = response['data']
             for(let x = 0; x < result.length; x++){
               this.addTransactionToTable(result[x], 'online')
-              const transactionProducts = result[x]['transaction_products']
+              const transactionProducts = typeof result[x]['transaction_products'] === 'object' ? result[x]['transaction_products'] : []
               for(let y = 0; y < transactionProducts.length; y++){
                 if(transactionProducts[y]['product']){
                   transactionProducts[y]['description'] = transactionProducts[y]['product']['description']
@@ -541,7 +546,7 @@ export default {
               result[x]['transaction_products'] = transactionProducts
             }
             this.transactions = result
-            this.$refs.productHistory._getData(this.transactions)
+            this.$refs.productHistory._setData(this.transactions)
             if(result.length){
               this.transactions.push({
                 id: null,
@@ -558,11 +563,17 @@ export default {
           }
           this.isGenerating = false
           resolve(true)
+        }, errorResult => {
+          console.error(errorResult)
         })
       })
     },
     computeTransactionTotalAmountOnline(transaction){
-      return (transaction['transaction_computation']['total_vat_amount'] * 1) + (transaction['transaction_computation']['total_vat_sales'] * 1) + (transaction['transaction_computation']['total_vat_exempt_sales'] * 1) + (transaction['transaction_computation']['total_vat_zero_rated_sales'] * 1)
+      if(transaction['transaction_computation']){
+        return (transaction['transaction_computation']['total_vat_amount'] * 1) + (transaction['transaction_computation']['total_vat_sales'] * 1) + (transaction['transaction_computation']['total_vat_exempt_sales'] * 1) + (transaction['transaction_computation']['total_vat_zero_rated_sales'] * 1)
+      }else{
+        return 0
+      }
     },
     reset(){
       this.transactions = []

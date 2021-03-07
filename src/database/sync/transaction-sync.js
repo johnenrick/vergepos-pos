@@ -116,7 +116,6 @@ export default class TransactionNumberSync extends Sync{
           let transactionNumber = new TransactionNumber()
           let transaction = new Transaction()
           let transactionProduct = new TransactionProduct()
-
           let counter = 0
           let maxCount = response['data'].length
           let transactionVoids = []
@@ -345,6 +344,7 @@ export default class TransactionNumberSync extends Sync{
       status: transaction['status'] * 1,
       discount_id: transaction['discount_id'] * 1,
       discount_remarks: transaction['discount_remarks'],
+      remarks: transaction['remarks'],
       total_vat_sales: 0,
       total_vat_exempt_sales: 0,
       total_vat_zero_rated_sales: 0,

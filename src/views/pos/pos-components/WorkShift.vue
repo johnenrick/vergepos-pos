@@ -8,7 +8,7 @@
         <hr/>
       </div>
       <div v-if="sessionStatus === 0" class="text-center">
-        Please wait...
+        Please wait... {{sessionStatus}}
       </div>
       <div v-else-if="sessionStatus === 1">
         <div v-if="useCashManagement !== 1" class="text-center">
@@ -51,15 +51,7 @@ export default {
     OnGoingSession
   },
   mounted(){
-    this.useCashManagement = localStorage.getItem('useCashManagement') * 1 // 0 undecided, 1 use, 2 skip for now, 3 dont use
-    if(this.useCashManagement === 2){
-      let useCashManagementSkipForNowCounter = localStorage.getItem('useCashManagementSkipForNowCounter') * 1
-      if(useCashManagementSkipForNowCounter > 4){
-        this.showDontUseCashManagement = true
-      }
-    }else if(this.useCashManagement === 3){
-      this.sessionStatus = 2
-    }
+    this.checkUseCashManagement()
   },
   data(){
     return {
@@ -109,9 +101,25 @@ export default {
           }
         }else{
           CartStore.commit('setWorkShiftDetail', {})
-          this.sessionStatus = 1
+          this.checkUseCashManagement()
         }
       })
+    },
+    checkUseCashManagement(){
+      this.useCashManagement = localStorage.getItem('useCashManagement') * 1 // 0 undecided, 1 use, 2 skip for now, 3 dont use
+      if(this.useCashManagement === 2){
+        let useCashManagementSkipForNowCounter = localStorage.getItem('useCashManagementSkipForNowCounter') * 1
+        if(useCashManagementSkipForNowCounter > 4){
+          this.showDontUseCashManagement = true
+        }
+        this.sessionStatus = 1
+      }else if(this.useCashManagement === 3){
+        this.sessionStatus = 2
+      }else{
+        this.sessionStatus = 1
+      }
+      setTimeout(() => {
+      }, 2000)
     },
     setUseCashManagement(value){ // 0 undecided, 1 use, 2 skip for now, 3 dont use
       this.useCashManagement = value
@@ -121,6 +129,9 @@ export default {
       if(value === 2){
         let useCashManagementSkipForNowCounter = localStorage.getItem('useCashManagementSkipForNowCounter')
         localStorage.setItem('useCashManagementSkipForNowCounter', ++useCashManagementSkipForNowCounter)
+        this.sessionStatus = 2
+      }
+      if(value === 3){
         this.sessionStatus = 2
       }
     },

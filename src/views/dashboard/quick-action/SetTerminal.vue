@@ -13,13 +13,13 @@
         Configuring Terminal. Please wait...
       </div>
     </div>
-    <modal ref="selectionModal" :closeable="false" title="Terminal Selection">
+    <modal ref="selectionModal" :closeable="false" :has-close="newTerminalMode === null" title="Terminal Selection">
       <template slot="body">
         <div v-if="errorMessage" class="alert alert-danger">
           {{errorMessage}}
         </div>
         <div v-if="isIncognito" class="alert alert-danger">You are current in Incognito! POS transactions need to be stored offline first before sending it to the server</div>
-        <div v-if="newTerminalMode === 'new-terminal'" class="mb-2">
+        <div v-if="newTerminalMode === 'new-terminal'" >
           <SetNewTerminal
             @change-mode="newTerminalMode = $event"
             @set-terminal="setTerminal"
@@ -28,7 +28,7 @@
             :has-store-terminals="stores.length && stores[0]['store_terminals'].length ? true : false"
           />
         </div>
-        <div v-else-if="newTerminalMode === 'existing-terminal'" class="mb-2" >
+        <div v-else-if="newTerminalMode === 'existing-terminal'" >
           <ExistingTerminalSelector
             @change-mode="newTerminalMode = $event"
             @set-terminal="setTerminal"
@@ -80,7 +80,7 @@ export default {
       isConfuringTerminal: false,
       stores: [],
       companyData: {},
-      newTerminalMode: true,
+      newTerminalMode: null,
       selectedExistingTerminal: 'null',
       previousSelectedExistingTerminal: 'null',
       serialNumber: '',
@@ -123,7 +123,6 @@ export default {
           this.newTerminalMode = 'new-terminal'
           this.stores = []
         }else if(response['data']){
-          console.log('has store', response['data']['stores'])
           this.stores = response['data']['stores']
           this.newTerminalMode = response['data']['stores'][0]['store_terminals'].length ? null : 'new-terminal'
           this.$refs.selectionModal._open()
@@ -132,9 +131,9 @@ export default {
       })
     },
     setTerminal(event){
-      const { storeTerminalID, terminalDetails } = event
-      console.log('setTerminal', event)
-      localStorage.setItem('is_terminal', storeTerminalID)
+      const { storeTerminalId, terminalDetails } = event
+      console.log('setTerminal', event, storeTerminalId)
+      localStorage.setItem('is_terminal', storeTerminalId)
       localStorage.setItem('terminal_details', JSON.stringify(terminalDetails))
       let companyInformation = UserStore.getters.companyInformation
       localStorage.setItem('company_detail', JSON.stringify(companyInformation))

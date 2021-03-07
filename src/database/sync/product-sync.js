@@ -74,7 +74,7 @@ export default class ProductSync extends Sync{
         }
         let iDBProduct = typeof products[updatedProducts[x]['id']] !== 'undefined' ? products[updatedProducts[x]['id']][0] : null
         if (iDBProduct && updatedProducts[x]['deleted_at']) {
-          await product.delete(iDBProduct.id)
+          await product.delete(iDBProduct['id'])
         } else if (iDBProduct) {
           productData['id'] = iDBProduct['id']
           await product.update(productData)

@@ -92,23 +92,25 @@ export default {
     }
   },
   methods: {
-    _getData(data){ // Use proper naming, and add underscore prefix if the method is exposed
+    _setData(data){ // Use proper naming, and add underscore prefix if the method is exposed
       data.forEach(elem => {
-        elem['transaction_products'].forEach(element => {
-          const negativeMultiplier = elem['operation'] === 2 ? -1 : 1
-          const amount = (element['vat_sales'] * 1) + (element['vat_exempt_sales'] * 1) + (element['vat_zero_rated_sales'] * 1) + (element['vat_amount'] * 1) - element['discount_amount'] * 1
-          this.transactions.push({
-            transactionProd: element,
-            number: elem['number'],
-            price: element['price'] * negativeMultiplier,
-            cost: element['cost'],
-            amount: amount * negativeMultiplier,
-            quantity: element['quantity'] * negativeMultiplier,
-            discount_amount: element['discount_amount'] * negativeMultiplier,
-            dateAndTime: elem['created_at'],
-            profit: (amount - (element['cost'] * element['quantity'])) * negativeMultiplier
+        if(typeof elem['transaction_products'] === 'object'){
+          elem['transaction_products'].forEach(element => {
+            const negativeMultiplier = elem['operation'] === 2 ? -1 : 1
+            const amount = (element['vat_sales'] * 1) + (element['vat_exempt_sales'] * 1) + (element['vat_zero_rated_sales'] * 1) + (element['vat_amount'] * 1) - element['discount_amount'] * 1
+            this.transactions.push({
+              transactionProd: element,
+              number: elem['number'],
+              price: element['price'] * negativeMultiplier,
+              cost: element['cost'],
+              amount: amount * negativeMultiplier,
+              quantity: element['quantity'] * negativeMultiplier,
+              discount_amount: element['discount_amount'] * negativeMultiplier,
+              dateAndTime: elem['created_at'],
+              profit: (amount - (element['cost'] * element['quantity'])) * negativeMultiplier
+            })
           })
-        })
+        }
       })
     },
     _reset(){

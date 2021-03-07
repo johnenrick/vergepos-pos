@@ -14,7 +14,7 @@
         <option :value="index" :class="storeTerminal['serial_number'] !== '' ? 'bg-light' : ''">{{storeTerminal['description']}} <span class="text-uppercase">{{(storeTerminal['serial_number'] !== '') ? ' [SN: ' + storeTerminal['serial_number'] + ']': ''}}</span></option>
       </template>
     </select>
-    <div class="text-center">
+    <div class="text-center pt-2">
       <template v-if="!isConfuringTerminal">
         <button class="btn btn-primary" @click="setAsTerminal"><fa icon="desktop"/> Set As Terminal</button>
         <button @click="$emit('close')" class="btn btn-outline=secondary float-right" > Close</button>
@@ -43,8 +43,9 @@ export default {
         this.isConfuringTerminal = false
         return false
       }
+      console.log('selectedExistingTerminal', this.storeTerminals[this.selectedExistingTerminal]['id'])
       let param = {
-        id: this.storeTerminals[this.selectedExistingTerminal]['id'],
+        id: this.storeTerminals[this.selectedExistingTerminal]['id'] * 1,
         store_id: this.storeId,
         serial_number: this.serialNumber
       }
@@ -52,11 +53,11 @@ export default {
         if(response['data']){
           let terminalDetails = {
             description: this.storeTerminals[this.selectedExistingTerminal]['description'],
-            serial_number: this.serialNumber,
+            serial_number: this.storeTerminals[this.selectedExistingTerminal]['serial_number'],
             store_id: this.storeId
           }
           this.$emit('set-terminal', {
-            storeTerminalId: this.storeTerminals[this.selectedExistingTerminal]['id'],
+            storeTerminalId: param['id'],
             terminalDetails: terminalDetails
           })
         }

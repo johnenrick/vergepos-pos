@@ -122,6 +122,7 @@
                 </div>
               </div>
             </template>
+
             <div class="form-group row">
               <label class="col-6 col-sm-6 col-form-label text-right font-weight-bold">Change: </label>
               <div class="col-6 col-sm-4">
@@ -132,6 +133,12 @@
                   v-bind:class="totalAmount > totalPaid ? 'text-danger' : ''"
                   :value="(totalPaid - totalAmount) * 1 | numberToMoney"
                 >
+              </div>
+            </div>
+            <div class="row mb-3">
+              <!-- <label class="col-6 col-sm-6 col-form-label text-right font-weight-bold">Remarks: </label> -->
+              <div class="col-8 mx-auto text-right">
+                <textarea v-model="remarks" placeholder="You can write a note here..." class="form-control"></textarea>
               </div>
             </div>
             <div class="pt-3 pb-0 text-center border-top">
@@ -192,6 +199,7 @@ export default {
     return {
       showMorePaymentMethods: false,
       cashPayment: 0,
+      remarks: '',
       taxPercentage: (Cart.state.taxPercentage * 100) + '%',
       transaction: new Transaction(),
       transacting: false,
@@ -248,6 +256,7 @@ export default {
         cash_amount_paid: cashAmountPaid,
         discount_id: Cart.state.discountId,
         discount_remarks: Cart.state.discountRemarks,
+        remarks: this.remarks,
         customers: Cart.state.customers,
         transaction_payments: paymentMethods
       }, JSON.parse(JSON.stringify(Cart.getters.items))).then((response) => {

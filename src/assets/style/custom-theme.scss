@@ -20,8 +20,8 @@ $success: #00AF54;
 $warning: #f2a11d;
 $info: #42BFDD;
 $secondary: #747C81;
-$dark: #505050;
-$body-bg: #f8f9fc;
+$dark: #3b3b3b;
+$body-bg: #f7f7f7;
 $enable-shadows: true;
 $font-family-sans-serif: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 @import "~bootstrap/scss/mixins/box-shadow";
@@ -43,7 +43,9 @@ a {
 a:hover{
   color: lighten($primary, 10%)
 }
-
+.shadow-sm {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.150) !important;
+}
 /*Remove Input Number Arrows*/
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,

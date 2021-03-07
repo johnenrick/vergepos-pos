@@ -85,7 +85,6 @@ export default {
           }
         }
       }
-      console.log('param', param)
       transactionCustomerDB.get(param).then(result => {
         console.log('result', result)
         let productSummary = {}

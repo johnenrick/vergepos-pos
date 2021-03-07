@@ -98,7 +98,7 @@
                 <td>Change</td>
                 <td style="text-align: right">{{(totalPaid - transactionDetail.totalAmount) | numberToMoney}}</td>
               </tr>
-              <template v-if="transactionDetail.transactionCustomers.length && typeof transactionDetail.transactionCustomers[0]['customer'] !== 'undefined'">
+              <template v-if="hasTransactionCustomers">
                 <tr>
                   <td colspan="2">&nbsp;</td>
                 </tr>
@@ -107,29 +107,38 @@
                 </tr>
                 <tr>
                   <td>Name</td>
-                  <td class="text-uppercase" style="text-align: right">{{transactionDetail.transactionCustomers[0]['customer']['name']}}</td>
+                  <td class="text-uppercase" style="text-align: right">
+                      {{transactionDetail['transactionCustomers'][0]['customer']['name']}}
+                  </td>
                 </tr>
                 <tr>
                   <td>Address</td>
-                  <td style="text-align: right">{{transactionDetail.transactionCustomers[0]['customer']['address'] ? transactionDetail.transactionCustomers[0]['customer']['address'] : 'N/A'}}</td>
+                  <td style="text-align: right">{{customerAddress}}</td>
                 </tr>
               </template>
             </tbody>
           </table>
         </div>
         <br>
+        <div v-if="transactionDetail['remarks'] && transactionDetail['remarks'] !== ''">
+          <strong>Remarks</strong>
+          <p style="padding-left:15px">
+            {{transactionDetail['remarks']}}
+          </p>
+        </div>
         <div class="text-center">
           <p>
             VergePOS<br>
             vergepos.com<br>
             Cebu City, Cebu
-
           </p>
         </div>
       </div>
     </div>
     <div v-if="transactionDetail.id && !toVoid" class="p-2 pt-3">
-      <button v-if="transactionDetail.voidable && transactionDetail.status !== 2" @click="triggerVoid"  class="btn btn-danger"><fa :icon="'ban'" /> VOID</button>
+      <button v-if="canVoid" @click="triggerVoid"  class="btn btn-danger">
+        <fa :icon="'ban'" /> VOID
+      </button>
       <span v-if="transactionDetail.status === 2" class="btn-danger btn disabled">Voided</span>
       <button @click="print" type="button" class="btn btn-outline-primary float-right"><fa :icon="'print'" /> Reprint</button>
     </div>
@@ -226,6 +235,7 @@ export default {
         totalAmount: 0,
         subTotalAmount: 0,
         cashTendered: 0,
+        remarks: '',
         transactionPayments: [],
         datetime: '0/0/0',
         status: 1,
@@ -356,7 +366,7 @@ export default {
                 this.transactionDetail.voidedTransactionNumber = result['transaction_void']['voided_transaction_number']
                 this.transactionDetail.voidTransactionReason = result['transaction_void']['remarks']
               }
-            }else{
+            }else if(typeof result['transaction'] !== 'undefined' && result['transaction']){
               this.transactionOperation = 1
               this.transactionDetail.id = result['transaction']['id']
               this.transactionDetail.transactionNumber = result['number']
@@ -368,9 +378,9 @@ export default {
               this.transactionDetail.totalAmount = result['transaction']['total_amount']
               this.transactionDetail.subTotalAmount = result['transaction']['sub_total_amount']
               this.transactionDetail.cashTendered = result['transaction']['cash_tendered']
+              this.transactionDetail.remarks = result['transaction']['remarks']
               this.transactionDetail.transactionPayments = typeof result['transaction']['transaction_payments'] !== 'undefined' ? result['transaction']['transaction_payments'] : []
               this.transactionDetail.datetime = result['created_at']
-              console.log(result['transaction'])
               this.transactionDetail.transactionCustomers = typeof result['transaction']['transaction_customers'] !== 'undefined' ? result['transaction']['transaction_customers'] : []
               this.transactionDetail.status = result['transaction_void_id'] ? 2 : 1
               let dateCreated = new Date(this.transactionDetail.datetime)
@@ -380,6 +390,8 @@ export default {
                 this.transactionDetail.voidTransactionNumber = result['transaction_void_transaction_number_number']
               }
               this.transactionProduct = result['transaction']['transaction_products']
+            }else{
+              console.error('Transaction Not Found', result)
             }
             setTimeout(() => {
               this.isLoading = false
@@ -487,6 +499,15 @@ export default {
     },
     companyInformation(){
       return store.state.companyInformation ? store.state.companyInformation : null
+    },
+    hasTransactionCustomers(){
+      return this.transactionDetail.transactionCustomers.length && typeof this.transactionDetail.transactionCustomers[0]['customer'] !== 'undefined'
+    },
+    customerAddress(){
+      return this.transactionDetail.transactionCustomers.length && this.transactionDetail.transactionCustomers[0]['customer']['address'] ? this.transactionDetail.transactionCustomers[0]['customer']['address'] : 'N/A'
+    },
+    canVoid(){
+      return this.transactionDetail['voidable'] && this.transactionDetail['status'] !== 2
     }
   }
 }

@@ -198,7 +198,6 @@ export default {
       let defaultTime = currentDate.getFullYear() + '-' + this.padNumber(currentDate.getMonth() + 1) + '-' + this.padNumber(currentDate.getDate()) + 'T' + this.padNumber(0) + ':' + this.padNumber(0) + ':' + this.padNumber(0) + '.000Z'
       this.startDatetimeFilter = defaultTime
       this.productDB.get().then((e) => {
-        console.log('e', e)
         this.selectFilterOption = e
       })
       this.generate()

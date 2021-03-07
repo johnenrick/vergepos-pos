@@ -123,7 +123,6 @@ export default {
       return new Promise((resolve, reject) => {
         let transactionNumberDB = new TransactionNumber()
         transactionNumberDB.get(query).then(transactionNumbers => {
-          console.log(transactionNumbers)
           if(!transactionNumbers.length){
             resolve(null)
           }else{
@@ -250,7 +249,7 @@ export default {
       this.vatZeroRatedSales += transaction['total_vat_zero_rated_sales'] * negativeMultiplier
       this.vatAmount += transaction['total_vat_amount'] * negativeMultiplier
       this.totalDiscount += transaction['total_discount_amount'] * negativeMultiplier
-      let transactionProducts = transaction['transaction_products']
+      let transactionProducts = typeof transaction['transaction_products'] === 'object' ? transaction['transaction_products'] : []
       for(let y = 0; y < transactionProducts.length; y++){
         let discountId = transactionProducts[y]['discount_id']
         if(discountId){

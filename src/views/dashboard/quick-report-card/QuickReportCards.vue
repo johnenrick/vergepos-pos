@@ -105,10 +105,12 @@ export default {
         }
         transactionNumbers.forEach((transactionNumber) => {
           if(transactionNumber['operation'] === 1){
-            const transaction = transactionNumber['transaction']
-            this.currentSales = this.currentSales + (transaction['total_amount'] * 1)
-            for(let y in transaction['transaction_products']){
-              this.totalSold = this.totalSold + (transaction['transaction_products'][y]['quantity'] * 1)
+            const transaction = typeof transactionNumber['transaction'] !== 'undefined' ? transactionNumber['transaction'] : null
+            if(transaction){
+              this.currentSales = this.currentSales + (transaction['total_amount'] * 1)
+              for(let y in transaction['transaction_products']){
+                this.totalSold = this.totalSold + (transaction['transaction_products'][y]['quantity'] * 1)
+              }
             }
           }else{
             const transaction = transactionNumber['transaction_void']['transaction']

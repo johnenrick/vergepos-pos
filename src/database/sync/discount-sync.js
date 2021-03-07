@@ -65,7 +65,6 @@ export default class DiscountSync extends Sync{
         } else if (!iDBProduct && !updatedDiscounts[x]['deleted_at']) {
           updatedDiscounts[x]['db_id'] = updatedDiscounts[x]['id']
           delete updatedDiscounts[x]['id']
-          console.log('discountData', discountData)
           await discount.add(discountData)
         }
       }

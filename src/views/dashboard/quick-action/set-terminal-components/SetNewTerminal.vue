@@ -10,7 +10,7 @@
     <input v-model="serialNumber" type="text" class="form-control mb-2" placeholder="XXXXXXXXXXX or Tablet-01">
     <label>Terminal Description</label>
     <input v-model="terminalDescription" class="form-control mb-2" placeholder="e.g. Cashier 1, Entrance Terminal, etc." />
-    <div class="text-center mt-2">
+    <div class="text-center pt-2">
       <template v-if="!isConfuringTerminal">
         <button class="btn btn-primary" @click="setAsTerminal"><fa icon="desktop"/> Set As Terminal</button>
         <button @click="$emit('close')" class="btn btn-outline=secondary float-right" > Close</button>
