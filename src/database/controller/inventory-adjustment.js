@@ -39,4 +39,9 @@ export default class InventoryAdjustment extends Controller {
       })
     })
   }
+  addExisting(entries){
+    let controller = new Controller()
+    controller.tableName = this.tableName
+    return controller.add(entries)
+  }
 }

@@ -57,7 +57,7 @@
           <button @click="cancel" class="btn btn-outline-dark">Cancel</button>
         </div>
         <div v-else-if="!closeSuccessful">
-          Please wait...
+          Please wait <fa icon="circle-notch" spin />
         </div>
       </div>
     </div>

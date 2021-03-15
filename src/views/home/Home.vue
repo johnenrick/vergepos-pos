@@ -19,7 +19,7 @@
           <div class="text-center mt-4">
             <HomePicture style="min-width: 200px; max-width: 300px; width:30%;" />
           </div>
-          <div ref="qoute" class="pt-1 mx-auto" style="max-width: 500px">
+          <div ref="qoute" class="pt-1 mx-auto " style="min-width: 300px; max-width: 500px">
             "Reach your new limit with VergePOS!""
           </div>
         </div>

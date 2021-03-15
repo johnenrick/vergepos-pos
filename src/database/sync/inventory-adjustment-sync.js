@@ -71,61 +71,47 @@ export default class InventoryAdjustmentSync extends Sync{
       })
     })
   }
-  updateInventoryAdjustments(updatedInventoryAdjustments){
-    return new Promise((resolve, reject) => {
-      let inventoryAdjustmentDB = new InventoryAdjustment()
-      let counter = 0
-      const maxCount = updatedInventoryAdjustments.length
-      let idbParam = {
-        where: {
-          db_id: {
-            in: us.pluck(updatedInventoryAdjustments, 'id')
-          }
+  async updateInventoryAdjustments(updatedInventoryAdjustments){
+    if(!updatedInventoryAdjustments.length){
+      return 1
+    }
+    let inventoryAdjustmentDB = new InventoryAdjustment()
+    let toAddEntries = []
+    let idbParam = {
+      where: {
+        db_id: {
+          in: us.pluck(updatedInventoryAdjustments, 'id')
         }
       }
-      inventoryAdjustmentDB.get(idbParam).then((result) => {
-        let inventoryAdjustments = us.groupBy(result, 'db_id') // group by db_id, expect the result of each object is a select element array
-        for (let x in updatedInventoryAdjustments) {
-          let inventoryAdjustmentData = {
-            db_id: updatedInventoryAdjustments[x]['id'] * 1,
-            product_id: updatedInventoryAdjustments[x]['product_id'] * 1,
-            user_id: updatedInventoryAdjustments[x]['user_id'] * 1,
-            type: updatedInventoryAdjustments[x]['type'] * 1,
-            remarks: updatedInventoryAdjustments[x]['remarks'],
-            quantity: updatedInventoryAdjustments[x]['quantity'] * 1,
-            previous_quantity: updatedInventoryAdjustments[x]['previous_quantity'] * 1,
-            created_at: (new Date(updatedInventoryAdjustments[x]['created_at'])).getTime() + 28800000, // +8 hours
-            deleted_at: updatedInventoryAdjustments[x]['deleted_at'] ? (new Date(updatedInventoryAdjustments[x]['deleted_at'])).getTime() + 28800000 : 0, // +8 hours
-            updated_at: (new Date(updatedInventoryAdjustments[x]['updated_at'])).getTime() + 28800000, // +8 hours
-          }
-          if(inventoryAdjustmentData['created_at'] === 28800000){
-            console.log(28800000, updatedInventoryAdjustments[x], inventoryAdjustmentData)
-          }
-          let iDBInventoryAdjustment = typeof inventoryAdjustments[updatedInventoryAdjustments[x]['id']] !== 'undefined' ? inventoryAdjustments[updatedInventoryAdjustments[x]['id']][0] : null
-          if (iDBInventoryAdjustment && updatedInventoryAdjustments[x]['deleted_at']) {
-            inventoryAdjustmentDB.delete(iDBInventoryAdjustment['id']).finally(() => {
-              counter++
-            })
-          } else if (iDBInventoryAdjustment) {
-            inventoryAdjustmentData['id'] = iDBInventoryAdjustment['id']
-            inventoryAdjustmentDB.update(inventoryAdjustmentData).finally(() => {
-              counter++
-            })
-          } else if (!iDBInventoryAdjustment && !updatedInventoryAdjustments[x]['deleted_at']) {
-            inventoryAdjustmentDB.add(inventoryAdjustmentData).finally(() => {
-              counter++
-            })
-          }else{
-            counter++
-          }
-        }
-      })
-      let interval = setInterval(() => {
-        if(counter === maxCount){
-          resolve(1)
-          clearInterval(interval)
-        }
-      }, 100)
-    })
+    }
+    let result = await inventoryAdjustmentDB.get(idbParam)
+    let inventoryAdjustments = us.groupBy(result, 'db_id') // group by db_id, expect the result of each object is a select element array
+    for (let x in updatedInventoryAdjustments) {
+      let inventoryAdjustmentData = {
+        db_id: updatedInventoryAdjustments[x]['id'] * 1,
+        product_id: updatedInventoryAdjustments[x]['product_id'] * 1,
+        user_id: updatedInventoryAdjustments[x]['user_id'] * 1,
+        type: updatedInventoryAdjustments[x]['type'] * 1,
+        remarks: updatedInventoryAdjustments[x]['remarks'],
+        quantity: updatedInventoryAdjustments[x]['quantity'] * 1,
+        previous_quantity: updatedInventoryAdjustments[x]['previous_quantity'] * 1,
+        created_at: (new Date(updatedInventoryAdjustments[x]['created_at'])).getTime() + 28800000, // +8 hours
+        deleted_at: updatedInventoryAdjustments[x]['deleted_at'] ? (new Date(updatedInventoryAdjustments[x]['deleted_at'])).getTime() + 28800000 : 0, // +8 hours
+        updated_at: (new Date(updatedInventoryAdjustments[x]['updated_at'])).getTime() + 28800000, // +8 hours
+      }
+      let iDBInventoryAdjustment = typeof inventoryAdjustments[updatedInventoryAdjustments[x]['id']] !== 'undefined' ? inventoryAdjustments[updatedInventoryAdjustments[x]['id']][0] : null
+      if (iDBInventoryAdjustment && updatedInventoryAdjustments[x]['deleted_at']) {
+        await inventoryAdjustmentDB.delete(iDBInventoryAdjustment['id'])
+      } else if (iDBInventoryAdjustment) {
+        inventoryAdjustmentData['id'] = iDBInventoryAdjustment['id']
+        await inventoryAdjustmentDB.update(inventoryAdjustmentData)
+      } else if (!iDBInventoryAdjustment && !updatedInventoryAdjustments[x]['deleted_at']) {
+        toAddEntries.push(inventoryAdjustmentData)
+      }
+    }
+    if(toAddEntries.length){
+      await inventoryAdjustmentDB.addExisting(toAddEntries)
+    }
+    return 1
   }
 }

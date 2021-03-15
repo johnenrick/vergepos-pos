@@ -35,6 +35,7 @@ export default class DiscountSync extends Sync{
   }
   async saveLocalDB(updatedDiscounts){
     if (updatedDiscounts && updatedDiscounts.length) {
+      let toAddEntries = []
       let discount = new Discount()
       let idbParam = {
         where: {
@@ -65,8 +66,11 @@ export default class DiscountSync extends Sync{
         } else if (!iDBProduct && !updatedDiscounts[x]['deleted_at']) {
           updatedDiscounts[x]['db_id'] = updatedDiscounts[x]['id']
           delete updatedDiscounts[x]['id']
-          await discount.add(discountData)
+          toAddEntries.push(discountData)
         }
+      }
+      if(toAddEntries.length){
+        await discount.add(toAddEntries)
       }
     }
   }

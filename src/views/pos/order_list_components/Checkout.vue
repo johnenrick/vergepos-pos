@@ -156,7 +156,7 @@
                 </button>
               </template>
               <template v-else-if="transacting">
-                <span v-if="transactionStatus === null" class="font-weight-bold">Please wait...</span>
+                <span v-if="transactionStatus === null" class="font-weight-bold">Please wait <fa icon="circle-notch" spin /></span>
                 <span v-if="transactionStatus === true" class="font-weight-bold text-success">Transaction Succesful!</span>
               </template>
             </div>

@@ -15,7 +15,7 @@
         </div>
       </div>
       <div v-if="isLoading" class="text-center">
-        Please wait...
+        Please wait <fa icon="circle-notch" spin />
       </div>
       <div v-else-if="savingSucceed" class='text-center text-success font-weight-bold'>
         Saved Successfully!

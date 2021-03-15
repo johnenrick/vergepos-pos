@@ -8,7 +8,7 @@
         <hr/>
       </div>
       <div v-if="sessionStatus === 0" class="text-center">
-        Please wait... {{sessionStatus}}
+        Please wait <fa icon="circle-notch" spin />
       </div>
       <div v-else-if="sessionStatus === 1">
         <div v-if="useCashManagement !== 1" class="text-center">

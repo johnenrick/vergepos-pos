@@ -6,7 +6,11 @@ export default class Controller {
   tableName
   migrationTable = null
   add(data){
-    if(typeof data.length === 'undefined') data = [data]
+    let isSingleEntry = false
+    if(typeof data.length === 'undefined'){
+      data = [data]
+      isSingleEntry = true
+    }
     for(let x = 0; x < data.length; x++){
       if(typeof data[x]['created_at'] === 'undefined' || data[x]['created_at'] === null){
         data[x]['created_at'] = (new Date()).getTime()
@@ -20,12 +24,13 @@ export default class Controller {
       }
     }
     return new Promise((resolve, reject) => {
+      // let dateStarted = new Date()
       connection.insert({
         into: this.tableName,
         values: data,
         return: true
       }).then(response => {
-        if(data.length > 1){
+        if(!isSingleEntry){
           resolve(response.length ? response : null)
         }else{
           resolve(response.length ? response[0] : null)

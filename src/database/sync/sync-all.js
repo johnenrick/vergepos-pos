@@ -21,6 +21,7 @@ class SyncAll {
   userSync
   batchSync1
   syncItems
+  postSyncItems
   syncSuccessCount
   syncFailCount
   progressListener // needs to be changed to a list
@@ -57,20 +58,54 @@ class SyncAll {
     }
     this.syncSuccess = 0
     this.syncFail = 0
-    this.syncItems = [this.batchSync1, this.customerSync, this.transactionSync, this.inventoryAdjustmentSync, this.workShiftSync]
+    this.syncItems = [
+      this.batchSync1,
+      this.customerSync,
+      this.inventoryAdjustmentSync,
+      this.workShiftSync
+    ]
+    this.postSyncItems = [
+      this.transactionSync
+    ]
     if(localStorage.getItem('is_terminal') * 1){
       this.syncItems.push(this.userSync)
     }
     let syncItems = this.syncItems
+
+    let synchedItemCount = syncItems.length
     for(let x = 0; x < syncItems.length; x++){
+      let timeStarted = new Date()
+      const syncCount = x
       setTimeout(() => {
-        syncItems[x].downSync().then((result) => {
+        syncItems[syncCount].downSync().then(() => {
           this.itemSynched(true)
+          console.log('synching done #', syncCount, ((new Date()).getTime() - timeStarted.getTime()) / 1000)
+        }).catch(error => {
+          console.error(error)
+          this.itemSynched(false)
+        }).finally(() => {
+          --synchedItemCount
+          if(synchedItemCount === 0){
+            this.startPostSync()
+          }
+        })
+      }, (25 * x))
+    }
+  }
+  startPostSync(){
+    let postSyncItems = this.postSyncItems
+    for(let x = 0; x < postSyncItems.length; x++){
+      let timeStarted = new Date()
+      const syncCount = x
+      setTimeout(() => {
+        postSyncItems[syncCount].downSync().then(() => {
+          this.itemSynched(true)
+          console.log('POST synching done #', syncCount, ((new Date()).getTime() - timeStarted.getTime()) / 1000)
         }).catch(error => {
           console.error(error)
           this.itemSynched(false)
         })
-      }, 500 + (100 * x))
+      }, (25 * x))
     }
   }
   itemSynched(status){
@@ -79,7 +114,7 @@ class SyncAll {
     }else{
       this.syncFail++
     }
-    let progress = (this.syncSuccess + this.syncFail) / this.syncItems.length
+    let progress = (this.syncSuccess + this.syncFail) / (this.syncItems.length + this.postSyncItems.length)
     if(progress >= 1){
       if(this.reSync){
         this.reSync = false

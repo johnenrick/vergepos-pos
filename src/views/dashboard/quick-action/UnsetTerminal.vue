@@ -8,7 +8,7 @@
         </div>
       </div>
       <div v-else class=" text-center">
-        Configuring Terminal. Please wait...
+        Configuring Terminal. Please wait <fa icon="circle-notch" spin />
       </div>
     </div>
     <modal ref="removeTerminalModal" title="Terminal" icon="desktop" :closeable="false">
@@ -37,7 +37,7 @@
           <button @click="closeRemoveTerminal" class="btn btn-outline-secondary mb-2">Close</button>
         </div>
         <div v-else class="text-center">
-          Uploading data to the server. It may take a while. Please wait...
+          Uploading data to the server. It may take a while. Please wait <fa icon="circle-notch" spin />
         </div>
       </template>
     </modal>

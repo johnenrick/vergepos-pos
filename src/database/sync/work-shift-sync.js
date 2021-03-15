@@ -102,7 +102,6 @@ export default class WorkShiftSync extends Sync {
       const maxCount = updatedWorkShifts.length
       let dbIdList = us.pluck(updatedWorkShifts, 'id')
       dbIdList = dbIdList.map(value => value * 1)
-      console.log('dbIdList', dbIdList)
       let idbParam = {
         where: {
           db_id: {
@@ -111,8 +110,8 @@ export default class WorkShiftSync extends Sync {
         }
       }
       workShiftDB.get(idbParam).then((result) => {
+        let toAddEntries = []
         let workShifts = us.groupBy(result, 'db_id') // group by db_id, expect the result of each object is a select element array
-        console.log('updatedWorkShifts', updatedWorkShifts, result, idbParam)
         for (let x in updatedWorkShifts) {
           let workShiftData = {
             db_id: updatedWorkShifts[x]['id'] * 1,
@@ -138,13 +137,18 @@ export default class WorkShiftSync extends Sync {
             if(typeof updatedWorkShifts[x]['work_shift_cash_readings'] !== 'undefined' && updatedWorkShifts[x]['work_shift_cash_readings']){
               workShiftData['work_shift_cash_readings'] = updatedWorkShifts[x]['work_shift_cash_readings']
             }
-            console.log('updatedWorkShifts', updatedWorkShifts)
-            workShiftDB.add(workShiftData).finally(() => {
-              counter++
-            })
+            toAddEntries.push(workShiftData)
+            // workShiftDB.add(workShiftData).finally(() => {
+            //   counter++
+            // })
           }else{
             counter++
           }
+        }
+        if(toAddEntries.length){
+          workShiftDB.add(toAddEntries).then(result => {
+            counter += toAddEntries.length
+          })
         }
       })
       let interval = setInterval(() => {

@@ -20,7 +20,7 @@ function writeQoutes(qoute, index, element){
     text = ''
   }
   setTimeout(() => {
-    textArray = text.split('')
+    let textArray = text.split('')
     textArray[index] = qoute[index]
     text = textArray.join('')
     for(let x = index; x < qoute.length - 1; x++){

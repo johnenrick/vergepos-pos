@@ -22,7 +22,7 @@
     </div>
     <div v-else class="p-3">
       <h2 class="font-weight-bold">Product Management</h2>
-      <p><fa icon="hourglass-half" /> Checking connectivity. Please wait...</p>
+      <p>Checking connectivity. Please wait <fa icon="circle-notch" spin /></p>
     </div>
   </div>
 </template>

@@ -34,6 +34,7 @@ export default class CategorySync extends Sync{
   }
   async saveLocalDB(updatedCategories){
     if(updatedCategories && updatedCategories.length){
+      let toAddEntries = []
       let category = this.db
       let idbParam = {
         where: {
@@ -58,8 +59,11 @@ export default class CategorySync extends Sync{
           categoryData['id'] = iDBCategory['id']
           await category.update(categoryData)
         } else if (!iDBCategory && !updatedCategories[x]['deleted_at']) {
-          await category.add(categoryData)
+          toAddEntries.push(categoryData)
         }
+      }
+      if(toAddEntries.length){
+        await category.add(toAddEntries)
       }
     }
     return true

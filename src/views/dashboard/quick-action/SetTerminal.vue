@@ -10,7 +10,7 @@
         </div>
       </div>
       <div v-else class="text-center">
-        Configuring Terminal. Please wait...
+        Configuring Terminal. Please wait <fa icon="circle-notch" spin />
       </div>
     </div>
     <modal ref="selectionModal" :closeable="false" :has-close="newTerminalMode === null" title="Terminal Selection">

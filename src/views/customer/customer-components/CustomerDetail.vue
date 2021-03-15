@@ -3,7 +3,7 @@
     <template slot="body">
       <CommonForm ref="customerForm" :config="formConfig" :validation-messages="validationMessages" :mode="mode !== 'online' ? 'view' : null" />
       <div class="text-right">
-        <span v-if="isLoading">Please wait...</span>
+        <span v-if="isLoading">Please wait <fa icon="circle-notch" spin /></span>
         <template v-else-if="mode === 'online'">
           <button @click="save" class="btn btn-success mr-1"><fa icon="check" /> Save</button>
         </template>

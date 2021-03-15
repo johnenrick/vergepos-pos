@@ -12,7 +12,7 @@
           <big>
             <fa class="text-primary" icon="circle-notch" spin />
           </big>
-          Talking to server. Please wait...
+          Talking to server. Please wait <fa icon="circle-notch" spin />
         </div>
         <!-- <img
           v-if="isLoading"

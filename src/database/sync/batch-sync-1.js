@@ -21,10 +21,33 @@ export default class BatchSync1 extends Sync {
     }
   }
   async saveLocalDB(newData){
-    await this.categorySync.saveLocalDB(newData['categories'])
-    await this.productSync.saveLocalDB(newData['products'])
-    await this.discountSync.saveLocalDB(newData['discounts'])
-    await this.paymentMethodSync.saveLocalDB(newData['payment_methods'])
-    return true
+    return new Promise(resolve => {
+      let counter = 4
+      console.log('categories', newData['categories'].length)
+      this.categorySync.saveLocalDB(newData['categories']).finally(() => {
+        --counter
+        if(counter === 0){
+          resolve(true)
+        }
+      })
+      this.productSync.saveLocalDB(newData['products']).finally(() => {
+        --counter
+        if(counter === 0){
+          resolve(true)
+        }
+      })
+      this.discountSync.saveLocalDB(newData['discounts']).finally(() => {
+        --counter
+        if(counter === 0){
+          resolve(true)
+        }
+      })
+      this.paymentMethodSync.saveLocalDB(newData['payment_methods']).finally(() => {
+        --counter
+        if(counter === 0){
+          resolve(true)
+        }
+      })
+    })
   }
 }

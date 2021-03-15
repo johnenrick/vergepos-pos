@@ -5,7 +5,7 @@ import TransactionProduct from '@/database/controller/transaction-product.js'
 import TransactionCustomer from '@/database/controller/transaction-customer.js'
 import TransactionVoid from '@/database/controller/transaction-void.js'
 import Customer from '@/database/controller/customer.js'
-// import datetimeHelper from '@/vue-web-core/helper/mixin/datetime'
+let us = require('underscore')
 export default class TransactionNumberSync extends Sync{
   resolveId = 6
   customersToUpdate = {} // the customers that is being used in transaction_customers where customer_id is not set yet
@@ -53,6 +53,7 @@ export default class TransactionNumberSync extends Sync{
             7: 'created_at',
             8: 'updated_at',
             9: 'deleted_at',
+            10: 'remarks',
             transaction_products: {
               select: {
                 0: 'transaction_id',
@@ -99,7 +100,8 @@ export default class TransactionNumberSync extends Sync{
       sort: [{
         column: 'number',
         order: 'desc'
-      }]
+      }],
+      // limit: 10
     }
     if(oldestNumber){
       param['condition'].push({
@@ -112,65 +114,56 @@ export default class TransactionNumberSync extends Sync{
       this.retrieveAPIData('transaction-number/retrieve', param).then(response => {
         resolve(this.resolveId)
         if (response['data'].length) {
+          let updatedTransactionNumbers = response['data']
           this.customersToUpdate = {}
           let transactionNumber = new TransactionNumber()
-          let transaction = new Transaction()
-          let transactionProduct = new TransactionProduct()
+
           let counter = 0
-          let maxCount = response['data'].length
+          let maxCount = updatedTransactionNumbers.length
           let transactionVoids = []
-          for (let x in response['data']) {
-            let idbParam = {
-              where: {
-                db_id: response['data'][x]['id'] * 1
+          let idbParam = {
+            where: {
+              db_id: {
+                in: us.pluck(updatedTransactionNumbers, 'id')
               }
             }
-            let transactionNumberData = this.prepareTransactionNumber(response['data'][x])
-            transactionNumber.get(idbParam).then((result) => {
-              if (!result.length) {
-                if(transactionNumberData['operation'] === 2 && response['data'][x]['transaction_void']){
-                  transactionVoids.push(response['data'][x])
-                  counter++
-                }else{
-                  transactionNumber.add(transactionNumberData).then((transactionNumberResult) => {
-                    if(transactionNumberData['operation'] === 1 && response['data'][x]['transaction']){
-                      const transactionResponse = response['data'][x]['transaction']
-                      let transactionData = this.prepareTransactionData(transactionResponse, transactionNumberResult['id'])
-                      transaction.add(transactionData).then((transactionResult) => {
-                        if(transactionResponse['transaction_products'].length){
-                          // TODO Insert Many
-                          let transactionProductsData = this.prepareTransactionProducts(transactionResponse['transaction_products'], transactionResult['id'])
-                          transactionProduct.add(transactionProductsData, { traceInventory: false }).finally(() => {
-                            this.insertTransactionCustomer(transactionResult['id'], transactionResponse['transaction_customers']).finally(() => {
-                              counter++
-                            })
-                          })
-                        }else{
-                          this.insertTransactionCustomer(transactionResult['id'], transactionResponse['transaction_customers']).finally(() => {
-                            counter++
-                          })
-                        }
-                      }).catch((error) => {
-                        console.error('transaction sync error', error)
-                        counter++
-                      })
-                    }else{
-                      counter++
-                    }
-                  })
-                }
-              }else{
+          }
+          let result = transactionNumber.get(idbParam)
+          let transactionNumbers = us.groupBy(result, 'db_id')
+          let transactionNumbersToAdd = []
+          let transactionNumbersIndexLookUp = {} // determine the index base on transaction_number_id
+          for (let x in updatedTransactionNumbers) {
+            let iDBTransactionNumber = typeof transactionNumbers[updatedTransactionNumbers[x]['id']] !== 'undefined' ? transactionNumbers[updatedTransactionNumbers[x]['id']][0] : null
+            let updatedTransactionNumber = updatedTransactionNumbers[x]
+            transactionNumbersIndexLookUp[updatedTransactionNumber['id']] = x
+            let transactionNumberData = this.prepareTransactionNumber(updatedTransactionNumber)
+            if (!iDBTransactionNumber) {
+              if(transactionNumberData['operation'] === 2 && updatedTransactionNumber['transaction_void']){ // voided transactions
+                transactionVoids.push(updatedTransactionNumber)
                 counter++
+              }else{
+                transactionNumbersToAdd.push(transactionNumberData)
               }
+            }else{
+              counter++
+            }
+          }
+          if(transactionNumbersToAdd.length){
+            transactionNumber.add(transactionNumbersToAdd).then(transactionNumberResult => {
+              this.batchInsertTransactionNumberTransaction(
+                transactionNumberResult, updatedTransactionNumbers, transactionNumbersIndexLookUp
+              ).catch(error => {
+                console.error(error)
+              })
+                .finally(() => {
+                  counter += transactionNumbersToAdd.length
+                })
             })
           }
           let interval = setInterval(() => {
             if(counter === maxCount){
               clearInterval(interval)
               this.syncTransactionVoid(transactionVoids).finally(() => {
-                this.updateTransactionCustomerCustomerId().finally(() => {
-                  resolve(this.resolveId)
-                })
               })
             }
           }, 100)
@@ -183,65 +176,72 @@ export default class TransactionNumberSync extends Sync{
       })
     })
   }
-  updateTransactionCustomerCustomerId(){
-    return new Promise(resolve => {
-      let customerDBIds = []
-      for(let customerDBId in this.customersToUpdate){
-        customerDBIds.push(parseInt(customerDBId))
-      }
-      if(customerDBIds.length){
-        const param = {
-          where: {
-            db_id: {
-              in: customerDBIds
-            }
-          }
-        }
-        const customerDB = new Customer()
-        const transactionCustomerDB = new TransactionCustomer()
-        customerDB.get(param).then(result => {
-          if(result.length){
-            let remainingCount = result.length
-            result.forEach(customer => {
-              const updateData = {
-                customer_id: customer['id'],
-                where: {
-                  customer_db_id: customer['db_id']
-                }
-              }
-              transactionCustomerDB.update(updateData).finally(() => {
-                --remainingCount
-                if(remainingCount === 0){
-                  resolve(true)
-                }
-              })
-            })
-          }else{
-            resolve(true)
-          }
-        })
-      }else{
-        resolve(true)
+  async batchInsertTransactionNumberTransaction(localTransactionNumbers, transactionNumbers, transactionNumbersIndexLookUp){
+    let transactionDB = new Transaction()
+    let transactionToAdd = []
+    let transactionTransactionProducts = {} // the  key is the db id of transaction
+    let transactionTransactionCustomers = {} // the  key is the db id of transaction
+    localTransactionNumbers.forEach((localTransactionNumber, index) => {
+      const transactionNumberIndex = transactionNumbersIndexLookUp[localTransactionNumber['db_id']]
+      let updatedTransactionNumber = transactionNumbers[transactionNumberIndex]
+      if(localTransactionNumber['operation'] === 1 && updatedTransactionNumber['transaction']){
+        const transactionResponse = updatedTransactionNumber['transaction']
+        let transactionData = this.prepareTransactionData(transactionResponse, localTransactionNumber['id'])
+        transactionToAdd.push(transactionData)
+        transactionTransactionProducts[transactionResponse['id']] = transactionResponse['transaction_products']
+        transactionTransactionCustomers[transactionResponse['id']] = transactionResponse['transaction_customers']
       }
     })
+    let localTransactions = await transactionDB.add(transactionToAdd)
+    this.batchInsertTransactionProducts(localTransactions, transactionTransactionProducts)
+    this.batchInsertTransactionCustomer(localTransactions, transactionTransactionCustomers)
+    return true
   }
-  insertTransactionCustomer(transactionId, transactionCustomers = []){
-    return new Promise((resolve, reject) => {
-      if(transactionCustomers.length){
-        let transactionCustomerDB = new TransactionCustomer()
-        transactionCustomers.forEach((transactionCustomer, index) => {
-          this.customersToUpdate[transactionCustomer['customer_id'] * 1] = true
-          transactionCustomers[index]['transaction_id'] = transactionId
-          transactionCustomers[index]['customer_db_id'] = transactionCustomer['customer_id'] * 1
-          transactionCustomers[index]['customer_id'] = 0
-        })
-        transactionCustomerDB.add(transactionCustomers).finally(() => {
-          resolve(true)
-        })
-      }else{
-        resolve(true)
-      }
+  async batchInsertTransactionProducts(localTransactions, transactionTransactionProducts){
+    let transactionProductDB = new TransactionProduct()
+    let transactionProductsDBToAdd = []
+    localTransactions.forEach(localTransaction => {
+      let transactionProducts = transactionTransactionProducts[localTransaction['db_id']]
+      let newTransactionProducts = this.prepareTransactionProducts(transactionProducts, localTransaction['id'] * 1)
+      transactionProductsDBToAdd = transactionProductsDBToAdd.concat(newTransactionProducts)
     })
+    await transactionProductDB.add(transactionProductsDBToAdd, { traceInventory: false })
+    return true
+  }
+  async batchInsertTransactionCustomer(localTransactions, transactionTransactionCustomers){
+    let transactionCustomerDB = new TransactionCustomer()
+    let transactionCustomerToAdd = []
+    let localTransactionIdLookUp = {} // key is db id
+    localTransactions.forEach(localTransaction => {
+      let transactionCustomers = transactionTransactionCustomers[localTransaction['db_id']]
+      transactionCustomerToAdd = transactionCustomerToAdd.concat(transactionCustomers)
+      localTransactionIdLookUp[localTransaction['db_id']] = localTransaction['id'] * 1
+    })
+    let idbParam = {
+      where: {
+        db_id: {
+          in: us.pluck(transactionCustomerToAdd, 'id')
+        }
+      }
+    }
+    let customerDB = new Customer()
+    let localCustomers = await customerDB.get(idbParam)
+    let localCustomerIdLookUp = {} // key is db id
+    localCustomers.forEach(localCustomer => {
+      localCustomerIdLookUp[localCustomer['db_id']] = localCustomer['id'] * 1
+    })
+    for(let index in transactionCustomerToAdd){
+      transactionCustomerToAdd[index]['transaction_id'] = localTransactionIdLookUp[transactionCustomerToAdd[index]['transaction_id']] * 1
+      if(typeof localCustomerIdLookUp[transactionCustomerToAdd[index]['customer_id']] !== 'undefined'){
+        transactionCustomerToAdd[index]['customer_db_id'] = transactionCustomerToAdd[index]['customer_id'] * 1
+        transactionCustomerToAdd[index]['customer_id'] = localCustomerIdLookUp[transactionCustomerToAdd[index]['customer_id']] * 1
+      }else{
+        transactionCustomerToAdd[index]['customer_id'] = transactionCustomerToAdd[index]['customer_id'] * 1
+        transactionCustomerToAdd[index]['customer_db_id'] = 0
+        transactionCustomerToAdd[index]['customer_unsync'] = true // customer does not exist yet
+      }
+    }
+    await transactionCustomerDB.add(transactionCustomerToAdd)
   }
   syncTransactionVoid(voidTransactionNumbers){ // transactionNumbers are voided transaction numbers only
     // NOTE Modify this code if transaction sync only sync partially

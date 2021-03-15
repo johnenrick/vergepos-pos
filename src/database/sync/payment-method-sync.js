@@ -35,6 +35,7 @@ export default class PaymentMethodSync extends Sync{
   }
   async saveLocalDB(updatedPaymentMethods){
     if (updatedPaymentMethods && updatedPaymentMethods.length) {
+      let toAddEntries = []
       let paymentMethod = new PaymentMethod()
       let idbParam = {
         where: {
@@ -61,8 +62,11 @@ export default class PaymentMethodSync extends Sync{
         } else if (!iDBPaymentMethod && !updatedPaymentMethods[x]['deleted_at']) {
           updatedPaymentMethods[x]['db_id'] = updatedPaymentMethods[x]['id']
           delete updatedPaymentMethods[x]['id']
-          await paymentMethod.add(paymentMethodData)
+          toAddEntries.push(paymentMethodData)
         }
+      }
+      if(toAddEntries.length){
+        await paymentMethod.add(toAddEntries)
       }
     }
     return true

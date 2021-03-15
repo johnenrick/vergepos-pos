@@ -47,6 +47,7 @@ export default class ProductSync extends Sync{
   }
   async saveLocalDB(updatedProducts){
     if (updatedProducts && updatedProducts.length) {
+      let toAddEntries = []
       let product = new Product()
       let idbParam = {
         where: {
@@ -57,7 +58,6 @@ export default class ProductSync extends Sync{
       }
       let result = await product.get(idbParam)
       let products = us.groupBy(result, 'db_id')
-      let productToAdd = []
       for (let x in updatedProducts) {
         // these are the entries that will be added in bulk in the idb
         let productData = {
@@ -79,11 +79,11 @@ export default class ProductSync extends Sync{
           productData['id'] = iDBProduct['id']
           await product.update(productData)
         } else if (!iDBProduct && !updatedProducts[x]['deleted_at']) {
-          productToAdd.push(productData)
+          toAddEntries.push(productData)
         }
       }
-      if(productToAdd.length){
-        await product.add(productToAdd)
+      if(toAddEntries.length){
+        await product.add(toAddEntries)
       }
     }
     return true

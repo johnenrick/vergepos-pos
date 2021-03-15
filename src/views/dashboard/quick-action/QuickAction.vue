@@ -21,7 +21,7 @@
     </div>
     <div v-show="!isReady" class="p-1">
       <div class="border rounded text-center py-2">
-        <fa icon="circle-notch" spin /> Please wait...
+        Please wait <fa icon="circle-notch" spin />
       </div>
     </div>
   </div>

@@ -11,7 +11,7 @@
           <h1 class="text-primary">
             <fa icon="server"/>
           </h1>
-          <p>Synching data from the server. Please wait...</p>
+          <p>Synching data from the server. Please wait <fa icon="circle-notch" spin /></p>
           <span v-if="dataSynced < 1">{{(dataSynced * 100).toFixed(2)}}%</span>
           <span v-else-if="dataSynced === 1" class="text-success">Synchronization Complete!</span>
         </div>
