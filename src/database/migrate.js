@@ -1,4 +1,5 @@
 import schemaV1 from './migration/v1'
+import V1PostMigrateScripts from './migration/v1-post-migrate-scripts'
 import { connection } from './js_store/js-store-con'
 
 class DBMigrate {
@@ -16,6 +17,8 @@ class DBMigrate {
         window.location.reload(true)
       })
     }else{
+      console.log('running')
+      await V1PostMigrateScripts.run()
       isReadyCallback(true)
     }
   }

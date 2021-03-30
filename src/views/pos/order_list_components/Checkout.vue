@@ -143,7 +143,7 @@
             </div>
             <div class="pt-3 pb-0 text-center border-top">
               <template v-if="!transacting">
-                <button @click="changeTogglePrintState" :class="printOnCheckOut?'btn btn-primary':'btn btn-outline-primary'" style="float: left">
+                <button @click="changeTogglePrintState" :class="printOnCheckOut ? 'btn btn-primary':'btn btn-outline-secondary'" style="float: left">
                   <span><fa icon="print"></fa></span>
                 </button>
                 <button

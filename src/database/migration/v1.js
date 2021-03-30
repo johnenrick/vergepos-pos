@@ -3,10 +3,11 @@ export default {
   dbName: 'VergePOS',
   tables: [{
     name: 'categories',
+    version: 2,
     columns: {
       db_id: { notNull: true, dataType: 'number' },
       description: { notNull: true, dataType: 'string' },
-      parent_category: { notNull: false, dataType: 'number' }
+      category_id: { notNull: false, dataType: 'number' }
     }
   }, {
     name: 'users',
@@ -212,5 +213,5 @@ export default {
       other_payments: { notNull: false, dataType: 'number' },
       remarks: { notNull: false, dataType: 'string' },
     }
-  }]
+  }],
 }

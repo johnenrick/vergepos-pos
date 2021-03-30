@@ -32,7 +32,7 @@
                 @click="searchFilterValue = ''"
                 class="btn btn-sm btn-outline-danger float-right"
               >
-                <fa :icon="'times'"/>clear
+                <fa :icon="'times'"/> clear
               </button>
             </div>
           </div>
@@ -61,37 +61,22 @@
         </div>
         <div v-else>
           <div class="row align-items-center mx-0 px-1">
-            <template v-if="!categoryFilterID">
-              <template v-for="(category) in categoryList">
-                <div
-                  class="col-6 col-sm-6 col-md-4 px-1 py-1 itemContainer"
-                  v-show="typeof category['show'] === 'undefined' || category['show']"
-                >
-                  <div
-                    @click="setCategoryFilter(category['db_id'], category['description'])"
-                    class="font-weight-bold text-uppercase border text-primary border-primary py-2 text-center px-1 item"
-                    style="max-height:66px; overflow-y:hidden"
-                  >
-                    <span class="no_selection">{{ category['description'] }}</span>
-                  </div>
-                </div>
-              </template>
+            <template v-for="(category) in categoryList">
+              <ItemContainer
+                v-show="typeof category['show'] === 'undefined' || category['show']"
+                @select="setCategoryFilter(category['db_id'], category['description'])"
+                :description="category['description']"
+                :is-category="true"
+              />
             </template>
           </div>
           <div class="row align-items-center mx-0 px-1">
             <template v-for="(product, index) in productList">
-              <div
-                class="col-6 col-sm-6 col-md-4 px-1 py-1 itemContainer"
+              <ItemContainer
                 v-show="typeof product['show'] === 'undefined' || product['show']"
-              >
-                <div
-                  @click="addProduct(product['db_id'], index)"
-                  class="border border-primary text-primary py-2 text-center px-1 item"
-                  style="max-height:66px; overflow-y:hidden"
-                >
-                  <span class="no_selection">{{ product['description'] }}</span>
-                </div>
-              </div>
+                @select="addProduct(product['db_id'], index)"
+                :description="product['description']"
+              />
             </template>
           </div>
         </div>
@@ -107,10 +92,13 @@ import Product from '@/database/controller/product.js'
 import Category from '@/database/controller/category.js'
 import Cart from './cart-store'
 import UserStore from '@/vue-web-core/system/store'
+import ItemContainer from './product-list-components/ItemContainer'
 // import UserStore from '@/vue-web-core/system/store'
 // import SyncStore from '@/database/sync/sync-store'
 export default {
-  mounted() {},
+  components: {
+    ItemContainer
+  },
   data() {
     return {
       loadingSMS: 'Loading products...',
@@ -190,32 +178,20 @@ export default {
     },
     filterItemList() {
       this.isLoading = true
+      const lowerCasedSearchFilterValue = this.searchFilterValue.toLowerCase()
       for(let x in this.categoryList){
         let haystack = this.categoryList[x]['description'].toLowerCase()
-        if (haystack.indexOf(this.searchFilterValue.toLowerCase()) >= 0) {
-          Vue.set(this.categoryList[x], 'show', true)
-        } else {
-          Vue.set(this.categoryList[x], 'show', false)
-        }
+        const hasPassedCategoryFilter = this.categoryFilterID === null || this.categoryFilterID === this.categoryList[x]['category_id'] * 1
+        const hasPassedSearchValueFilter = this.searchFilterValue === '' || haystack.indexOf(lowerCasedSearchFilterValue) >= 0
+        Vue.set(this.categoryList[x], 'show', hasPassedCategoryFilter && hasPassedSearchValueFilter)
       }
       for(let x in this.productList){
-        if(this.categoryFilterID === null || this.categoryFilterID === this.productList[x]['category_id'] * 1){
-          let haystackDesc = this.productList[x]['description'].toLowerCase()
-          let code = this.productList[x]['barcode'] || ''
-          code = code.replace(/ /g, '')
-          code = code.replace(/-/g, '')
-          let haystackCode = code
-          if (
-            haystackCode.indexOf(this.searchFilterValue) >= 0 ||
-            haystackDesc.indexOf(this.searchFilterValue.toLowerCase()) >= 0
-          ) {
-            Vue.set(this.productList[x], 'show', true)
-          } else {
-            Vue.set(this.productList[x], 'show', false)
-          }
-        } else {
-          Vue.set(this.productList[x], 'show', false)
-        }
+        let haystackDesc = this.productList[x]['description'].toLowerCase()
+        let haystackCode = this.productList[x]['barcode'] || ''
+        haystackCode = (haystackCode.replace(/ /g, '')).replace(/-/g, '') + haystackDesc
+        const hasPassedCategoryFilter = this.categoryFilterID === null || this.categoryFilterID === this.productList[x]['category_id'] * 1
+        const hasPassedSearchValueFilter = this.searchFilterValue === '' || haystackCode.indexOf(lowerCasedSearchFilterValue) >= 0
+        Vue.set(this.productList[x], 'show', hasPassedCategoryFilter && hasPassedSearchValueFilter)
       }
       this.isLoading = false
     },
@@ -276,28 +252,6 @@ export default {
 .productList {
   overflow-y: scroll;
 }
-.itemContainer .border-primary:hover {
-  cursor: pointer;
-}
-.itemContainer {
-  display: table;
-}
-.itemContainer .item {
-  display: table-cell;
-  height: 64px;
-  vertical-align: middle;
-}
-.no_selection {
-  -webkit-user-select: none; /* webkit (safari, chrome) browsers */
-  -moz-user-select: none; /* mozilla browsers */
-  -khtml-user-select: none; /* webkit (konqueror) browsers */
-  -ms-user-select: none; /* IE10+ */
-}
-.itemContainer .border-primary:active:hover {
-  background-color: $primary;
-  color: white !important;
-}
-
 .overlay {
   z-index: -1;
 }

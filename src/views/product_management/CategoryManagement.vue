@@ -5,7 +5,6 @@
     </basic-module>
   </div>
 </template>
-
 <script>
 import BasicModule from '@/vue-web-core/components/basic-module/BasicModule'
 import CategoryDB from '@/database/controller/category'
@@ -26,13 +25,35 @@ let ModuleDefault = {
       }]
     }
     let tableColumnSetting = {
-      description: {}
-      // 'category.description': {
-      //   name: 'Parent'
-      // }
+
+      'category.description': {
+        name: 'Parent'
+      },
+      description: {},
     }
     let formFieldSetting = {
       fields: {
+        category_id: {
+          name: 'Parent Category',
+          type: 'select',
+          help_text: 'Optional.',
+          is_retained_on_create: true,
+          default_value: '0',
+          config: {
+            api_link: 'category/retrieve',
+            api_option_text: 'description',
+            default_option: {
+              text: 'No Parent',
+              value: '0'
+            },
+            api_parameter: {
+              sort: [{
+                column: 'description',
+                order: 'asc'
+              }]
+            }
+          }
+        },
         description: {
           help_text: 'Category Name or Group Name of products. Example: Shirts, Appliances, Beverages, etc.'
         }
@@ -63,19 +84,27 @@ let ModuleDefault = {
     }
   },
   methods: {
-    formUpdateListener(data){
+    async formUpdateListener(data){
       if(localStorage.getItem('is_terminal')){
         let categoryDB = new CategoryDB()
-        categoryDB.get({ db_id: data['id'] }).then((categoryData) => {
-          data['db_id'] = data['id']
-          console.log(data)
-          delete data['id']
-          if(categoryData){
-            categoryDB.update(data)
+        const categoryData = await categoryDB.get({ db_id: data['id'] })
+        data['db_id'] = data['id']
+        if(data['category_id'] * 1){
+          const parentCategoryData = await categoryDB.get({ db_id: data['category_id'] })
+          if(parentCategoryData){
+            data['category_id'] = parentCategoryData['id'] * 1
           }else{
-            categoryDB.add(data)
+            console.log('category_id', data['category_id'])
           }
-        })
+        }
+        data['category_id'] = data['category_id'] * 1
+        if(categoryData){
+          data['id'] = categoryData['id']
+          categoryDB.update(data)
+        }else{
+          delete data['id']
+          categoryDB.add(data)
+        }
       }
     },
     formDeleteListener(id){

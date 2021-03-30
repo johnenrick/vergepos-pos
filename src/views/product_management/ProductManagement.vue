@@ -106,7 +106,7 @@ let ModuleDefault = {
           }
         },
         description: {
-          help_text: 'Name of the product. Example: Palmolive 5ml, Large Onion, Egg',
+          help_text: 'Name of the product. Example: Palmolive 5ml, Large Onion, Egg Small',
           placeholder: 'Product Description or Product Name'
         },
         barcode: {
@@ -114,7 +114,7 @@ let ModuleDefault = {
         },
         cost: {
           type: 'number',
-          help_text: 'How much you spent to buy each item. Also known as Cost of Goods.'
+          help_text: 'How much you spent to buy each item. Also known as Cost of Goods. "Magkano ang iyong bili"'
         },
         price: {
           type: 'number',
@@ -122,11 +122,11 @@ let ModuleDefault = {
           config: {
             min: 0
           },
-          help_text: 'How much will you sell it to your customer. Do not forget to include the tax! You can also just leave it blank if the product is not sellable'
+          help_text: 'How much will you sell it to your customer. Do not forget to include the tax! "Presyo ng iyong benta"'
         },
         is_sellable: {
           type: 'select',
-          help_text: 'Selecting Yes would make this product appear in the POS. Select No if this item is a raw materials only or is not for sale',
+          help_text: 'You can sell this product. Select no if it\'s a raw material',
           default_value: '1',
           config: {
             options: [{
@@ -142,7 +142,7 @@ let ModuleDefault = {
           name: 'Is Inventoriable',
           type: 'select',
           default_value: 1,
-          help_text: 'Selecting Yes would allow you to manage the inventory of this product, and makes it appear in the Invetory Page',
+          help_text: 'Manage the quantity of this product',
           config: {
             options: [{
               value: '1',
@@ -212,15 +212,16 @@ let ModuleDefault = {
           data['company_id'] = data['company_id'] * 1
           data['category_id'] = data['category_id'] * 1
           data['cost'] = data['cost'] * 1
-          console.log('data', data)
           data['price'] = isNaN(data['price'] * 1) ? 0 : data['price'] * 1
           data['is_sellable'] = data['is_sellable'] * 1
           data['has_inventory'] = data['has_inventory'] * 1
           console.log(data)
-          delete data['id']
+
           if(productData){
+            data['id'] = productData['id']
             productDB.update(data)
           }else{
+            delete data['id']
             productDB.add(data)
           }
         })
