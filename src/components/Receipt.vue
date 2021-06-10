@@ -21,7 +21,10 @@
             </tr>
             <tr class="">
               <td class="text-uppercase" >{{transactionDetail.datetime | toReadableDateTime}}</td>
-              <td class="text-right" style="text-align: right">{{transactionNumber}} </td>
+              <td class="text-right" style="text-align: right">TXN: {{transactionNumber}} </td>
+            </tr>
+            <tr class="">
+              <td colspan="2" style="text-transform: uppercase">Staff: {{transactionDetail.cashier_full_name}}</td>
             </tr>
           </tbody>
         </table>
@@ -55,35 +58,35 @@
             <tbody>
               <tr class="font-weight-bold" >
                 <td>Sub Total</td>
-                <td style="text-align: right">{{transactionDetail.subTotalAmount | numberToMoney}}</td>
+                <td style="text-align: right; white-space:nowrap">{{transactionDetail.subTotalAmount | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>VAT Sales</td>
-                <td style="text-align: right">{{transactionDetail.vatSales | numberToMoney}}</td>
+                <td style="text-align: right; white-space:nowrap">{{transactionDetail.vatSales | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>VAT Exempt Sales</td>
-                <td style="text-align: right">{{transactionDetail.vatExemptSales | numberToMoney}}</td>
+                <td style="text-align: right; white-space:nowrap">{{transactionDetail.vatExemptSales | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>ZR Sales</td>
-                <td style="text-align: right">{{transactionDetail.vatZeroRatedSales | numberToMoney}}</td>
+                <td style="text-align: right; white-space:nowrap">{{transactionDetail.vatZeroRatedSales | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>VAT Amount</td>
-                <td style="text-align: right">{{transactionDetail.vatAmount | numberToMoney}}</td>
+                <td style="text-align: right; white-space:nowrap">{{transactionDetail.vatAmount | numberToMoney}}</td>
               </tr>
               <tr>
-                <td>Discount</td>
-                <td style="text-align: right">{{transactionDetail.discountAmount | numberToMoney}}</td>
+                <td>Discount ({{discountDescription}})</td>
+                <td style="text-align: right; white-space:nowrap">{{transactionDetail.discountAmount | numberToMoney}}</td>
               </tr>
               <tr class="font-weight-bold text-uppercase">
                 <td>Total</td>
-                <td style="text-align: right">{{transactionDetail.totalAmount | numberToMoney}}</td>
+                <td style="text-align: right; white-space:nowrap">{{transactionDetail.totalAmount | numberToMoney}}</td>
               </tr>
               <tr>
                 <td>Cash</td>
-                <td style="text-align: right">{{transactionDetail.cashTendered | numberToMoney}}</td>
+                <td style="text-align: right; white-space:nowrap">{{transactionDetail.cashTendered | numberToMoney}}</td>
               </tr>
               <template v-for="transactionPayment in transactionDetail.transactionPayments">
                 <tr>
@@ -120,6 +123,12 @@
           </table>
         </div>
         <br>
+        <div v-if="transactionDetail['discount_remarks'] && transactionDetail['discount_remarks'] !== ''">
+          <strong>Discount Details</strong>
+          <p style="padding-left:15px">
+            {{transactionDetail['discount_remarks']}}
+          </p>
+        </div>
         <div v-if="transactionDetail['remarks'] && transactionDetail['remarks'] !== ''">
           <strong>Remarks</strong>
           <p style="padding-left:15px">
@@ -176,6 +185,7 @@ import TransactionVoid from '@/database/controller/transaction-void'
 import Transaction from '@/database/controller/transaction'
 import TransactionNumber from '@/database/controller/transaction-number'
 import PaymentMethod from '@/database/controller/payment-method'
+import Discount from '@/database/controller/discount'
 
 import Vue from 'vue'
 import VueHtmlToPaper from 'vue-html-to-paper'
@@ -236,6 +246,7 @@ export default {
         subTotalAmount: 0,
         cashTendered: 0,
         remarks: '',
+        discount_remarks: '',
         transactionPayments: [],
         datetime: '0/0/0',
         status: 1,
@@ -245,7 +256,8 @@ export default {
         transactionCustomers: [],
       },
       isPrinting: false,
-      paymentMethods: {}
+      paymentMethods: {},
+      discounts: {}
     }
   },
   methods: {
@@ -255,6 +267,14 @@ export default {
         result.forEach(paymentMethod => {
           Vue.set(this.paymentMethods, paymentMethod['id'], paymentMethod)
         })
+      })
+      const discountDB = new Discount()
+      discountDB.get().then(result => {
+        if(result){
+          result.forEach(discount => {
+            Vue.set(this.discounts, discount['db_id'], discount)
+          })
+        }
       })
     },
     async _view(transactionNumber){
@@ -271,6 +291,9 @@ export default {
             number: this.transactionNumber * 1,
           },
           with: {
+            user: {
+              is_parent: true
+            },
             transaction: {
               with: {
                 transaction_products: {
@@ -327,6 +350,19 @@ export default {
           },
           groupBy: 'id',
           join: [{
+            with: 'users',
+            on: 'transaction_numbers.user_id=users.db_id',
+            type: 'left',
+            as: {
+              'id': 'user_user_id',
+              'db_id': 'user_db_id',
+              'first_name': 'user_first_name',
+              'last_name': 'user_last_name',
+              'created_at': 'user_created_at',
+              'updated_at': 'user_updated_at',
+              'deleted_at': 'user_updated_at',
+            },
+          }, {
             with: 'transaction_voids',
             on: 'transaction_numbers.number=transaction_voids.voided_transaction_number',
             type: 'left',
@@ -345,19 +381,21 @@ export default {
             on: 'transaction_voids.transaction_number_id=transaction_numbers.id',
             type: 'left',
             as: {
-              'id': 'transaction_void_transaction_number_id',
+              id: 'transaction_void_transaction_number_id',
               db_id: 'transaction_void_transaction_number_db_id',
+              user_id: 'transaction_void_transaction_number_user_id',
               number: 'transaction_void_transaction_number_number',
               operation: 'transaction_void_transaction_number_operation',
-              'created_at': 'transaction_void_transaction_number_created_at',
-              'updated_at': 'transaction_void_transaction_number_updated_at',
-              'deleted_at': 'transaction_void_transaction_number_updated_at',
+              created_at: 'transaction_void_transaction_number_created_at',
+              updated_at: 'transaction_void_transaction_number_updated_at',
+              deleted_at: 'transaction_void_transaction_number_updated_at',
             }
           }],
         }
         this.transactionNumberDB.get(transactionNumber).then((result) => {
           if(result.length){
             result = result[0]
+
             if(result['operation'] === 2){
               this.transactionOperation = 2
               this.transactionDetail.datetime = result['created_at']
@@ -379,6 +417,8 @@ export default {
               this.transactionDetail.subTotalAmount = result['transaction']['sub_total_amount']
               this.transactionDetail.cashTendered = result['transaction']['cash_tendered']
               this.transactionDetail.remarks = result['transaction']['remarks']
+              this.transactionDetail.discount_remarks = result['transaction']['discount_remarks']
+              this.transactionDetail.cashier_full_name = result['user_first_name'] + ' ' + result['user_last_name']
               this.transactionDetail.transactionPayments = typeof result['transaction']['transaction_payments'] !== 'undefined' ? result['transaction']['transaction_payments'] : []
               this.transactionDetail.datetime = result['created_at']
               this.transactionDetail.transactionCustomers = typeof result['transaction']['transaction_customers'] !== 'undefined' ? result['transaction']['transaction_customers'] : []
@@ -389,6 +429,7 @@ export default {
               if(result['transaction_void_id']){
                 this.transactionDetail.voidTransactionNumber = result['transaction_void_transaction_number_number']
               }
+              console.log('transactionDetail.discount_remarks', this.transactionDetail.discount_remarks)
               this.transactionProduct = result['transaction']['transaction_products']
             }else{
               console.error('Transaction Not Found', result)
@@ -508,6 +549,21 @@ export default {
     },
     canVoid(){
       return this.transactionDetail['voidable'] && this.transactionDetail['status'] !== 2
+    },
+    discountDescription(){
+      let discountDescription = ''
+
+      if(this.transactionProduct.length){
+        for(let x = 0; x < this.transactionProduct.length; x++){
+          if(this.transactionProduct[x]['discount_id'] * 1){
+            if(typeof this.discounts[this.transactionProduct[x]['discount_id']] !== 'undefined'){
+              discountDescription += (discountDescription === '' ? '' : ', ') + this.discounts[this.transactionProduct[x]['discount_id']]['description']
+            }
+          }
+        }
+      }
+      console.log('discountDescription', discountDescription, this.transactionProduct.length, this.transactionProduct)
+      return discountDescription
     }
   }
 }

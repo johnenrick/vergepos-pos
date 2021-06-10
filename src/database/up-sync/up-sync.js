@@ -5,12 +5,10 @@ import InventoryAdjustmentUpSync from './inventory-adjustment-up-sync'
 import UserSession from '@/vue-web-core/system/store'
 class UpSync {
   isSynchingSilently = false
-  isSyncing = false
-  resync = false
+  isSyncing = null
   silentSyncTimeoutId = 0
   silentSyncFrequency = 20000 // 20000
   silentSync(){
-    console.log('silent synching')
     this.isSynchingSilently = true
     this.sync().finally(() => {
       this.silentSyncTimeoutId = setTimeout(() => {
@@ -20,7 +18,6 @@ class UpSync {
   }
   sync(){
     if(this.isSyncing){
-      this.resync = true
       return this.isSyncing
     }
     this.isSyncing = new Promise((resolve, reject) => {
@@ -32,12 +29,13 @@ class UpSync {
           resolve(result)
         }).catch((error) => {
           reject(error)
-        }).finally(() => {
-          this.isSyncing = null
         })
       }else{
         resolve(false)
       }
+    })
+    this.isSyncing.finally(() => {
+      this.isSyncing = null
     })
     return this.isSyncing
   }
@@ -46,10 +44,11 @@ class UpSync {
       CustomerUpSync.upload().finally(() => {
         TransactionNumberUpSync.upload().then(result => {
           resolve(result)
-        }).catch(result => [
+        }).catch(result => {
           reject(result)
-        ]).finally(() => {
-          InventoryAdjustmentUpSync.upload().finally(() => {
+        }).finally(() => {
+          console.log('InventoryAdjustmentUpSync')
+          InventoryAdjustmentUpSync.upload().finally(InventoryAdjustmentResult => {
             WorkShiftUpSync.upload()
           })
         })

@@ -46,6 +46,9 @@ a:hover{
 .shadow-sm {
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.150) !important;
 }
+.dropdown-item {
+  color: $text-color;
+}
 /*Remove Input Number Arrows*/
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,

@@ -43,16 +43,19 @@ class TransactNumberUpSync {
                 resolve(true)
               })
             }else{
-              if(this.isSynchingSilently){
-                this.silentSync()
-              }
               resolve(true)
             }
-          }, (response, status) => { reject(false) })
+          }, (response, status) => {
+            console.log('Transaction Number Up Sync API Error', response, status)
+            reject(false)
+          })
         }else{
           this.resync = false
           resolve(true)
         }
+      }).catch(error => {
+        resolve(error)
+        console.error('Transaction Number Up Sync Error', error)
       })
     })
   }

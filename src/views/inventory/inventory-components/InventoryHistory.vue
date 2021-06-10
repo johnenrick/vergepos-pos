@@ -57,7 +57,7 @@
                     <span v-if="inventoryAdjustment['type'] === 2" class="badge badge-danger"> OUT</span>
                     <span v-if="inventoryAdjustment['type'] === 3" class="badge badge-info"> SOLD</span>
                   </td>
-                  <td class="text-nowrap">{{inventoryAdjustment['created_at'] | formatDate('mm/dd/yy hh:mm')}}</td>
+                  <td class="text-nowrap">{{inventoryAdjustment['created_at'] | formatDate('mm/dd/yy hh:mm')}} {{inventoryAdjustment['created_at']}}</td>
                   <td class="text-right">{{inventoryAdjustment['quantity']}}</td>
                   <td>{{parseRemarks(inventoryAdjustment['type'], inventoryAdjustment['remarks'])}}</td>
                   <td>

@@ -252,8 +252,10 @@ export default {
       let transactionProducts = typeof transaction['transaction_products'] === 'object' ? transaction['transaction_products'] : []
       for(let y = 0; y < transactionProducts.length; y++){
         let discountId = transactionProducts[y]['discount_id']
-        if(discountId){
+        if(discountId && typeof this.discountAmounts[discountId] !== 'undefined'){
           Vue.set(this.discountAmounts[discountId], 'amount', this.discountAmounts[discountId]['amount'] + (transactionProducts[y]['discount_amount'] * negativeMultiplier))
+        }else{
+          console.log('discountId', discountId, this.discountAmounts)
         }
       }
       const { transaction_payments: transactionPayments = [] } = transaction
@@ -299,7 +301,7 @@ export default {
       let discountDB = new Discount()
       discountDB.get({}).then((response) => {
         for(let x = 0; x < response.length; x++){
-          Vue.set(this.discountAmounts, response[x]['id'], {
+          Vue.set(this.discountAmounts, response[x]['db_id'], {
             description: response[x]['description'],
             amount: 0
           })

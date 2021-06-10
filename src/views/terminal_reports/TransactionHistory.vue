@@ -4,48 +4,56 @@
       <h2>Transaction History</h2>
       <p>Transaction History will show all the transactions that has been made. Just specify the <em>start</em> and <em>end</em> date & time. You can also <em>Show Graph</em> after generating the report to gave you an idea on how your business is doing against time</p>
     </div>
-    <div class="row no-gutters mb-2 p-3 bg-white shadow-sm border">
-      <template v-if="terminal === 'all'">
-        <div  class="col-12 col-md-12 col-lg-3 px-1 mb-2 mb-md-0">
-          <select v-model='storeTerminalFilter' class="form-control">
-            <option value="0">Select Terminal</option>
-            <template v-for="storeTerminal in storeTerminals">
-              <option :value="storeTerminal['store_terminal_id']">{{storeTerminal['description']}}</option>
+    <div class="mb-2 px-2 py-3 bg-white shadow-sm border">
+      <div class="row no-gutters mb-lg-2">
+        <template v-if="terminal === 'all'" >
+          <div :class="filterInputClass">
+            <select v-model='storeTerminalFilter' class="form-control">
+              <option value="0">Select Terminal</option>
+              <template v-for="storeTerminal in storeTerminals">
+                <option :value="storeTerminal['store_terminal_id']">{{storeTerminal['description']}}</option>
+              </template>
+            </select>
+          </div>
+        </template>
+        <div :class="filterInputClass" >
+          <select v-model='cashierIdFilter' class="form-control">
+            <option value="0">Any Cashier</option>
+            <template v-for="users in users">
+              <option :value="users['id']">{{users['first_name']}} {{users['last_name']}}</option>
             </template>
           </select>
         </div>
-      </template>
-      <div class="col-sm-12 col-md-6 col-lg-3 px-1 mb-2 mb-lg-0">
-        <datetime v-model="startDatetimeFilter" class="theme-orange"
-          format="yyyy-MM-dd HH:mm:ss"
-          input-class="form-control"
-          :minute-step="1"
-          :use12-hour="true"
-          auto
-          type="datetime"
-          value-zone="utc"
-          zone="utc"
-        />
+        <div :class="filterInputClass">
+          <datetime v-model="startDatetimeFilter" class="theme-orange"
+            format="yyyy-MM-dd HH:mm:ss"
+            input-class="form-control"
+            :minute-step="1"
+            :use12-hour="true"
+            auto
+            type="datetime"
+            value-zone="utc"
+            zone="utc"
+          />
+        </div>
+        <div :class="filterInputClass" >
+          <datetime v-model="endDatetimeFilter" class="theme-orange"
+            format="yyyy-MM-dd HH:mm:ss"
+            input-class="form-control"
+            :minute-step="1"
+            :use12-hour="true"
+            auto
+            type="datetime"
+            value-zone="utc"
+            zone="utc"
+          />
+        </div>
       </div>
-      <div class="col-sm-12 col-md-6 col-lg-3 px-1 mb-2 mb-lg-0">
-        <datetime v-model="endDatetimeFilter" class="theme-orange"
-          format="yyyy-MM-dd HH:mm:ss"
-          input-class="form-control"
-          :minute-step="1"
-          :use12-hour="true"
-          auto
-          type="datetime"
-          value-zone="utc"
-          zone="utc"
-        />
-      </div>
-      <div class="col-12 col-md-6 col-lg-3 px-1">
-        <button v-if="isGenerating" disabled class="btn btn-primary w-sm-100 mb-2 w-100 mb-lg-0">Generating...</button>
-        <button v-else :disabled="(terminal === 'local' || storeTerminalFilter * 1) ? false : true" @click="generate" class=" w-100 btn btn-primary w-sm-100 mb-2 mb-lg-0">Generate</button>
-      </div>
-      <div class="col-12 col-md-6 col-lg-3 px-1">
-        <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success ml-2 float-right w-sm-100 w-100"><fa icon="chart-line" /> Show Graph</button>
-        <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success ml-2 float-right w-sm-100 w-100"><fa icon="chart-line" /> Hide Graph</button>
+      <div class="text-right">
+          <button v-if="isGenerating" disabled class="btn btn-primary w-sm-100 mb-2 mx-md-1 mb-lg-0">Generating...</button>
+          <button v-else :disabled="(terminal === 'local' || storeTerminalFilter * 1) ? false : true" @click="generate" class="btn btn-primary w-sm-100 mb-2 mx-md-1 mb-lg-0">Generate Report</button>
+          <button v-if="graphType === 'null' && transactions.length" @click="graphType = 'sales_per_day'" class="btn btn-success mx-md-1 w-sm-100"><fa icon="chart-line" /> Show Graph</button>
+          <button v-else-if="transactions.length" @click="graphType = 'null'" class="btn btn-success mx-md-1 w-sm-100"><fa icon="chart-line" /> Hide Graph</button>
       </div>
     </div>
     <div class="mb-2" v-show="graphType !== 'null'">
@@ -129,6 +137,7 @@ import DayInWeek from './transaction-history-components/DayInWeekPerformance'
 import SalesPerDay from './transaction-history-components/SalesPerDay'
 import ProductHistory from './transaction-history-components/ProductHistory'
 import UserSession from '@/vue-web-core/system/store'
+import User from '@/database/controller/user'
 export default {
   props: {
     terminal: {
@@ -155,13 +164,14 @@ export default {
       startDatetimeFilter: null,
       endDatetimeFilter: null,
       storeTerminalFilter: 0,
-      cashierId: null,
+      cashierIdFilter: 0,
       transactions: [],
       totalDiscount: 0,
       totalAmount: 0,
       totalProfit: 0,
       isGenerating: false,
       storeTerminals: [],
+      users: [],
       tableSetting: {
         columns: [{
           name: 'number',
@@ -222,6 +232,7 @@ export default {
   },
   methods: {
     init(){
+      this.listUsers()
       let currentDate = new Date()
       let defaultTime = currentDate.getFullYear() + '-' + this.padNumber(currentDate.getMonth() + 1) + '-' + this.padNumber(currentDate.getDate()) + 'T' + this.padNumber(0) + ':' + this.padNumber(0) + ':' + this.padNumber(0) + '.000Z'
       this.startDatetimeFilter = defaultTime
@@ -232,6 +243,40 @@ export default {
       }
     },
     viewGraph(){
+    },
+    listUsers(){
+      if(this.terminal === 'local'){
+        const userDB = new User()
+        userDB.get().then(result => {
+          result.forEach(user => {
+            if(user['is_cashier']){
+              user['id'] = user['db_id']
+              this.users.push(user)
+            }
+          })
+        })
+      }else{
+        const param = {
+          select: {
+            user_basic_information: {
+              select: ['first_name', 'last_name']
+            },
+            ...['id']
+          }
+        }
+        this.apiRequest('user/retrieve', param, (response) => {
+          if(response['data']){
+            response['data'].forEach(user => {
+              this.users.push({
+                id: user['id'],
+                first_name: user['user_basic_information']['first_name'],
+                last_name: user['user_basic_information']['last_name'],
+              })
+            })
+            console.log('this.users', this.users)
+          }
+        })
+      }
     },
     listTerminals(){
       let param = {
@@ -395,8 +440,8 @@ export default {
           }
         },
       }
-      if(this.cashierId){
-        query['where']['user_id'] = this.cashierId
+      if(this.cashierIdFilter){
+        query['where']['user_id'] = this.cashierIdFilter
       }
       this.reset()
       return new Promise((resolve, reject) => {
@@ -523,10 +568,16 @@ export default {
           order: 'desc'
         }]
       }
-      if(this.storeTerminalFilter){
+      if(this.storeTerminalFilter * 1){
         param['condition'].push({
           column: 'store_terminal_id',
           value: this.storeTerminalFilter
+        })
+      }
+      if(this.cashierIdFilter * 1){
+        param['condition'].push({
+          column: 'user_id',
+          value: this.cashierIdFilter
         })
       }
       this.reset()
@@ -616,6 +667,11 @@ export default {
     },
     graphType(newData){
       this.generateReport()
+    }
+  },
+  computed: {
+    filterInputClass(){
+      return this.terminal === 'all' ? 'col-sm-12 col-md-6 col-lg-3 px-1 mb-2 mb-lg-0' : 'col-sm-12 col-md-6 col-lg-4 px-1 mb-2 mb-lg-0'
     }
   },
   filters: {

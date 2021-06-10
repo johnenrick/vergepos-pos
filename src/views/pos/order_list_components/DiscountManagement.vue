@@ -16,97 +16,103 @@
           </h5>
         </div>
         <div class="modal-body">
-          <div class="row">
-            <div class="col-sm-12">
-              <select
-                v-model="selectedDiscountIndex"
-                class="form-control text-center font-weight-bold"
-              >
-                <option value="null">
-                  Select a Discount
-                </option>
-                <template v-for="(discount, index) in discountList">
-                  <option
-                    v-bind:key="index"
-                    :value="index"
-                  >
-                    {{ discount['description'] }}
+          <template v-if="discountList.length">
+            <div class="row">
+              <div class="col-sm-12">
+                <select
+                  v-model="selectedDiscountIndex"
+                  class="form-control text-center font-weight-bold"
+                >
+                  <option value="null">
+                    Select a Discount
                   </option>
-                </template>
-              </select>
+                  <template v-for="(discount, index) in discountList">
+                    <option
+                      v-bind:key="index"
+                      :value="index"
+                    >
+                      {{ discount['description'] }}
+                    </option>
+                  </template>
+                </select>
+              </div>
             </div>
-          </div>
-          <template v-if="selectedDiscountIndex !== 'null' && selectedDiscountIndex !== null">
-            <div class="row py-3">
-              <div class="col-sm-12 text-center">
-                <label class="col-form-label" v-html="selectedDiscountWriteUp"></label>
+            <template v-if="selectedDiscountIndex !== 'null' && selectedDiscountIndex !== null">
+              <div class="row py-3">
+                <div class="col-sm-12 text-center">
+                  <label class="col-form-label" v-html="selectedDiscountWriteUp"></label>
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-sm-12 text-center">
+                  <label
+                    v-show="discountList[selectedDiscountIndex]['type'] === 2 || discountList[selectedDiscountIndex]['type'] === 4"
+                    class="float-right"
+                  ><input
+                    v-model="applyDiscountToAll"
+                    type="checkbox"
+                    class=""
+                  > Select All</label>
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Description</th>
+                        <th>Quantity</th>
+                        <th>Discount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="(item, index) in orderedItemList">
+                        <td>{{ item['description'] }}</td>
+                        <td class="text-right">
+                          <number-input
+                            v-if="!applyDiscountToAll"
+                            :default-value="typeof orderedItemList[index]['discount_quantity'] !== 'undefined' ? orderedItemList[index]['discount_quantity'] : 0"
+                            :max-value="item['quantity']"
+                            :placeholder="'max: ' + item['quantity']"
+                            @change="orderedItemList[index]['discount_quantity'] = $event; discountQuantityChanged(index)"
+                            />
+                          <label
+                            v-else
+                            class="col-form-label"
+                          >{{ orderedItemList[index]['discount_quantity'] }}</label>
+                        </td>
+                        <td class="text-right">
+                          <label class="col-form-label">{{ orderedItemList[index]['discount_amount'] | numberToMoney }}</label>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </template>
+            <hr class="my-4">
+            <div v-if="selectedDiscountIndex !== null" class="row">
+              <div class="col-12 ">
+                <label class="form-control-plaintext">Discount Remarks:</label>
+                <textarea v-model="discountRemarks" :placeholder="discountList[selectedDiscountIndex]['require_identification_card'] ? 'Enter ID details such as type of ID card, ID number, and name' : 'Note the ID details, etc...'" class="form-control" rows="3" />
               </div>
             </div>
             <div class="row">
-              <div class="col-sm-12 text-center">
-                <label
-                  v-show="discountList[selectedDiscountIndex]['type'] === 2 || discountList[selectedDiscountIndex]['type'] === 4"
-                  class="float-right"
-                ><input
-                  v-model="applyDiscountToAll"
-                  type="checkbox"
-                  class=""
-                > Select All</label>
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Description</th>
-                      <th>Quantity</th>
-                      <th>Discount</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="(item, index) in orderedItemList">
-                      <td>{{ item['description'] }}</td>
-                      <td class="text-right">
-                        <number-input
-                          v-if="!applyDiscountToAll"
-                          :default-value="typeof orderedItemList[index]['discount_quantity'] !== 'undefined' ? orderedItemList[index]['discount_quantity'] : 0"
-                          :max-value="item['quantity']"
-                          :placeholder="'max: ' + item['quantity']"
-                          @change="orderedItemList[index]['discount_quantity'] = $event; discountQuantityChanged(index)"
-                          />
-                        <label
-                          v-else
-                          class="col-form-label"
-                        >{{ orderedItemList[index]['discount_quantity'] }}</label>
-                      </td>
-                      <td class="text-right">
-                        <label class="col-form-label">{{ orderedItemList[index]['discount_amount'] | numberToMoney }}</label>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <div class="col-8 text-right">
+                <label class="form-control-plaintext">Total Vat Exempt Sales:</label>
+              </div>
+              <div class="col-4 text-right font-weight-bold">
+                <label class="form-control-plaintext">{{ totalVatExempt | numberToMoney }}</label>
               </div>
             </div>
+            <div class="row ">
+              <div class="col-8 text-right">
+                <label class="form-control-plaintext">Total Discount: </label>
+              </div>
+              <div class="col-4 text-right font-weight-bold">
+                <label class="form-control-plaintext">{{ totalDiscount | numberToMoney }}</label>
+              </div>
+            </div>
+
           </template>
-          <hr class="my-4">
-          <div v-if="selectedDiscountIndex !== null" class="row">
-            <div class="col-12 ">
-              <label class="form-control-plaintext">Discount Remarks:</label>
-              <textarea v-model="discountRemarks" :placeholder="discountList[selectedDiscountIndex]['require_identification_card'] ? 'Enter ID details such as type of ID card, ID number, and name' : 'Note the ID details, etc...'" class="form-control" rows="3" />
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-8 text-right">
-              <label class="form-control-plaintext">Total Vat Exempt Sales:</label>
-            </div>
-            <div class="col-4 text-right font-weight-bold">
-              <label class="form-control-plaintext">{{ totalVatExempt | numberToMoney }}</label>
-            </div>
-          </div>
-          <div class="row ">
-            <div class="col-8 text-right">
-              <label class="form-control-plaintext">Total Discount: </label>
-            </div>
-            <div class="col-4 text-right font-weight-bold">
-              <label class="form-control-plaintext">{{ totalDiscount | numberToMoney }}</label>
-            </div>
+          <div v-else class="border rounded p-2">
+            You have no discounts created yet. Go to <span @click="goToDiscount" class="text-primary text-nowrap font-weight-bold c-pointer"><fa icon="list" /> Manage > Discount </span>
           </div>
         </div>
         <div class="modal-footer">
@@ -118,6 +124,7 @@
             Close
           </button>
           <button
+            v-if="discountList.length"
             :disabled="selectedDiscountIndex !== null && discountList[selectedDiscountIndex]['require_identification_card'] !== 0 && discountRemarks.length < 3"
             @click="save"
             type="button"
@@ -262,6 +269,11 @@ export default {
         this.discountAllItems()
       }
       this.getTotalDiscount()
+    },
+    goToDiscount(){
+      console.log('goToDiscount')
+      $(this.$refs.modal).modal('hide')
+      this.$router.push('/discount')
     }
   },
   watch: {

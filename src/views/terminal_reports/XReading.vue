@@ -41,7 +41,7 @@
         <div class="form-group row">
           <label class="col-form-label col-4">Cashier</label>
           <div class="col-8">
-            <select v-model="cashierId" class="form-control">
+            <select v-model="cashierId" :disabled="!canChangeCashierFilter" class="form-control">
               <option value="0" selected>Any</option>
               <template  v-for="(cashier, index) in cashierList">
                 <option :value="cashier['db_id']" :key="index">{{cashier['first_name'] + ' ' + cashier['last_name']}}</option>
@@ -70,6 +70,7 @@ import XReading from '@/components/reading/XReading'
 import { Datetime } from 'vue-datetime' // https://github.com/mariomka/vue-datetime?ref=madewithvuejs.com
 import 'vue-datetime/dist/vue-datetime.css'
 import User from '@/database/controller/user.js'
+import UserSession from '@/vue-web-core/system/store'
 export default {
   components: {
     XReading,
@@ -89,10 +90,7 @@ export default {
       vatExemptSales: 0,
       vatZeroRatedSales: 0,
       vatAmount: 0,
-      discountAmounts: [{
-        discount: 'Senior Citizen',
-        amount: 0
-      }],
+      discountAmounts: [],
       totalDiscount: 0,
       previousGrandTotal: 0,
       voidedTransactionCount: 0,
@@ -114,6 +112,9 @@ export default {
       let currentDate = new Date()
       let defaultTime = currentDate.getFullYear() + '-' + this.padNumber(currentDate.getMonth() + 1) + '-' + this.padNumber(currentDate.getDate()) + 'T' + this.padNumber(0) + ':' + this.padNumber(0) + ':' + this.padNumber(0) + '.000Z'
       this.startDatetime = defaultTime
+      if(!this.canChangeCashierFilter){
+        this.cashierId = this.userID
+      }
       this.generateCashierList()
     },
     _getPaymentMethodSummary(){
@@ -153,6 +154,16 @@ export default {
     },
     currentGrandTotal(){
       return this.previousGrandTotal + this.grossAmount
+    },
+    userRoles(){
+      return UserSession.getters.userRoles
+    },
+    userID(){
+      console.log('store.state.userInformation', UserSession.state.userInformation)
+      return UserSession.state.userInformation ? UserSession.state.userInformation.id : null
+    },
+    canChangeCashierFilter(){
+      return typeof this.userRoles['100'] !== 'undefined' || typeof this.userRoles['102'] !== 'undefined'
     }
   },
   filters: {
