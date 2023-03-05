@@ -6,6 +6,7 @@
     <div v-if="hasStoreTerminals" class="text-right">
       <small @click="$emit('change-mode', 'existing-terminal')" class="c-pointer text-underlined text-primary"><u> Choose from Existing Terminal</u></small>
     </div>
+    <div v-if="errorMessage" v-html="errorMessage" class="alert alert-danger"></div>
     <label>Device Serial Number Or Device Name</label>
     <input v-model="serialNumber" type="text" class="form-control mb-2" placeholder="XXXXXXXXXXX or Tablet-01">
     <label>Terminal Description</label>
@@ -31,9 +32,10 @@ export default {
   },
   data(){
     return {
-      serialNumber: null,
-      terminalDescription: null,
-      isConfuringTerminal: false
+      serialNumber: '',
+      terminalDescription: '',
+      isConfuringTerminal: false,
+      errorMessage: null
     }
   },
   methods: {
@@ -55,7 +57,6 @@ export default {
         }
         this.isConfuringTerminal = true
         this.apiRequest('store-terminal/create', param, (response) => {
-          console.log('response', response)
           if(response['data']){
             let terminalDetails = {
               store_id: this.storeId,
@@ -69,7 +70,10 @@ export default {
           }else{
             this.isConfuringTerminal = false
           }
-        }, () => {
+        }, (response) => {
+          if(response['error']['code'] * 1 === 101){
+            this.errorMessage = response['error']['message']
+          }
           this.isConfuringTerminal = false
         })
       }

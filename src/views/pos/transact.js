@@ -24,6 +24,7 @@ export default class Transact {
           const customers = transaction['customers']
           delete transaction['customers']
           this.transactionDB.add(transaction).then((response) => {
+            localStorage.setItem('has_transactions', 1)
             if(response && response['id']){
               let transactionDate = typeof transaction['created_at'] !== 'undefined' ? transaction['created_at'] : null
               if(customers.length){

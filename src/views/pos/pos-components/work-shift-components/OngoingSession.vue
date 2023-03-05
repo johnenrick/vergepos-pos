@@ -1,9 +1,22 @@
 <template>
   <div>
-    <h6 class="text-center font-weight-bold">
-      <span v-if="sessionStatus === 2"><fa icon="user-clock" /> End Shift</span>
-      <span v-if="sessionStatus === 4"><fa icon="exclamation-triangle" /> Terminal Used By Other User</span>
-    </h6>
+    <template v-if="sessionStatus === 4">
+      <h5 class="text-danger font-weight-bold text-cemter text-center"> <fa icon="exclamation-triangle" /> Terminal Used By Other User</h5>
+      <div>
+        <p>This terminal is being used by different cashier or user. You need to close their session first before you can use it</p>
+      </div>
+    </template>
+    <template v-else-if="sessionStatus === 3">
+      <h5 class="text-warning font-weight-bold text-cemter text-center"> <fa icon="exclamation-triangle" /> Terminal Is Open for too long</h5>
+      <div>
+        <p>It is recommended to close the session every time the cashier changes. Or if you are using only 1 user account, close each shift atmost every 12 hours.</p>
+        <p>This would ensure accountability and shorten the time window if ever there is a discrepancy</p>
+      </div>
+    </template>
+    <template v-else-if="sessionStatus === 2">
+      <h5 class="text-primary font-weight-bold text-cemter text-center"> <fa icon="user-clock" /> Session On Going</h5>
+    </template>
+    <hr />
     <div class="form-group row mb-0">
       <label class="col-sm-3 col-form-label">Used By</label>
       <div class="col-sm-9">
@@ -70,6 +83,9 @@ export default {
     },
     workShiftStartDatetime(){
       return typeof CartStore.getters.workShiftDetail['created_at'] !== 'undefined' ? new Date(CartStore.getters.workShiftDetail['created_at']) : 0
+    },
+    sessionDuration(){
+      return new Date() - this.workShiftStartDatetime
     },
     workShiftUserId(){
       return typeof CartStore.getters.workShiftDetail['user_id'] !== 'undefined' ? CartStore.getters.workShiftDetail['user_id'] : 0

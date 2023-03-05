@@ -125,7 +125,7 @@
             @click="checkout"
             class="btn btn-success btn-lg float-right w-100 py-2 d-none d-md-block"
           >
-            CHECKOUT
+            CHECK OUT
           </button>
         </div>
       </div>

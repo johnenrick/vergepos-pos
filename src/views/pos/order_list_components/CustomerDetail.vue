@@ -5,6 +5,7 @@
         <div class="mb-2" style="min-height: 100px">
           <div class="mb-3">
             <select2 placeholder="Type Customer Name" :value="selectText" :options="selectOptions" @search="userTyping" @input="valueChanged" ></select2>
+            <small class="text-sm">Add "as New Customer" to create new customer if it was not added yet</small>
           </div>
           <h4 v-if="!selectValue">New Customer</h4>
           <CommonForm ref="customerForm" :config="formConfig" :mode="selectValue !== 0 || selectValue === -1 ? 'view' : ''" />

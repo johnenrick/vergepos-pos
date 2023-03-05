@@ -1,19 +1,20 @@
 <template>
   <div class="mx-auto mt-4" style="max-width: 500px">
     <div class="border rounded p-4 bg-white shadow-sm">
-      <h5 class="text-primary font-weight-bold text-cemter text-center"> <fa icon="user-clock" /> Start Shift</h5>
-      <div>
-        <p>It is important for you to keep track how much cash a cashier has before and after their shifts. This would prevent theft, prevent overage or shortage for change, avoid having too much money in the cash drawer, and enforce discipline of always checking cash</p>
-        <p><small><fa icon="info-circle" /> If you don't want to keep track your cash, just leave form blank</small></p>
-        <hr/>
-      </div>
+
       <div v-if="sessionStatus === 0" class="text-center">
         Please wait <fa icon="circle-notch" spin />
       </div>
       <div v-else-if="sessionStatus === 1">
+        <h5 class="text-primary font-weight-bold text-cemter text-center"> <fa icon="user-clock" /> Start Shift</h5>
+        <div>
+          <p>It is important for you to keep track how much cash a cashier has before and after their shifts. This would prevent theft, prevent overage or shortage for change, avoid having too much money in the cash drawer, and enforce discipline of always checking cash</p>
+          <p><small><fa icon="info-circle" /> If you don't want to keep track your cash, just leave form blank</small></p>
+          <hr/>
+        </div>
         <div v-if="useCashManagement !== 1" class="text-center">
-          <button @click="setUseCashManagement(1)" class="btn btn-primary mx-1"><fa icon="check" /> Enable Cash Management</button>
-          <button @click="setUseCashManagement(2)" class="btn btn-outline-secondary mx-1">Skip For Now</button>
+          <button @click="setUseCashManagement(1)" class="btn btn-primary mx-1 my-1"><fa icon="check" /> Enable Cash Management</button>
+          <button @click="setUseCashManagement(2)" class="btn btn-outline-secondary mx-1 my-1">Skip For Now</button>
           <hr />
           <button v-if="showDontUseCashManagement" @click="setUseCashManagement(3)" class="btn btn-outline-danger mx-1">I don't need Cash Management</button>
         </div>
@@ -31,9 +32,8 @@
             <small><fa icon="info-circle" class="text-info" /> Do not forget to end your shift after your duty. Just click the <span class="bg-primary text-white p-1"><fa icon="user-clock" /> Shift</span> button at the top of search box</small>
           </div>
         </div>
-
       </div>
-      <OnGoingSession v-else-if="sessionStatus === 3 || sessionStatus === 5" :session-status="sessionStatus" />
+      <OngoingSession v-else-if="sessionStatus === 3 || sessionStatus === 4" :session-status="sessionStatus" />
     </div>
   </div>
 </template>
@@ -42,13 +42,13 @@ import WorkShift from '@/database/controller/work-shift'
 import CommonForm from '@/vue-web-core/components/form/Form'
 import UserSession from '@/vue-web-core/system/store'
 import BillFormConfig from './work-shift-components/bill-form-config'
-import OnGoingSession from './work-shift-components/OngoingSession'
+import OngoingSession from './work-shift-components/OngoingSession'
 import WorkShiftHelper from './work-shift-components/work-shift-helper'
 import CartStore from '../cart-store'
 export default {
   components: {
     CommonForm,
-    OnGoingSession
+    OngoingSession
   },
   mounted(){
     this.checkUseCashManagement()
@@ -91,7 +91,10 @@ export default {
           this.existingSessionStartDatetime = new Date(result['created_at'])
           const sessionDuration = new Date() - this.existingSessionStartDatetime
           if(result['user_id'] === this.userId){
-            if(sessionDuration > 28800000){ // if greater than 8 hours
+            // const maximumDuration = 43200000; // 12 hours
+            const maximumDuration = 1000 // 12 hours
+
+            if(sessionDuration > maximumDuration){ // if greater than maximumDuration
               this.sessionStatus = 3
             }else{ // ok
               this.sessionStatus = 2

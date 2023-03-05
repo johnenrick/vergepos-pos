@@ -26,6 +26,7 @@
         <div ref="loadingComponentMessage" v-show="isLoadingModule" class="text-center" style="padding-top: 10vh">
           <h1 class="mb-1 display-3"><fa icon="circle-notch" spin /></h1>
           Loading components...
+          <p class="mt-4 pt-4">Need help? Message us at our Facebook Page <a href="https://www.fb.com/vergepos" class="font-weight-bold">www.fb.com/vergepos</a></p>
         </div>
         <div v-if="!isLoadingModule" class="container-fluid-none">
           <router-view/>

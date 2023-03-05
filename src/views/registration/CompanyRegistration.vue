@@ -9,9 +9,9 @@
 
       <div class="text-center">
         <div v-if="isLoading" >
-          <big>
+          <!-- <big>
             <fa class="text-primary" icon="circle-notch" spin />
-          </big>
+          </big> -->
           Talking to server. Please wait <fa icon="circle-notch" spin />
         </div>
         <!-- <img
@@ -74,13 +74,13 @@ export default {
       isProceedLoading: false,
       formConfig: {
         fields: {
-          your_company: {
+          your_business: {
             label_col_span: 12,
             label_style: 'text-center font-weight-bold text-uppercase pt-4',
             type: 'label'
           },
           name: {
-            name: 'Company Name'
+            name: 'Business Name'
           },
           // code: {
           //   name: 'Short Name',
@@ -91,7 +91,7 @@ export default {
             help_text: 'E.g. Sari-Sari Store, Ukay-Ukay, RTW, Pharmacy, Barbershop, Carenderia'
           },
           'company_detail.address': {
-            name: 'Company Address'
+            name: 'Business Address'
           },
           'company_detail.contact_number': {
             name: 'Contact Number'

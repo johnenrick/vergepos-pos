@@ -25,18 +25,21 @@ let ModuleDefault = {
       }]
     }
     let tableColumnSetting = {
-
-      'category.description': {
-        name: 'Parent'
-      },
       description: {},
+      'category.description': {
+        name: 'Parent Category'
+      },
+
     }
     let formFieldSetting = {
       fields: {
+        description: {
+          help_text: 'Category Name or Group Name of products. Example: Shirts, Appliances, Beverages, etc.'
+        },
         category_id: {
           name: 'Parent Category',
           type: 'select',
-          help_text: 'Optional.',
+          help_text: 'Optional. Just select "No Parent" if this category is not under any category',
           is_retained_on_create: true,
           default_value: '0',
           config: {
@@ -53,14 +56,7 @@ let ModuleDefault = {
               }]
             }
           }
-        },
-        description: {
-          help_text: 'Category Name or Group Name of products. Example: Shirts, Appliances, Beverages, etc.'
         }
-        // category_id: {
-        //   name: 'Parent',
-        //   type: 'select'
-        // }
       }
     }
     let formRetrieveParameter = {
@@ -69,7 +65,7 @@ let ModuleDefault = {
       config: {
         // module_name: 'Variable Management',
         api: 'category',
-        description: 'A Product Category or simply a Category refers to the groupings of products. You can also create Categories such as "All Product" if you do not want to categorize your products or "Others" for products that do not have specific category.',
+        description: 'A Product Category or simply a Category refers to the groupings of products. You can also create Categories such as "All Products" if you do not want to categorize your products or "Others" for products that do not have specific category.',
         table_setting: {
           retrieve_parameter: tableSettingRetrieveParameter,
           table_column_setting: tableColumnSetting

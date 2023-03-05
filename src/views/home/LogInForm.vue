@@ -157,6 +157,13 @@ export default {
       localStorage.removeItem('company_detail')
       localStorage.removeItem('terminal_details')
       localStorage.removeItem('cart-cache')
+      localStorage.removeItem('has_products')
+      localStorage.removeItem('has_product_categories')
+      localStorage.removeItem('has_transactions')
+      localStorage.removeItem('useCashManagement')
+      localStorage.removeItem('useCashManagementSkipForNowCounter')
+      localStorage.removeItem('printOnCheckOut')
+      localStorage.removeItem('done_happy_path')
       this.removeTerminal(() => {
         localStorage.setItem('company_id', this.authData.data.user.company_id)
         localStorage.setItem('user_id', this.authData.data.user.id)
