@@ -91,8 +91,7 @@ export default {
           this.existingSessionStartDatetime = new Date(result['created_at'])
           const sessionDuration = new Date() - this.existingSessionStartDatetime
           if(result['user_id'] === this.userId){
-            // const maximumDuration = 43200000; // 12 hours
-            const maximumDuration = 1000 // 12 hours
+            const maximumDuration = 43200000 // 12 hours
 
             if(sessionDuration > maximumDuration){ // if greater than maximumDuration
               this.sessionStatus = 3
