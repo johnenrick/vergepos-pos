@@ -124,6 +124,8 @@ export default {
         workShiftDB.closeShift(param).then(result => {
           this.isLoading = false
           this.closeSuccessful = true
+        }).catch(error => {
+          console.error(error)
         })
       }else{
         console.error('Workshift Id is unknow', CartStore.getters.workShiftDetail)

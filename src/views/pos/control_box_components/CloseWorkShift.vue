@@ -4,7 +4,7 @@
       <div class="text-center mt-2">
         <MoveCash @toggle-move-cash="openMoveCash = $event" />
       </div>
-      <OngoingSession v-if="!openMoveCash" :session-status="2" @cancel="cancel" class="mt-4"/>
+      <OngoingSession v-if="!openMoveCash" :session-status="SESSIONRUNNINGSESSIONSTATUS" @cancel="cancel" class="mt-4"/>
     </template>
   </modal>
 </template>
@@ -12,6 +12,10 @@
 import Modal from '@/vue-web-core/components/bootstrap/Modal'
 import MoveCash from './close-shift-components/MoveCash'
 import OngoingSession from '../pos-components/work-shift-components/OngoingSession'
+import {
+  SESSIONRUNNINGSESSIONSTATUS
+} from '@/constants/workshift'
+
 export default {
   components: {
     Modal,
@@ -20,7 +24,8 @@ export default {
   },
   data(){
     return {
-      openMoveCash: false
+      openMoveCash: false,
+      SESSIONRUNNINGSESSIONSTATUS: SESSIONRUNNINGSESSIONSTATUS
     }
   },
   methods: {

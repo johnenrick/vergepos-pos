@@ -1,22 +1,21 @@
 <template>
   <div class="mx-auto mt-4" style="max-width: 500px">
     <div class="border rounded p-4 bg-white shadow-sm">
-
-      <div v-if="sessionStatus === 0" class="text-center">
+      <div v-if="sessionStatus === CHECKINGSESSIONSTATUS" class="text-center">
         Please wait <fa icon="circle-notch" spin />
       </div>
-      <div v-else-if="sessionStatus === 1">
+      <div v-else-if="sessionStatus === NOOPENSESSIONYETSESSIONSTATUS">
         <h5 class="text-primary font-weight-bold text-cemter text-center"> <fa icon="user-clock" /> Start Shift</h5>
         <div>
           <p>It is important for you to keep track how much cash a cashier has before and after their shifts. This would prevent theft, prevent overage or shortage for change, avoid having too much money in the cash drawer, and enforce discipline of always checking cash</p>
           <p><small><fa icon="info-circle" /> If you don't want to keep track your cash, just leave form blank</small></p>
           <hr/>
         </div>
-        <div v-if="useCashManagement !== 1" class="text-center">
-          <button @click="setUseCashManagement(1)" class="btn btn-primary mx-1 my-1"><fa icon="check" /> Enable Cash Management</button>
-          <button @click="setUseCashManagement(2)" class="btn btn-outline-secondary mx-1 my-1">Skip For Now</button>
+        <div v-if="useCashManagement !== ENABLEUSECASHMANAGEMENT" class="text-center">
+          <button @click="setUseCashManagement(ENABLEUSECASHMANAGEMENT)" class="btn btn-primary mx-1 my-1"><fa icon="check" /> Enable Cash Management</button>
+          <button @click="setUseCashManagement(SKIPUSECASHMANAGEMENT)" class="btn btn-outline-secondary mx-1 my-1">Skip For Now</button>
           <hr />
-          <button v-if="showDontUseCashManagement" @click="setUseCashManagement(3)" class="btn btn-outline-danger mx-1">I don't need Cash Management</button>
+          <button v-if="showDontUseCashManagement" @click="setUseCashManagement(DISABLEUSECASHMANAGEMENT)" class="btn btn-outline-danger mx-1">I don't need Cash Management</button>
         </div>
         <div v-else>
           <h6 class="font-weight-bold text-center mb-3">Beginning Cash Balance</h6>
@@ -33,7 +32,7 @@
           </div>
         </div>
       </div>
-      <OngoingSession v-else-if="sessionStatus === 3 || sessionStatus === 4" :session-status="sessionStatus" />
+      <OngoingSession v-else-if="sessionStatus === RUNNINGTOOLONGSESSIONSTATUS || sessionStatus === USEDBYANOTHERCASHIERSESSIONSTATUS" :session-status="sessionStatus" />
     </div>
   </div>
 </template>
@@ -45,6 +44,11 @@ import BillFormConfig from './work-shift-components/bill-form-config'
 import OngoingSession from './work-shift-components/OngoingSession'
 import WorkShiftHelper from './work-shift-components/work-shift-helper'
 import CartStore from '../cart-store'
+import { SESSIONDURATIONSTORAGEKEY, USECASHMANAGEMENTSTORAGEKEY, USECASHMANAGEMENTSKIPFORNOWCOUNTERSTORAGEKEY } from '@/constants/localstorage'
+import {
+  CHECKINGSESSIONSTATUS, NOOPENSESSIONYETSESSIONSTATUS, SESSIONRUNNINGSESSIONSTATUS, RUNNINGTOOLONGSESSIONSTATUS, USEDBYANOTHERCASHIERSESSIONSTATUS,
+  UNDECIDEDUSECASHMANAGEMENT, ENABLEUSECASHMANAGEMENT, SKIPUSECASHMANAGEMENT, DISABLEUSECASHMANAGEMENT
+} from '@/constants/workshift'
 export default {
   components: {
     CommonForm,
@@ -60,13 +64,26 @@ export default {
       existingSessionStartDatetime: null,
       existingUserId: 0,
       totaCashBalance: 0,
-      useCashManagement: 0, // 0 undecided, 1 use, 2 skip for now, 3 dont use
+      useCashManagement: UNDECIDEDUSECASHMANAGEMENT, // 0 undecided, 1 use, 2 skip for now, 3 dont use
       showDontUseCashManagement: false,
-      sessionStatus: 0 // 0 - checking, 1 - no open session yet, 2- session running, 3 - session is open for a long time, 4 - another cashier is using
+      sessionStatus: CHECKINGSESSIONSTATUS, // 0 - checking, 1 - no open session yet, 2- session running, 3 - session is open for a long time, 4 - another cashier is using
+      CHECKINGSESSIONSTATUS: CHECKINGSESSIONSTATUS,
+      NOOPENSESSIONYETSESSIONSTATUS: NOOPENSESSIONYETSESSIONSTATUS,
+      SESSIONRUNNINGSESSIONSTATUS: SESSIONRUNNINGSESSIONSTATUS,
+      RUNNINGTOOLONGSESSIONSTATUS: RUNNINGTOOLONGSESSIONSTATUS,
+      USEDBYANOTHERCASHIERSESSIONSTATUS: USEDBYANOTHERCASHIERSESSIONSTATUS,
+      UNDECIDEDUSECASHMANAGEMENT: UNDECIDEDUSECASHMANAGEMENT,
+      ENABLEUSECASHMANAGEMENT: ENABLEUSECASHMANAGEMENT,
+      SKIPUSECASHMANAGEMENT: SKIPUSECASHMANAGEMENT,
+      DISABLEUSECASHMANAGEMENT: DISABLEUSECASHMANAGEMENT,
     }
   },
   methods: {
     _checkSession(){
+      if(this.useCashManagement === DISABLEUSECASHMANAGEMENT){
+        CartStore.commit('setWorkShiftDetail', {}) // delete the work shift session
+        return false
+      }
       this.existingSessionStartDatetime = null
       this.existingUserId = 0
       this.existingWorkShiftId = 0
@@ -91,15 +108,15 @@ export default {
           this.existingSessionStartDatetime = new Date(result['created_at'])
           const sessionDuration = new Date() - this.existingSessionStartDatetime
           if(result['user_id'] === this.userId){
-            const maximumDuration = 43200000 // 12 hours
-
-            if(sessionDuration > maximumDuration){ // if greater than maximumDuration
-              this.sessionStatus = 3
+            const maximumDuration = localStorage.getItem(SESSIONDURATIONSTORAGEKEY) || 8 // 12 hours
+            // const maximumDuration = 1; // 12 hours
+            if(sessionDuration > maximumDuration * 3600000){ // if greater than maximumDuration. maximumDuration * ( 1 hour in milliseconds)
+              this.sessionStatus = RUNNINGTOOLONGSESSIONSTATUS
             }else{ // ok
-              this.sessionStatus = 2
+              this.sessionStatus = SESSIONRUNNINGSESSIONSTATUS
             }
           }else{ // different user is logged in while a cashier has an open session
-            this.sessionStatus = 4
+            this.sessionStatus = USEDBYANOTHERCASHIERSESSIONSTATUS
           }
         }else{
           CartStore.commit('setWorkShiftDetail', {})
@@ -108,33 +125,31 @@ export default {
       })
     },
     checkUseCashManagement(){
-      this.useCashManagement = localStorage.getItem('useCashManagement') * 1 // 0 undecided, 1 use, 2 skip for now, 3 dont use
-      if(this.useCashManagement === 2){
-        let useCashManagementSkipForNowCounter = localStorage.getItem('useCashManagementSkipForNowCounter') * 1
+      this.useCashManagement = localStorage.getItem(USECASHMANAGEMENTSTORAGEKEY) * 1 // 0 undecided, 1 use, 2 skip for now, 3 dont use
+      if(this.useCashManagement === SKIPUSECASHMANAGEMENT){
+        let useCashManagementSkipForNowCounter = localStorage.getItem(USECASHMANAGEMENTSKIPFORNOWCOUNTERSTORAGEKEY) * 1
         if(useCashManagementSkipForNowCounter > 4){
           this.showDontUseCashManagement = true
         }
-        this.sessionStatus = 1
-      }else if(this.useCashManagement === 3){
-        this.sessionStatus = 2
+        this.sessionStatus = NOOPENSESSIONYETSESSIONSTATUS
+      }else if(this.useCashManagement === DISABLEUSECASHMANAGEMENT){
+        this.sessionStatus = SESSIONRUNNINGSESSIONSTATUS
       }else{
-        this.sessionStatus = 1
+        this.sessionStatus = NOOPENSESSIONYETSESSIONSTATUS
       }
-      setTimeout(() => {
-      }, 2000)
     },
     setUseCashManagement(value){ // 0 undecided, 1 use, 2 skip for now, 3 dont use
       this.useCashManagement = value
       if(value !== 1){ // only set to "use" upon starting the shift
-        localStorage.setItem('useCashManagement', value)
+        localStorage.setItem(USECASHMANAGEMENTSTORAGEKEY, value)
       }
       if(value === 2){
-        let useCashManagementSkipForNowCounter = localStorage.getItem('useCashManagementSkipForNowCounter')
-        localStorage.setItem('useCashManagementSkipForNowCounter', ++useCashManagementSkipForNowCounter)
-        this.sessionStatus = 2
+        let useCashManagementSkipForNowCounter = localStorage.getItem(USECASHMANAGEMENTSKIPFORNOWCOUNTERSTORAGEKEY)
+        localStorage.setItem(USECASHMANAGEMENTSKIPFORNOWCOUNTERSTORAGEKEY, ++useCashManagementSkipForNowCounter)
+        this.sessionStatus = SESSIONRUNNINGSESSIONSTATUS
       }
       if(value === 3){
-        this.sessionStatus = 2
+        this.sessionStatus = SESSIONRUNNINGSESSIONSTATUS
       }
     },
     updateTotalCashBalance(){
@@ -157,8 +172,8 @@ export default {
           last_name: this.user['lastName']
         }
         CartStore.commit('setWorkShiftDetail', result)
-        this.sessionStatus = 2
-        localStorage.setItem('useCashManagement', 1)
+        this.sessionStatus = SESSIONRUNNINGSESSIONSTATUS
+        localStorage.setItem(USECASHMANAGEMENTSTORAGEKEY, 1)
       })
     }
   },

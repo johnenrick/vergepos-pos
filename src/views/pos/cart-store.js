@@ -121,6 +121,7 @@ let store = new Vuex.Store({
     },
     setWorkShiftDetail(state, workShiftDetail){
       Vue.set(state, 'workShiftDetail', workShiftDetail)
+      cacheCart(state)
     },
     setCustomers(state, { id, name, db_id: dbId = 0 }){
       Vue.set(state, 'customers', [{
