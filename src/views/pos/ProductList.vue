@@ -76,6 +76,7 @@
                 v-show="typeof product['show'] === 'undefined' || product['show']"
                 @select="addProduct(product['db_id'], index)"
                 :description="product['description']"
+                :price="product['price']"
               />
             </template>
           </div>

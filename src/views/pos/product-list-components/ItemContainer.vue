@@ -9,6 +9,9 @@
       style="max-height:66px; overflow-y:hidden"
     >
       <span class="no_selection">{{ description }}</span>
+      <div class="priceContainer">
+        <small v-if="!isCategory" class="no_selection text-disabled font-italic">PHP {{ price | numberToMoney}}</small>
+      </div>
     </div>
   </div>
 </template>
@@ -16,6 +19,10 @@
 export default {
   props: {
     description: String,
+    price: {
+      type: Boolean,
+      default: null
+    },
     isCategory: {
       type: Boolean,
       default: false
@@ -35,6 +42,9 @@ export default {
   display: table-cell;
   height: 64px;
   vertical-align: middle;
+}
+.itemContainer .priceContainer {
+  margin-top:-7px;
 }
 .no_selection {
   -webkit-user-select: none; /* webkit (safari, chrome) browsers */
